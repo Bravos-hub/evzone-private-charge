@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button, TextField, Switch, Chip, IconButton,
-  List, ListItemButton, Avatar, Checkbox, FormControl, FormLabel, RadioGroup, Radio, FormControlLabel,
+  Avatar, FormControl, FormLabel, RadioGroup, Radio, FormControlLabel, ListItemButton,
   AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Select, MenuItem, Divider, Tooltip
 } from '@mui/material';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
@@ -18,7 +18,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 const CONNECTORS = {
   st1: [ { id: 'c1', label: 'A1 — Type 2' }, { id: 'c2', label: 'A2 — CCS 2' } ],
@@ -64,15 +64,9 @@ function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, fo
   );
 }
 
-function CommercialBadge({ isCommercial }) {
-  return (
-    <Chip size="small" label={isCommercial ? 'Commercial Charger' : 'Not commercial'} color={isCommercial ? 'secondary' : 'default'} sx={{ color: isCommercial ? 'common.white' : undefined }} />
-  );
-}
-
 function UserCard({ user, onOpen, onOpenVehicles, onRemove }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1.25} alignItems="center">
         <Avatar sx={{ width: 36, height: 36 }}>{user.name[0]}</Avatar>
         <Box sx={{ flex: 1 }}>
@@ -113,11 +107,10 @@ export default function AccessPermissionsPro({
     st2: { '__charger__': [ { id: '2', name: 'Albert Flores', relation: 'Employee', method: ['App'], status: 'Active' } ], 'conn:c3': [] },
   };
   const [users, setUsers] = useState(initialUsers);
-  const [vehicles, setVehicles] = useState({ st1: {}, st2: {} });
+  const [vehicles] = useState({ st1: {}, st2: {} });
   const [newUser, setNewUser] = useState({ sid: '', relation: 'Family', app: true, rfid: true, assignCard: false, offline: true, selfService: true });
 
-  const currentId = selectedChargerId || chargerId;
-  const isCommercial = currentId && commercialChargerId && currentId === commercialChargerId;
+  // const currentId = selectedChargerId || chargerId; // Unused but kept for potential future use
 
   const addUser = () => {
     const id = Date.now().toString();
@@ -150,7 +143,7 @@ export default function AccessPermissionsPro({
         <MobileShell title="Access & permissions" tagline="who can use per charger or connector" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v) => { setNavValue(v); onNavChange && onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Target selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Target</Typography>
               <FormControl size="small" fullWidth>
                 <FormLabel>Charger</FormLabel>
@@ -202,7 +195,7 @@ export default function AccessPermissionsPro({
             </Stack>
 
             {/* Add user */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1.25} alignItems="center" sx={{ mb: 1 }}>
                 <PersonAddAlt1Icon color="secondary" />
                 <Typography variant="subtitle2" fontWeight={700}>Add user</Typography>
@@ -232,7 +225,7 @@ export default function AccessPermissionsPro({
             </Paper>
 
             {/* Quick onboard + limits */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Onboard shortcuts & limits</Typography>
               <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                 <Button size="small" variant="outlined" startIcon={<LinkRoundedIcon />} onClick={() => alert('Generate invite link')}

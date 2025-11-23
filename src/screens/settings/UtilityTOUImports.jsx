@@ -15,7 +15,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
@@ -76,7 +76,7 @@ function parseCSV(text) {
 
 function PeriodRow({ p }) {
   return (
-    <Paper elevation={0} sx={{ p: 1, borderRadius: 2, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1, borderRadius: 1, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Typography variant="subtitle2" fontWeight={700}>{p.name}</Typography>
       <Typography variant="caption" color="text.secondary">{p.start} → {p.end} • {p.days.join(', ')}</Typography>
       <Chip label={`UGX ${p.rate}/kWh`} size="small" sx={{ mt: 0.5 }} />
@@ -130,7 +130,7 @@ export default function UtilityTOUImportPatched({
         <MobileShell title="Utility TOU import" tagline="CSV/API • preview • apply" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -148,7 +148,7 @@ export default function UtilityTOUImportPatched({
             </Stack>
 
             {/* CSV area */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <UploadFileRoundedIcon />
                 <Typography variant="subtitle2" fontWeight={800}>Paste CSV</Typography>
@@ -162,7 +162,7 @@ export default function UtilityTOUImportPatched({
             </Paper>
 
             {/* API URL */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <CloudDownloadRoundedIcon />
                 <Typography variant="subtitle2" fontWeight={800}>Fetch from API (optional)</Typography>
@@ -172,7 +172,7 @@ export default function UtilityTOUImportPatched({
             </Paper>
 
             {/* Preview periods */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Preview</Typography>
               <Stack spacing={1}>
                 {periods.map((p, i) => (

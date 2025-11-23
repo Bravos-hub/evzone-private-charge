@@ -20,7 +20,7 @@ const theme = createTheme({
     secondary: { main: '#f77f00' },
     background: { default: '#f2f2f2' }
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
@@ -125,7 +125,7 @@ export default function AddSite({ onBack, onHelp, onNavChange, onConfirm }) {
         >
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Map placeholder with pin */}
-            <Paper elevation={0} sx={{ height: 180, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', display: 'grid', placeItems: 'center' }}>
+            <Paper elevation={0} sx={{ height: 180, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', display: 'grid', placeItems: 'center' }}>
               <Stack alignItems="center" spacing={0.5}>
                 <PlaceRoundedIcon color="error" />
                 <Typography variant="caption" color="text.secondary">Drag map to position the red pin</Typography>

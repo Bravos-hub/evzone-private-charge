@@ -16,7 +16,7 @@ function CommercialBadge({ isCommercial }) {
 
 function Row({ s, onOpenReceipt }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="subtitle2" fontWeight={700}>{s.date} — {s.site}</Typography>
@@ -103,7 +103,7 @@ export default function ChargingHistory({
       footerSlot={Footer}
     >
       {/* Charger selector */}
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
           <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
           <FormControl size="small" fullWidth>
             <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -130,7 +130,7 @@ export default function ChargingHistory({
         </List>
 
         {!filtered.length && (
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center' }}>
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center' }}>
             <Typography variant="caption" color="text.secondary">No results for the selected filters.</Typography>
           </Paper>
         )}

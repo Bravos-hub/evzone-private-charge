@@ -34,7 +34,7 @@ import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
 const theme = createTheme({
   palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' },
 });
 
@@ -86,7 +86,7 @@ function CommercialBadge({ isCommercial }) {
 
 function CardRow({ card, onSetDefault, onVerify, onRemove }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="subtitle2" fontWeight={700}>{card.brand} •••• {card.last4}</Typography>
@@ -195,7 +195,7 @@ export default function PaymentMethodsPatched({
             </Stack>
 
             {/* Wallet */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
                 <AccountBalanceWalletRoundedIcon color="secondary" />
                 <Box>
@@ -210,7 +210,7 @@ export default function PaymentMethodsPatched({
             </Paper>
 
             {/* Cards list */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Saved cards</Typography>
               <Stack spacing={1}>
                 {cards.map(c => (
@@ -224,7 +224,7 @@ export default function PaymentMethodsPatched({
             </Paper>
 
             {/* Quick add card (mock) */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Add a card</Typography>
               <Stack spacing={1.25}>
                 <TextField label="Card number" placeholder="•••• •••• •••• ••••" inputMode="numeric" />

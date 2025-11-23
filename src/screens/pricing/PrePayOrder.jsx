@@ -15,7 +15,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 13 — Charger Actions (Mobile, React + MUI, JS)'); };
@@ -101,14 +101,14 @@ export default function PrePayOrderPatched({ onBack, onHelp, onNavChange, onConf
             </Stack>
 
             {!isCommercial && (
-              <Paper elevation={0} sx={{ p: 1.25, mb: 1.5, borderRadius: 3, border: '1px solid #fdd1a1', bgcolor: 'rgba(247,127,0,0.08)' }}>
+              <Paper elevation={0} sx={{ p: 1.25, mb: 1.5, borderRadius: 1.5, border: '1px solid #fdd1a1', bgcolor: 'rgba(247,127,0,0.08)' }}>
                 <Typography variant="caption" color="text.secondary">
                   Pre‑pay is for public sessions on your Commercial Chareger. Make this charger commercial to enable public pre‑pay, or use EVzone Aggregator & CPMS for multiple commercial chargers.
                 </Typography>
               </Paper>
             )}
 
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800}>Order details</Typography>
               <Stack spacing={0.5} sx={{ mt: 0.5 }}>
                 <Typography variant="body2"><strong>Site:</strong> {quote.site}</Typography>
@@ -126,7 +126,7 @@ export default function PrePayOrderPatched({ onBack, onHelp, onNavChange, onConf
               </Stack>
             </Paper>
 
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Payment method</Typography>
               <RadioGroup value={method} onChange={(e) => { setMethod(e.target.value); onSelectMethod && onSelectMethod(e.target.value); }}>
                 <FormControlLabel value="wallet" control={<Radio />} label="EVzone Pay (Wallet)" />

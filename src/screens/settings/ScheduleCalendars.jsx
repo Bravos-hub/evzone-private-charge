@@ -4,7 +4,6 @@ import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, IconButton,
   AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
@@ -17,7 +16,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
@@ -70,7 +69,7 @@ function MonthGrid({ year, month, items, onOpen, highlightDate }) {
         <Box key={d} sx={{ textAlign: 'center', py: 0.5, fontSize: 12, color: 'text.secondary' }}>{d}</Box>
       ))}
       {cells.map((c, i) => (
-        <Paper key={i} elevation={0} sx={{ p: 0.75, borderRadius: 2, bgcolor: c.inMonth ? '#fff' : '#fafafa', border: '2px solid', borderColor: c.dateKey===highlightDate ? 'secondary.main':'#eef3f1', minHeight: 64 }}>
+        <Paper key={i} elevation={0} sx={{ p: 0.75, borderRadius: 1, bgcolor: c.inMonth ? '#fff' : '#fafafa', border: '2px solid', borderColor: c.dateKey===highlightDate ? 'secondary.main':'#eef3f1', minHeight: 64 }}>
           <Typography variant="caption" color="text.secondary">{c.inMonth ? c.dayNum : ''}</Typography>
           <Stack spacing={0.25} sx={{ mt: 0.25 }}>
             {c.dayItems.slice(0,2).map((it, idx) => (
@@ -93,7 +92,7 @@ function WeekList({ startDate, items, onOpen, highlightDate }) {
   return (
     <Stack spacing={0.5}>
       {days.map((d)=> (
-        <Paper key={d.key} elevation={0} sx={{ p: 1, borderRadius: 2, border: '2px solid', borderColor: d.key===highlightDate?'secondary.main':'#eef3f1' }}>
+        <Paper key={d.key} elevation={0} sx={{ p: 1, borderRadius: 1, border: '2px solid', borderColor: d.key===highlightDate?'secondary.main':'#eef3f1' }}>
           <Typography variant="subtitle2" fontWeight={700}>{d.label}</Typography>
           <Stack direction="row" spacing={0.5} sx={{ mt: 0.5, flexWrap: 'wrap' }}>
             {(items[d.key]||[]).map((it,idx)=>(
@@ -157,7 +156,7 @@ export default function ScheduleCalendarsWired({
         <MobileShell title="Schedule calendars" tagline="overlap • month • week" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Charger selector + nav */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Stack direction="row" spacing={1} alignItems="center">
                 <FormControl size="small" sx={{ minWidth: 160 }}>
                   <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>

@@ -19,7 +19,7 @@ const theme = createTheme({
     secondary: { main: '#f77f00' },
     background: { default: '#f7f9f8' }
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' }
 });
 
@@ -92,7 +92,7 @@ export default function AggregatorBridge({ onBack, onBell, onNav, onOpenAggregat
         onBell={onBell}
         onNav={onNav}
       >
-        <Paper sx={{ p: 2, border: '1px solid #eef3f1', borderRadius: 3, bgcolor: '#fff' }}>
+        <Paper sx={{ p: 2, border: '1px solid #eef3f1', borderRadius: 1.5, bgcolor: '#fff' }}>
           <Stack spacing={1}>
             <Typography variant='subtitle2' fontWeight={800}>
               Why Aggregator & CPMS?

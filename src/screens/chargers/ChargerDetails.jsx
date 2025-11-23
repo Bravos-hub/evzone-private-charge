@@ -175,7 +175,7 @@ export default function ChargerDetails({
             />
 
             {/* Basic details */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
               <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                 <Typography variant="subtitle2" fontWeight={800}>Basic details</Typography>
                 <Button size="small" startIcon={<EditRoundedIcon />} onClick={() => setEditBasics(p => !p)}>
@@ -205,7 +205,7 @@ export default function ChargerDetails({
             </Paper>
 
             {/* Core settings (quick tweaks) */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Core settings</Typography>
               <Stack spacing={1.25}>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -259,7 +259,7 @@ export default function ChargerDetails({
             {/* Operator */}
             <Box sx={{ mt: 2 }}>
               {!operatorAssigned ? (
-                <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
                   <Typography variant="subtitle1" fontWeight={700}>No operator assigned</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                     Assign an accredited operator to manage operations and support.
@@ -275,7 +275,7 @@ export default function ChargerDetails({
                   </Button>
                 </Paper>
               ) : (
-                <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
                   <Stack direction="row" alignItems="center" justifyContent="space-between">
                     <Box>
                       <Chip label="Online" color="success" size="small" sx={{ mr: 1 }} />
@@ -292,7 +292,7 @@ export default function ChargerDetails({
             </Box>
 
             {/* Amenities (editable) */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
               <Typography variant="subtitle2" fontWeight={800} gutterBottom>Amenities</Typography>
               <Stack direction="row" spacing={2}>
                 <FormControlLabel control={<Switch defaultChecked />} label="Restroom" />
@@ -303,7 +303,7 @@ export default function ChargerDetails({
             </Paper>
 
             {/* Connectors quick actions (status + ops) */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Connectors</Typography>
               <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
                 <Chip

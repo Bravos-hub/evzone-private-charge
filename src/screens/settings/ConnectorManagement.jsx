@@ -15,7 +15,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 06 — Charger Details'); };
@@ -59,7 +59,7 @@ function CommercialBadge({ isCommercial }) {
 
 function ConnectorRow({ c, onToggle, onTest, onOpenPricingConnector }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="subtitle2" fontWeight={700}>{c.name}</Typography>
@@ -99,7 +99,7 @@ export default function ConnectorManagementPatched({
     { id: 'c3', name: 'Connector 3 — CHAdeMO', status: 'Disabled', enabled: false, maxPower: '50 kW', pricing: 'UGX 1200/kWh', maxCurrent: 60 },
   ]);
 
-  const [chargerId, setChargerId] = useState(defaultChargerId);
+  const [chargerId] = useState(defaultChargerId);
   const currentId = selectedChargerId || chargerId;
   const isCommercial = currentId && commercialChargerId && currentId === commercialChargerId;
 
@@ -153,7 +153,7 @@ export default function ConnectorManagementPatched({
             </Stack>
 
             {/* Global controls */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Global settings</Typography>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap' }}>
                 <FormControl size="small" sx={{ minWidth: 130 }}>
@@ -174,7 +174,7 @@ export default function ConnectorManagementPatched({
             </Paper>
 
             {/* Connectors */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Connectors</Typography>
               <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {connectors.map(c => (

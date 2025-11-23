@@ -44,7 +44,7 @@ Password: ${stationPass}`;
       </Typography>
       <Paper
         elevation={0}
-        sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: `1px solid ${EV.divider}` }}
+        sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: `1px solid ${EV.divider}` }}
       >
         <Stack spacing={1.5}>
           <Box>

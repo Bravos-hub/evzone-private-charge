@@ -5,7 +5,6 @@ import {
   AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Dialog, DialogTitle, DialogContent, DialogActions,
   FormControl, Select, MenuItem
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
@@ -19,7 +18,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 09 — Access & Permissions (Mobile, React + MUI, JS)'); };
@@ -56,7 +55,7 @@ function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, fo
 
 function PassRow({ p, onRevoke, onShowQR, onCopy }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="subtitle2" fontWeight={700}>{p.label}</Typography>
@@ -114,7 +113,7 @@ export default function GuestPassAccess({ onBack, onHelp, onNavChange, onCreate,
           <Box sx={{ px: 2, pt: 2 }}>
 
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -124,7 +123,7 @@ export default function GuestPassAccess({ onBack, onHelp, onNavChange, onCreate,
             </Paper>
 
             {/* Create */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Create time‑bound pass</Typography>
               <Stack spacing={1}>
                 <TextField label="Label" value={label} onChange={(e)=>setLabel(e.target.value)} fullWidth />
@@ -139,7 +138,7 @@ export default function GuestPassAccess({ onBack, onHelp, onNavChange, onCreate,
             </Paper>
 
             {/* Existing passes */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Existing passes</Typography>
               <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {(passes[chargerId] || []).map(p => (
@@ -151,7 +150,7 @@ export default function GuestPassAccess({ onBack, onHelp, onNavChange, onCreate,
             </Paper>
 
             {/* Usage logs */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Usage logs</Typography>
               <Stack spacing={0.5}>
                 <Typography variant="body2">2025-10-18 10:21 — EVZ-GP-7F3A — Connector 2 — Success</Typography>

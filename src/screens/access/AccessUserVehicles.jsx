@@ -11,13 +11,12 @@ import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import QrCodeRoundedIcon from '@mui/icons-material/QrCodeRounded';
 
 const theme = createTheme({
   palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
@@ -66,7 +65,7 @@ function MobileShell({ title, tagline, onBack, onBell, navValue, onNavChange, fo
 
 function VehicleRow({ v, onToggle, onOpenQr }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center">
         <Checkbox checked={v.authorized} onChange={() => onToggle(v)} />
         <Box sx={{ flex: 1 }}>

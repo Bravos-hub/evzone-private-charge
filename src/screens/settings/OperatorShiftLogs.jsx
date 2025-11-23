@@ -1,11 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, IconButton,
+  CssBaseline, Container, Box, Typography, Paper, Stack, Button, IconButton,
   AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem, TextField,
-  List, ListItemButton, Checkbox, FormControlLabel
+  FormControlLabel, Checkbox
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import StopRoundedIcon from '@mui/icons-material/StopRounded';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
@@ -19,7 +18,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
@@ -56,7 +55,7 @@ function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, fo
 
 function TaskRow({ t, onToggle }) {
   return (
-    <Paper elevation={0} sx={{ p: 1, borderRadius: 2, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1, borderRadius: 1, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <FormControlLabel control={<Checkbox checked={t.done} onChange={()=>onToggle&&onToggle(t)} />} label={t.title} />
     </Paper>
   );
@@ -111,7 +110,7 @@ export default function OperatorShiftLogs({
         <MobileShell title="Operator shift logs" tagline="handover • checklist • KPIs" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>For charger</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -121,7 +120,7 @@ export default function OperatorShiftLogs({
             </Paper>
 
             {/* Times & KPIs */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1}>
                 <TextField label="Start" type="time" value={startTime} onChange={(e)=>setStartTime(e.target.value)} sx={{ flex: 1 }} />
                 <TextField label="End" type="time" value={endTime} onChange={(e)=>setEndTime(e.target.value)} sx={{ flex: 1 }} />
@@ -135,7 +134,7 @@ export default function OperatorShiftLogs({
             </Paper>
 
             {/* Tasks */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <AssignmentTurnedInRoundedIcon />
                 <Typography variant="subtitle2" fontWeight={800}>Tasks</Typography>
@@ -148,7 +147,7 @@ export default function OperatorShiftLogs({
             </Paper>
 
             {/* Notes & audit */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <TrendingUpRoundedIcon />
                 <Typography variant="subtitle2" fontWeight={800}>Handover notes</Typography>

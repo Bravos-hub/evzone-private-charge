@@ -63,7 +63,7 @@ export default function PrivateChargingHome({
         {/* Content (mobile max-width) */}
         <Box sx={{ flex: 1, width: '100%', maxWidth: 420, px: 2, py: 3 }}>
           {/* Hero with persuasive copy & icon */}
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 4, bgcolor: 'primary.main', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 2, bgcolor: 'primary.main', color: '#fff', position: 'relative', overflow: 'hidden' }}>
             <Stack direction="row" spacing={2} alignItems="center">
               <BoltIcon sx={{ fontSize: 32 }} />
               <Box>
@@ -79,7 +79,7 @@ export default function PrivateChargingHome({
 
           {/* Feature Pill — visual summary */}
           <Box sx={{ mt: 2 }}>
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 4, bgcolor: '#F0FBF7', border: '1px solid #E0F3EC' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 2, bgcolor: '#F0FBF7', border: '1px solid #E0F3EC' }}>
               <Stack direction="row" spacing={1.5} alignItems="center">
                 <Box sx={{ width: 36, height: 36, borderRadius: '12px', bgcolor: 'primary.main', color: 'common.white', display: 'grid', placeItems: 'center' }}>
                   <EvStationIcon fontSize="small" />
@@ -101,7 +101,7 @@ export default function PrivateChargingHome({
             <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 1 }}>
               Why hosts & drivers choose EVzone
             </Typography>
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid #E6E8EC', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: '1px solid #E6E8EC', bgcolor: '#fff' }}>
               <Stack spacing={1.5}>
                 <Stack direction="row" spacing={1.25} alignItems="center">
                   <BoltIcon sx={{ fontSize: 20, color: 'primary.main' }} />
@@ -125,7 +125,7 @@ export default function PrivateChargingHome({
 
           {/* Categories — all qualifying contexts */}
           <Box sx={{ mt: 2 }}>
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #E6E8EC' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #E6E8EC' }}>
               <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 1 }}>
                 Works where you are
               </Typography>

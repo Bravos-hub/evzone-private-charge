@@ -9,7 +9,7 @@ import RestoreRoundedIcon from '@mui/icons-material/RestoreRounded';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import MobileShell from '../../components/layout/MobileShell';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function formatPreview(locale, currency) {
   try {
@@ -81,7 +81,7 @@ export default function LanguageCurrencySelector({
       <CssBaseline />
       <MobileShell title="Language & currency" tagline="override • preview • persist" onBack={handleBack} onHelp={onHelp} navValue={navValue} onNavChange={handleNavChange}>
         <Box>
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Stack spacing={1}>
                 <FormControl size="small" fullWidth>
                   <Typography variant="caption" color="text.secondary">Language</Typography>
@@ -99,7 +99,7 @@ export default function LanguageCurrencySelector({
               </Stack>
             </Paper>
 
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Preview</Typography>
               <Typography variant="body2"><strong>Money:</strong> {preview.money}</Typography>
               <Typography variant="body2"><strong>Date:</strong> {preview.date}</Typography>

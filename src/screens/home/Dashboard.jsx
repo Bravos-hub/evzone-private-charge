@@ -154,7 +154,7 @@ export default function HomeDashboard({
   // Card shell with motion
   const Card = ({ children, delay = 0 }) => (
     <Paper elevation={0} sx={{
-      p: 2, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: '#fff',
+      p: 2, borderRadius: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: '#fff',
       animation: 'fadeUp .4s ease both', animationDelay: `${delay}ms`,
       '@keyframes fadeUp': { from: { opacity: 0, transform: 'translateY(8px)' }, to: { opacity: 1, transform: 'translateY(0)' } }
     }}>

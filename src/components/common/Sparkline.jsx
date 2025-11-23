@@ -1,5 +1,4 @@
 import React from 'react';
-import { alpha } from '@mui/material/styles';
 
 export default function Sparkline({ data = [], stroke = '#03cd8c', fill = 'rgba(3,205,140,.18)' }) {
   const W = 100, H = 36, P = 4;

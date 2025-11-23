@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, Slider,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, IconButton, Switch, FormControlLabel,
+  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, IconButton,
   FormControl, Select, MenuItem
 } from '@mui/material';
 import BatteryChargingFullRoundedIcon from '@mui/icons-material/BatteryChargingFullRounded';
@@ -19,7 +19,7 @@ import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
 const theme = createTheme({
   palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
@@ -88,7 +88,7 @@ export default function ChargerActionsMulti({
         <MobileShell title="Charger actions" tagline="unlock • start • set target" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -98,7 +98,7 @@ export default function ChargerActionsMulti({
             </Paper>
 
             {/* Status */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1.25} alignItems="center">
                 <BatteryChargingFullRoundedIcon color={'success'} />
                 <Box sx={{ flex: 1 }}>
@@ -113,7 +113,7 @@ export default function ChargerActionsMulti({
             </Paper>
 
             {/* Target SoC */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Target state of charge</Typography>
               <Slider value={target} onChange={(_, v) => setTarget(v)} min={50} max={100} step={1} valueLabelDisplay="on" />
             </Paper>

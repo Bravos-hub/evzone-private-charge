@@ -4,7 +4,6 @@ import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button, LinearProgress, Chip, IconButton,
   AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import SystemUpdateRoundedIcon from '@mui/icons-material/SystemUpdateRounded';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
@@ -17,7 +16,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 12 — Charger Settings (Mobile, React + MUI, JS)'); };
@@ -86,7 +85,7 @@ export default function FirmwareSelfTest({ onBack, onHelp, onNavChange, onCheckU
         <MobileShell title="Firmware & self‑test" tagline="OTA updates • diagnostics • reboot" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{setNavValue(v); onNavChange&&onNavChange(v);}} footer={null}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Firmware card */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800}>Firmware</Typography>
               <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
                 <Chip label="Current: v1.2.3" />
@@ -108,7 +107,7 @@ export default function FirmwareSelfTest({ onBack, onHelp, onNavChange, onCheckU
             </Paper>
 
             {/* Changelog */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <DescriptionRoundedIcon />
                 <Typography variant="subtitle2" fontWeight={800}>Changelog</Typography>
@@ -118,7 +117,7 @@ export default function FirmwareSelfTest({ onBack, onHelp, onNavChange, onCheckU
             </Paper>
 
             {/* Self‑tests & reboot */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <FactCheckRoundedIcon />
                 <Typography variant="subtitle2" fontWeight={800}>Self‑tests</Typography>

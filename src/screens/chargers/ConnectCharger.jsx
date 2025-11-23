@@ -34,7 +34,7 @@ function StepHeader({ step, total, label }) {
       <Typography variant="overline" color="primary" sx={{ letterSpacing: 0.6, fontWeight: 700 }}>
         Step {step} of {total}
       </Typography>
-      <LinearProgress variant="determinate" value={pct} sx={{ height: 6, borderRadius: 3, my: 1 }} />
+      <LinearProgress variant="determinate" value={pct} sx={{ height: 6, borderRadius: 1.5, my: 1 }} />
       {label && <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{label}</Typography>}
     </Box>
   );
@@ -45,7 +45,7 @@ function PhotosBlock({ imageNames, onCamera, onGallery }) {
   return (
     <>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>Charger photos {REQUIRE_PHOTO && <Typography component="span" variant="caption" color="error">(required)</Typography>}</Typography>
-      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', mb: 1.25, border: '1px dashed #e0e0e0' }}>
+      <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', mb: 1.25, border: '1px dashed #e0e0e0' }}>
         <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap' }}>
           <Button variant="outlined" color="secondary" startIcon={<CameraAltOutlinedIcon />} onClick={onCamera}
             sx={{ flexGrow: 1, '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main', '& .MuiButton-startIcon>*': { color: 'common.white' } } }}>
@@ -90,7 +90,7 @@ function ConnectionTest({ stationId, onSuccess, onStatusChange, onFindTechnician
 
   if (status === 'idle' || status === 'testing') {
     return (
-      <Paper sx={{ p:2, borderRadius:3, border:'1px solid #eef3f1', bgcolor:'#fff', textAlign:'center' }}>
+      <Paper sx={{ p:2, borderRadius: 1.5, border:'1px solid #eef3f1', bgcolor:'#fff', textAlign:'center' }}>
         <Typography variant="subtitle1" fontWeight={800} sx={{ mb: .5 }}>Test connection</Typography>
         <Typography variant="body2" color="text.secondary">We’ll ping Station ID <b>{stationId || '—'}</b> over OCPP.</Typography>
         <Button disabled={status==='testing'} variant="contained" color="secondary" onClick={test}
@@ -103,7 +103,7 @@ function ConnectionTest({ stationId, onSuccess, onStatusChange, onFindTechnician
 
   if (status === 'failed') {
     return (
-      <Paper sx={{ p:2, borderRadius:3, border:`1px solid ${alpha('#e53935', .35)}`, bgcolor: alpha('#e53935', .06) }}>
+      <Paper sx={{ p:2, borderRadius: 1.5, border:`1px solid ${alpha('#e53935', .35)}`, bgcolor: alpha('#e53935', .06) }}>
         <Stack direction='row' spacing={1} alignItems='center'>
           <ErrorOutlineRoundedIcon sx={{ color: '#e53935' }} />
           <Box>
@@ -137,7 +137,7 @@ function ConnectionTest({ stationId, onSuccess, onStatusChange, onFindTechnician
 
   // success
   return (
-    <Paper sx={{ p: 2, borderRadius: 3, border: '1px solid #e6f4ea', bgcolor: '#f0fff6', textAlign: 'center' }}>
+    <Paper sx={{ p: 2, borderRadius: 1.5, border: '1px solid #e6f4ea', bgcolor: '#f0fff6', textAlign: 'center' }}>
       <CheckCircleRoundedIcon sx={{ color: '#03cd8c', fontSize: 28 }} />
       <Typography variant="subtitle1" fontWeight={800} sx={{ mt: 0.5 }}>Connected successfully</Typography>
       <Typography variant="body2" color="text.secondary">We received a Pong from the charger. Proceed to location.</Typography>
@@ -150,7 +150,7 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricin
   return (
     <Box>
       {/* Map preview */}
-      <Paper elevation={0} sx={{ height: 140, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', display: 'grid', placeItems: 'center' }}>
+      <Paper elevation={0} sx={{ height: 140, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', display: 'grid', placeItems: 'center' }}>
         <Stack alignItems="center" spacing={0.5}>
           <RoomIcon color="error" />
           <Typography variant="caption" color="text.secondary">Map preview</Typography>
@@ -160,7 +160,7 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricin
       {/* Quick controls */}
       <Box sx={{ mt: 2 }}>
         <Typography variant="subtitle2" fontWeight={800} gutterBottom>Core settings</Typography>
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
           <Stack spacing={1.25}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <PaidRoundedIcon fontSize="small" />
@@ -187,7 +187,7 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricin
       {/* Operator section */}
       <Box sx={{ mt: 2 }}>
         {!operatorAssigned ? (
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
             <Typography variant="subtitle1" fontWeight={700}>No operator assigned</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               Assign an accredited operator to manage operations and support.
@@ -198,7 +198,7 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricin
             </Button>
           </Paper>
         ) : (
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Box>
                 <Chip label="Online" color="success" size="small" sx={{ mr: 1 }} />
@@ -217,7 +217,7 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricin
       {/* Amenities */}
       <Box sx={{ mt: 2 }}>
         <Typography variant="subtitle2" fontWeight={800} gutterBottom>Amenities</Typography>
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
           <Stack direction="row" spacing={2}>
             <FormControlLabel control={<Switch defaultChecked />} label="Restroom" />
             <FormControlLabel control={<Switch />} label="Food nearby" />
@@ -522,7 +522,7 @@ ${JSON.stringify(payload, null, 2)}`);
           )}
 
           {step === 5 && (
-            <Paper sx={{ p: 2, border: '1px solid #eef3f1', borderRadius: 3, bgcolor: '#fff' }}>
+            <Paper sx={{ p: 2, border: '1px solid #eef3f1', borderRadius: 1.5, bgcolor: '#fff' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Choose usage</Typography>
               <RadioGroup value={choice} onChange={(e) => setChoice(e.target.value)}>
                 <FormControlLabel value="private" control={<Radio />} label="Private management only (monitor, control, alerts)" />
@@ -544,7 +544,7 @@ ${JSON.stringify(payload, null, 2)}`);
           )}
 
           {step === 7 && (
-            <Paper elevation={0} sx={{ p: 2, border: '1px solid #eef3f1', borderRadius: 3, bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ p: 2, border: '1px solid #eef3f1', borderRadius: 1.5, bgcolor: '#fff' }}>
               <Typography variant="subtitle1" fontWeight={800} gutterBottom>Summary</Typography>
               <Stack spacing={1.25}>
                 <Typography variant="body2"><b>Name:</b> {chargerName || '—'}</Typography>

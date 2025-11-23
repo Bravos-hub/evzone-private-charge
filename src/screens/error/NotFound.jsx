@@ -9,7 +9,7 @@ import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 
-const theme = createTheme({ palette:{ primary:{ main:'#03cd8c' }, secondary:{ main:'#f77f00' }, background:{ default:'#f7f9f8' } }, shape:{ borderRadius:14 }, typography:{ fontFamily:'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette:{ primary:{ main:'#03cd8c' }, secondary:{ main:'#f77f00' }, background:{ default:'#f7f9f8' } }, shape:{ borderRadius: 7 }, typography:{ fontFamily:'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' } });
 
 function Shell({ title, subtitle, nav=0, onNav, onBack, onBell, children }){
   return(
@@ -51,7 +51,7 @@ export default function NotFoundMobile({ onBack, onBell, onNav, onGoHome, onGoDa
     <ThemeProvider theme={theme}>
       <CssBaseline/>
       <Shell title='Not found' subtitle='404 • screen unavailable' onBack={onBack} onBell={onBell} onNav={onNav}>
-        <Paper sx={{ p:2, border:'1px solid #eef3f1', borderRadius:3, bgcolor:'#fff', textAlign:'center' }}>
+        <Paper sx={{ p:2, border:'1px solid #eef3f1', borderRadius: 1.5, bgcolor:'#fff', textAlign:'center' }}>
           <Typography variant='h5' fontWeight={800}>404</Typography>
           <Typography variant='caption' color='text.secondary'>We couldn't find what you were looking for.</Typography>
           <Stack direction='row' spacing={1} justifyContent='center' sx={{ mt:2 }}>

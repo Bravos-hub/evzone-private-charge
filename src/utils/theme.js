@@ -7,7 +7,7 @@ export const EVzoneTheme = createTheme({
     background: { default: '#f7f9f8' },
     text: { primary: '#0E1726', secondary: '#5B6372' },
   },
-  shape: { borderRadius: 16 },
+  shape: { borderRadius: 8 },
   typography: {
     fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial',
   },

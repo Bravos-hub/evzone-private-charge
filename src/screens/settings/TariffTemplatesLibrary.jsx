@@ -1,11 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, IconButton,
   AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem, TextField,
   Dialog, DialogTitle, DialogContent, DialogActions, List, ListItemButton
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
@@ -17,7 +16,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
@@ -61,7 +60,7 @@ function CommercialBadge({ isCommercial }) {
 
 function TemplateRow({ t, onApply, onDelete, onOpen }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box onClick={()=>onOpen&&onOpen(t)} sx={{ cursor: 'pointer' }}>
           <Typography variant="subtitle2" fontWeight={700}>{t.name}</Typography>
@@ -140,7 +139,7 @@ export default function TariffTemplatesLibraryPatched({
         <MobileShell title="Tariff templates" tagline="save • reuse • apply" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Scope selectors */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
               <Stack direction="row" spacing={1}>
                 <FormControl size="small" sx={{ minWidth: 160 }}>
                   <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -173,7 +172,7 @@ export default function TariffTemplatesLibraryPatched({
             </List>
 
             {!templates.length && (
-              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center' }}>
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">No templates yet. Create one below.</Typography>
               </Paper>
             )}

@@ -18,7 +18,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 06 — Charger Details (Mobile, React + MUI, JS)'); };
@@ -94,7 +94,7 @@ export default function StartByQrManual({ onBack, onHelp, onNavChange, onResolve
         <MobileShell title="Start session" tagline="scan QR or enter ID • safety" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{setNavValue(v); onNavChange&&onNavChange(v);}} footer={null}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -104,7 +104,7 @@ export default function StartByQrManual({ onBack, onHelp, onNavChange, onResolve
             </Paper>
 
             {/* QR and Manual */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Identify charger</Typography>
               <Stack direction="row" spacing={1}>
                 <Button variant="outlined" startIcon={<QrCodeScannerIcon />} onClick={() => setScanOpen(true)}
@@ -130,7 +130,7 @@ export default function StartByQrManual({ onBack, onHelp, onNavChange, onResolve
             </Paper>
 
             {/* Safety */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <SecurityRoundedIcon color="secondary" />
                 <Typography variant="subtitle2" fontWeight={800}>Safety checklist</Typography>

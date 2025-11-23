@@ -227,7 +227,7 @@ export default function ChargingLive14({ onBack, onHelp, onNavChange }) {
     <MobileShell title='Charging session' subtitle='power • energy • time' navValue={navValue} onNavChange={handleNavChange} onBack={handleBack} onHelp={onHelp} footerSlot={footerSlot}>
       <Box>
         {/* My chargers card (single row) */}
-        <Paper sx={{ p:2, borderRadius:3, bgcolor:'#fff', border:`1px solid ${EV.divider}`, mb:2 }}>
+        <Paper sx={{ p:2, borderRadius: 1.5, bgcolor:'#fff', border:`1px solid ${EV.divider}`, mb:2 }}>
           <Stack direction="row" spacing={1} alignItems="center">
             <FormControl size='small' sx={{ flex: 1 }}>
               <Select value={chargerId} onChange={(e)=>{ setChargerId(e.target.value); setConnectorId('c1'); }}>
@@ -256,7 +256,7 @@ export default function ChargingLive14({ onBack, onHelp, onNavChange }) {
         )}
 
         {/* Info strip (mobile, centered) */}
-        <Paper variant='outlined' sx={{ mt:2, p:1.25, borderRadius:3 }}>
+        <Paper variant='outlined' sx={{ mt:2, p:1.25, borderRadius: 1.5 }}>
           <Stack direction='row' alignItems='center' justifyContent='space-evenly' divider={<Divider flexItem orientation='vertical' />}> 
             <Box sx={{ textAlign:'center' }}>
               <Typography variant='caption' color='text.secondary'>Battery</Typography>
@@ -279,7 +279,7 @@ export default function ChargingLive14({ onBack, onHelp, onNavChange }) {
         </Paper>
 
         {!vehicleConnected && (
-          <Paper sx={{ mt:1, p:1, borderRadius:2, border:`1px dashed ${EV.divider}`, bgcolor: alpha(EV.orange,.06) }}>
+          <Paper sx={{ mt:1, p:1, borderRadius:1, border:`1px dashed ${EV.divider}`, bgcolor: alpha(EV.orange,.06) }}>
             <Typography variant='caption' color='text.secondary'>Est. range is unavailable because your vehicle is not connected. </Typography>
             <Link component='button' variant='caption' onClick={()=>console.info('Open vehicle connection flow')} sx={{ ml: .5, color: EV.orange }}>Connect now</Link>
           </Paper>
@@ -287,7 +287,7 @@ export default function ChargingLive14({ onBack, onHelp, onNavChange }) {
 
         {/* Commercial note */}
         {!isCommercial && (
-          <Paper sx={{ mt:1, p:1, borderRadius:2, border:`1px dashed ${EV.divider}`, bgcolor: alpha(EV.orange,.06) }}>
+          <Paper sx={{ mt:1, p:1, borderRadius:1, border:`1px dashed ${EV.divider}`, bgcolor: alpha(EV.orange,.06) }}>
             <Typography variant='caption' color='text.secondary'>This charger is not commercial. Amount and payments are N/A. To enable public pricing and payments, make this your Commercial Charger.</Typography>
           </Paper>
         )}
@@ -298,7 +298,7 @@ export default function ChargingLive14({ onBack, onHelp, onNavChange }) {
           <Grid item xs={4}><Metric label='Duration' icon={<TimelineRoundedIcon/>} value={hhmmss} /></Grid>
           <Grid item xs={4}><Metric label='Amount' icon={<LocalGasStationRoundedIcon/>} value={isCommercial ? `UGX ${amount.toLocaleString()}` : 'N/A'} /></Grid>
           <Grid item xs={12}>
-            <Paper sx={{ p:1.25, borderRadius:3, border:`1px solid ${EV.divider}`, textAlign:'center' }}>
+            <Paper sx={{ p:1.25, borderRadius: 1.5, border:`1px solid ${EV.divider}`, textAlign:'center' }}>
               <Stack direction='row' spacing={.5} alignItems='center' justifyContent='center'>
                 <SpeedRoundedIcon/>
                 <Typography variant='caption' color='text.secondary'>Power</Typography>
@@ -347,7 +347,7 @@ export default function ChargingLive14({ onBack, onHelp, onNavChange }) {
 
 function Metric({ icon, label, value }){
   return (
-    <Paper sx={{ p:1.25, borderRadius:3, border:`1px solid ${EV.divider}`, textAlign:'center' }}>
+    <Paper sx={{ p:1.25, borderRadius: 1.5, border:`1px solid ${EV.divider}`, textAlign:'center' }}>
       <Stack direction='row' spacing={.5} alignItems='center' justifyContent='center'>
         <Box sx={{ color:'text.secondary' }}>{icon}</Box>
         <Typography variant='caption' color='text.secondary'>{label}</Typography>

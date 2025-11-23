@@ -11,7 +11,7 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import PrintRoundedIcon from '@mui/icons-material/PrintRounded';
 
-const theme = createTheme({ palette:{ primary:{ main:'#03cd8c' }, secondary:{ main:'#f77f00' }, background:{ default:'#f7f9f8' } }, shape:{ borderRadius:14 }, typography:{ fontFamily:'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette:{ primary:{ main:'#03cd8c' }, secondary:{ main:'#f77f00' }, background:{ default:'#f7f9f8' } }, shape:{ borderRadius: 7 }, typography:{ fontFamily:'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' } });
 
 function Shell({ title, subtitle, nav=1, onNav, onBack, onBell, children }){
   return(

@@ -13,7 +13,7 @@ const theme = createTheme({
     secondary: { main: '#f77f00' },
     background: { default: '#f2f2f2' }
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
@@ -83,7 +83,7 @@ export default function AdvancedConfiguration({ onBack, onHelp, onNavChange, onS
         onNavChange={handleNavChange}
       >
         <Box>
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Meter values — sampled</Typography>
               <Field label="Interval (seconds)" helper="How often the charger reports live session data.">
                 <TextField type="number" value={mvInterval} onChange={(e) => setMvInterval(Number(e.target.value) || 0)} fullWidth />
@@ -93,7 +93,7 @@ export default function AdvancedConfiguration({ onBack, onHelp, onNavChange, onS
               </Field>
             </Paper>
 
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Meter values — clock‑aligned</Typography>
               <Field label="Interval (seconds)" helper="Fixed schedule reporting aligned to the clock.">
                 <TextField type="number" value={caInterval} onChange={(e) => setCaInterval(Number(e.target.value) || 0)} fullWidth />
@@ -103,7 +103,7 @@ export default function AdvancedConfiguration({ onBack, onHelp, onNavChange, onS
               </Field>
             </Paper>
 
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Connectors & reservation</Typography>
               <Field label="Reserve connector zero" helper="Reserve all connectors by booking connector 0.">
                 <FormControlLabel control={<Switch checked={reserveAll} onChange={(e) => setReserveAll(e.target.checked)} />} label="Enable" />

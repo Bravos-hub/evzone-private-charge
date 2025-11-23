@@ -10,8 +10,6 @@ import {
   FormControlLabel,
   Radio,
   Switch,
-  Select,
-  MenuItem,
   Typography,
   Divider,
   Button,
@@ -34,7 +32,7 @@ export default function PricingForm({
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: `1px solid ${EV.divider}`, bgcolor: '#fff' }}>
+    <Paper elevation={0} sx={{ p: 2, borderRadius: 1, border: `1px solid ${EV.divider}`, bgcolor: '#fff' }}>
       <Typography variant="subtitle2" fontWeight={800} gutterBottom>
         Pricing configuration
       </Typography>
@@ -109,7 +107,7 @@ export default function PricingForm({
                 <Paper
                   key={period.id || index}
                   variant="outlined"
-                  sx={{ p: 1.5, borderRadius: 2 }}
+                  sx={{ p: 1.5, borderRadius: 1 }}
                 >
                   <Stack spacing={1}>
                     <TextField

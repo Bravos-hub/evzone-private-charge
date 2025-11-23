@@ -1,28 +1,25 @@
 import React, { useMemo, useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, IconButton,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem, TextField,
-  List, ListItemButton, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Switch
+  CssBaseline, Container, Box, Typography, Paper, Stack, Chip, IconButton,
+  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem,
+  List, ListItemButton, FormControlLabel, Switch
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import RouteRoundedIcon from '@mui/icons-material/RouteRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
-import LocalShippingRoundedIcon from '@mui/icons-material/LocalShippingRounded';
-import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
 import MapRoundedIcon from '@mui/icons-material/MapRounded';
+import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import EvStationIcon from '@mui/icons-material/EvStation';
 import HistoryIcon from '@mui/icons-material/History';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
@@ -59,7 +56,7 @@ function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, fo
 
 function RequestRow({ r, onAccept, onReject, onDispatch, onComplete, onRoute }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="subtitle2" fontWeight={700}>{r.customer} • {r.energy} kWh</Typography>
@@ -116,7 +113,7 @@ export default function MobileStationRequests({
         <MobileShell title="Mobile station requests" tagline="queue • route • dispatch" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Site selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My sites</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={siteId} onChange={(e)=>setSiteId(e.target.value)}>
@@ -141,7 +138,7 @@ export default function MobileStationRequests({
             </List>
 
             {!queue.length && (
-              <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center' }}>
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">No requests in the queue.</Typography>
               </Paper>
             )}

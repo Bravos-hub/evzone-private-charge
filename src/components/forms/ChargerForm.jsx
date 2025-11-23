@@ -1,8 +1,6 @@
 import React from 'react';
 import {
-  Box,
   Paper,
-  Stack,
   TextField,
   Grid,
   Typography,
@@ -24,7 +22,7 @@ export default function ChargerForm({
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: `1px solid ${EV.divider}`, bgcolor: '#fff' }}>
+    <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${EV.divider}`, bgcolor: '#fff' }}>
       <Typography variant="subtitle2" fontWeight={800} gutterBottom>
         Charger details
       </Typography>

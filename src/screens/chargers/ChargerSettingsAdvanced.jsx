@@ -22,13 +22,13 @@ const theme = createTheme({
     secondary: { main: '#f77f00' },
     background: { default: '#f2f2f2' }
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
 function MenuTile({ icon, title, subtitle, onClick }) {
   return (
-    <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+    <Card elevation={0} sx={{ borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
       <CardActionArea onClick={onClick} sx={{ p: 1.5 }}>
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Box sx={{ width: 44, height: 44, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#f2f2f2' }}>
@@ -124,7 +124,7 @@ export default function ChargerSettingsMulti({
         >
           <Box>
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>

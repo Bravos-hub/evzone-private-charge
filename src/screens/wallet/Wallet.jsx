@@ -45,7 +45,7 @@ export default function Wallet() {
   }, [navigate, routes]);
 
   const MenuTile = ({ icon, title, subtitle, onClick }) => (
-    <Card elevation={0} sx={{ borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff', mb: 1 }}>
+    <Card elevation={0} sx={{ borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff', mb: 1 }}>
       <CardActionArea onClick={onClick} sx={{ p: 1.5 }}>
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Box sx={{ width: 44, height: 44, borderRadius: 2, display: 'grid', placeItems: 'center', bgcolor: '#f2f2f2' }}>
@@ -71,7 +71,7 @@ export default function Wallet() {
     >
       <Box sx={{ pt: 2 }}>
         {/* Wallet Balance Card */}
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2, textAlign: 'center' }}>
+        <Paper elevation={0} sx={{ p: 3, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2, textAlign: 'center' }}>
           <AccountBalanceWalletRoundedIcon sx={{ fontSize: 48, color: EV.secondary, mb: 1 }} />
           <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>
             {wallet.currency} {wallet.balance.toLocaleString()}

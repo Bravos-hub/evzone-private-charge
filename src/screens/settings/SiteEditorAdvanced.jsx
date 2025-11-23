@@ -1,11 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, IconButton,
+  CssBaseline, Container, Box, Typography, Paper, Stack, Button, IconButton,
   AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem, TextField,
-  Switch, FormControlLabel, List, ListItemButton, Dialog, DialogTitle, DialogContent, DialogActions,
+  Switch, FormControlLabel, List, ListItemButton
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import PlaceRoundedIcon from '@mui/icons-material/PlaceRounded';
 import MapRoundedIcon from '@mui/icons-material/MapRounded';
 import AddPhotoAlternateRoundedIcon from '@mui/icons-material/AddPhotoAlternateRounded';
@@ -19,7 +18,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
@@ -125,7 +124,7 @@ export default function SiteEditorAdvanced({
         <MobileShell title="Site editor (advanced)" tagline="details • pin • geo‑fence • photos • hours" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Site selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My sites</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={siteId} onChange={(e)=>setSiteId(e.target.value)}>
@@ -135,7 +134,7 @@ export default function SiteEditorAdvanced({
             </Paper>
 
             {/* Details */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Details</Typography>
               <Stack spacing={1.25}>
                 <TextField label="Name" value={name} onChange={(e)=>setName(e.target.value)} fullWidth />
@@ -146,7 +145,7 @@ export default function SiteEditorAdvanced({
             </Paper>
 
             {/* Pin & geofence */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                 <PlaceRoundedIcon />
                 <Typography variant="subtitle2" fontWeight={800}>Location & geo‑fence</Typography>
@@ -172,7 +171,7 @@ export default function SiteEditorAdvanced({
             </Paper>
 
             {/* Notes & photos */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Notes & photos</Typography>
               <TextField label="Notes" value={notes} onChange={(e)=>setNotes(e.target.value)} fullWidth multiline rows={3} />
               <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
@@ -194,7 +193,7 @@ export default function SiteEditorAdvanced({
             </Paper>
 
             {/* Opening hours */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Opening hours</Typography>
               <HoursTable hours={hours} onChange={(day, v)=>setHours(prev=>({ ...prev, [day]: v }))} />
             </Paper>

@@ -8,12 +8,12 @@ import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import MobileShell from '../../components/layout/MobileShell';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function FaultRow({ f }) {
   const color = f.severity === 'Critical' ? 'error' : f.severity === 'Warning' ? 'warning' : 'default';
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box>
           <Typography variant="subtitle2" fontWeight={700}>{f.code} — {f.title}</Typography>
@@ -96,7 +96,7 @@ export default function DiagnosticsLogs({ onBack, onHelp, onNavChange, onExport,
                 ))}
               </List>
             ) : (
-              <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+              <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
                 <Stack spacing={0.75}>
                   {events.map(e => (
                     <Box key={e.id}>

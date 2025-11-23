@@ -17,7 +17,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PaymentIcon from '@mui/icons-material/Payment';
 import SecurityIcon from '@mui/icons-material/Security';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
-import { EVzoneTheme } from '../../utils/theme';
 
 /**
  * Guide Page - Explains how EVzone Private Charging works
@@ -76,7 +75,7 @@ export default function Guide() {
       {/* Content */}
       <Box sx={{ flex: 1, width: '100%', maxWidth: 420, px: 2, py: 3 }}>
         {/* Hero Section */}
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 4, bgcolor: 'primary.main', color: '#fff', mb: 3 }}>
+        <Paper elevation={0} sx={{ p: 3, borderRadius: 2, bgcolor: 'primary.main', color: '#fff', mb: 3 }}>
           <Stack direction="row" spacing={2} alignItems="center">
             <BoltIcon sx={{ fontSize: 32 }} />
             <Box>
@@ -98,7 +97,7 @@ export default function Guide() {
               elevation={0}
               sx={{
                 p: 2.5,
-                borderRadius: 3,
+                borderRadius: 1.5,
                 border: '1px solid #E6E8EC',
                 bgcolor: '#fff',
               }}

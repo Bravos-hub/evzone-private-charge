@@ -170,7 +170,7 @@ export default function AddChargerStartPro({
       {/* Source selector */}
       <Grid container spacing={1.2} alignItems="stretch" justifyContent="center" sx={{ mt: 2 }}>
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, borderRadius: 3, border: `2px solid ${source==='evmart' ? EV.orange : EV.divider}` }} onClick={()=>setSource('evmart')}>
+          <Paper sx={{ p: 2, borderRadius: 1.5, border: `2px solid ${source==='evmart' ? EV.orange : EV.divider}` }} onClick={()=>setSource('evmart')}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Radio checked={source==='evmart'} onChange={()=>setSource('evmart')} sx={{ color: EV.orange, '&.Mui-checked': { color: EV.orange } }} />
               <StorefrontRoundedIcon sx={{ color: EV.orange }} />
@@ -182,7 +182,7 @@ export default function AddChargerStartPro({
           </Paper>
         </Grid>
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, borderRadius: 3, border: `2px solid ${source==='other' ? EV.orange : EV.divider}` }} onClick={()=>setSource('other')}>
+          <Paper sx={{ p: 2, borderRadius: 1.5, border: `2px solid ${source==='other' ? EV.orange : EV.divider}` }} onClick={()=>setSource('other')}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Radio checked={source==='other'} onChange={()=>setSource('other')} sx={{ color: EV.orange, '&.Mui-checked': { color: EV.orange } }} />
               <CableRoundedIcon sx={{ color: EV.orange }} />
@@ -198,7 +198,7 @@ export default function AddChargerStartPro({
       {/* Actions */}
       <Grid container spacing={1.2} sx={{ mt: 1.5 }} alignItems="stretch" justifyContent="center">
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, borderRadius: 3, border: `1px solid ${EV.divider}`, textAlign: 'center' }}>
+          <Paper sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${EV.divider}`, textAlign: 'center' }}>
             <Stack spacing={1.25} alignItems="center">
               <QrCodeScannerIcon sx={{ color: EV.orange }} />
               <Typography variant="subtitle2" fontWeight={800}>Scan QR on the charger</Typography>
@@ -215,7 +215,7 @@ export default function AddChargerStartPro({
           </Paper>
         </Grid>
         <Grid item xs={12}>
-          <Paper sx={{ p: 2, borderRadius: 3, border: `1px solid ${EV.divider}`, textAlign: 'center' }}>
+          <Paper sx={{ p: 2, borderRadius: 1.5, border: `1px solid ${EV.divider}`, textAlign: 'center' }}>
             <Stack spacing={1.25} alignItems="center">
               <AddCircleOutlineIcon sx={{ color: EV.green }} />
               <Typography variant="subtitle2" fontWeight={800}>Add manually</Typography>
@@ -230,7 +230,7 @@ export default function AddChargerStartPro({
 
       {/* Manual form (revealed when chosen) */}
       {showManual && (
-        <Paper sx={{ mt: 2, p: 2, borderRadius: 3, border: `1px solid ${EV.divider}` }}>
+        <Paper sx={{ mt: 2, p: 2, borderRadius: 1.5, border: `1px solid ${EV.divider}` }}>
           <Typography variant="subtitle2" fontWeight={800} gutterBottom>Charger details</Typography>
           <Grid container spacing={1.2}>
             <Grid item xs={12} sm={6}><TextField fullWidth label="Make" value={form.make} onChange={(e)=>setForm({...form, make: e.target.value})} /></Grid>
@@ -252,7 +252,7 @@ export default function AddChargerStartPro({
           </Stack>
           <Stack spacing={1}>
             {connectors.map((c) => (
-              <Paper key={c.id} variant="outlined" sx={{ p: 1.25, borderRadius: 2 }}>
+              <Paper key={c.id} variant="outlined" sx={{ p: 1.25, borderRadius: 1 }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
                   <TextField label="Label / Port ID" value={c.label} onChange={(e)=>updateConnector(c.id, { label: e.target.value })} sx={{ flex: 1 }} />
                   <TextField select label="Type" value={c.type} onChange={(e)=>updateConnector(c.id, { type: e.target.value })} sx={{ flex: 1 }}>
@@ -273,7 +273,7 @@ export default function AddChargerStartPro({
       )}
 
       {/* Single consent */}
-      <Paper sx={{ mt: 2, p: 1.25, borderRadius: 3, border: `1px solid ${EV.divider}` }}>
+      <Paper sx={{ mt: 2, p: 1.25, borderRadius: 1.5, border: `1px solid ${EV.divider}` }}>
         <FormGroup>
           <FormControlLabel
             control={<Checkbox checked={consent} onChange={(e)=>setConsent(e.target.checked)} />}
@@ -288,7 +288,7 @@ export default function AddChargerStartPro({
       </Paper>
 
       {/* Tip (orange theme) */}
-      <Paper sx={{ mt: 2, p: 1.25, borderRadius: 3, border: `1px solid ${EV.orange}`, bgcolor: alpha(EV.orange, .06) }}>
+      <Paper sx={{ mt: 2, p: 1.25, borderRadius: 1.5, border: `1px solid ${EV.orange}`, bgcolor: alpha(EV.orange, .06) }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <InfoRoundedIcon sx={{ color: EV.orange }} />
           <Box>

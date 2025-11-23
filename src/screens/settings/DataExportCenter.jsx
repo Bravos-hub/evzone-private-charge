@@ -8,11 +8,11 @@ import {
 import IosShareRoundedIcon from '@mui/icons-material/IosShareRounded';
 import MobileShell from '../../components/layout/MobileShell';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function EntityRow({ label, checked, onToggle, children }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack spacing={1}>
         <FormControlLabel control={<Checkbox checked={checked} onChange={onToggle} />} label={label} />
         {checked && <Box sx={{ pl: 3 }}>{children}</Box>}
@@ -87,7 +87,7 @@ export default function DataExportCenter({
       <MobileShell title="Data export center" tagline="choose • preview • export" onBack={handleBack} onHelp={onHelp} navValue={navValue} onNavChange={handleNavChange}>
         <Box>
             {/* Charger & Range */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Stack spacing={1}>
                 <FormControl size="small" fullWidth>
                   <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -133,7 +133,7 @@ export default function DataExportCenter({
             </Stack>
 
             {/* Options */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Stack direction="row" spacing={2}>
                 <FormControlLabel control={<Checkbox checked={compress} onChange={(e)=>setCompress(e.target.checked)} />} label="Compress (zip)" />
                 <FormControlLabel control={<Checkbox checked={anonymize} onChange={(e)=>setAnonymize(e.target.checked)} />} label="Anonymize PII" />
@@ -141,7 +141,7 @@ export default function DataExportCenter({
             </Paper>
 
             {/* Preview hint */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="caption" color="text.secondary">Tip: Use the **Sessions** entity for energy analytics; **Faults** for diagnostics; **Invoices** for finance systems. Exports honor your selected date range.</Typography>
             </Paper>
 

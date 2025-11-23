@@ -7,7 +7,6 @@ import {
   Grid,
   Typography,
   Button,
-  Chip,
   IconButton,
   AppBar,
   Toolbar,
@@ -29,7 +28,7 @@ import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 
 const theme = createTheme({
   palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f7f9f8' } },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' }
 });
 
@@ -108,7 +107,7 @@ export default function SessionSummaryMobile({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <MobileShell title='Session summary' subtitle='energy • time • cost' onBack={onBack} onBell={onBell} onNav={onNav}>
-        <Paper sx={{ p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+        <Paper sx={{ p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
           <Stack spacing={1}>
             <Typography variant='subtitle2' fontWeight={800}>{site}</Typography>
             <Typography variant='caption' color='text.secondary'>Connector: {connector}</Typography>
@@ -119,7 +118,7 @@ export default function SessionSummaryMobile({
                 { label: 'Cost', value: `${currency} ${cost.toLocaleString()}` }
               ].map((m) => (
                 <Grid item xs={4} key={m.label}>
-                  <Paper sx={{ p: 1, borderRadius: 2, textAlign: 'center', border: '1px solid #eef3f1' }}>
+                  <Paper sx={{ p: 1, borderRadius: 1, textAlign: 'center', border: '1px solid #eef3f1' }}>
                     <Typography variant='caption' color='text.secondary'>{m.label}</Typography>
                     <Typography variant='subtitle2' fontWeight={800}>{m.value}</Typography>
                   </Paper>

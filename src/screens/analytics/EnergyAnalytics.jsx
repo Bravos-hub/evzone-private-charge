@@ -19,7 +19,6 @@ import {
   MenuItem,
   TextField
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
 import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
@@ -44,7 +43,7 @@ const theme = createTheme({
     background: { default: '#f2f2f2' },
     divider: '#eef3f1'
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' }
 });
 
@@ -97,7 +96,7 @@ function MobileShell(props) {
 
 function Metric(props){
   return (
-    <Paper elevation={0} sx={{ p:1.25, borderRadius:2, bgcolor:'#fff', border:'1px solid #eef3f1', flex:1, minWidth:110, textAlign:'center' }}>
+    <Paper elevation={0} sx={{ p:1.25, borderRadius:1, bgcolor:'#fff', border:'1px solid #eef3f1', flex:1, minWidth:110, textAlign:'center' }}>
       <Stack direction='row' spacing={0.5} alignItems='center' justifyContent='center' sx={{ mb:.25 }}>
         {props.icon}
         <Typography variant='caption' color='text.secondary'>{props.label}</Typography>
@@ -193,12 +192,12 @@ export default function EnergyAnalytics(props){
     <ThemeProvider theme={theme}>
       <CssBaseline/>
       <MobileShell title='Energy analytics' tagline='kWh • cost • sessions' onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={function(v){ setNavValue(v); if (typeof onNavChange==='function') onNavChange(v); }}>
-        <Paper elevation={0} sx={{ p:1.25, borderRadius:3, bgcolor:'rgba(247,127,0,0.08)', mb:2 }}>
+        <Paper elevation={0} sx={{ p:1.25, borderRadius: 1.5, bgcolor:'rgba(247,127,0,0.08)', mb:2 }}>
           <Typography variant='caption'>Charts are lightweight SVG for reliable bundling in sandboxed environments.</Typography>
         </Paper>
 
         {/* Filters */}
-        <Paper elevation={0} sx={{ p:2, borderRadius:3, bgcolor:'#fff', border:'1px solid #eef3f1', mb:2 }}>
+        <Paper elevation={0} sx={{ p:2, borderRadius: 1.5, bgcolor:'#fff', border:'1px solid #eef3f1', mb:2 }}>
           <Stack spacing={1}>
             <Stack direction='row' spacing={1}>
               <FormControl size='small' sx={{ minWidth:160 }}>
@@ -234,13 +233,13 @@ export default function EnergyAnalytics(props){
         </Stack>
 
         {/* kWh over time */}
-        <Paper elevation={0} sx={{ p:1.5, borderRadius:3, bgcolor:'#fff', border:'1px solid #eef3f1', mb:1 }}>
+        <Paper elevation={0} sx={{ p:1.5, borderRadius: 1.5, bgcolor:'#fff', border:'1px solid #eef3f1', mb:1 }}>
           <Typography variant='subtitle2' fontWeight={800} sx={{ mb:1 }}>Energy (kWh)</Typography>
           <AreaChartMini data={series} xKey='label' yKey='kWh' />
         </Paper>
 
         {/* Cost vs Sessions */}
-        <Paper elevation={0} sx={{ p:1.5, borderRadius:3, bgcolor:'#fff', border:'1px solid #eef3f1' }}>
+        <Paper elevation={0} sx={{ p:1.5, borderRadius: 1.5, bgcolor:'#fff', border:'1px solid #eef3f1' }}>
           <Typography variant='subtitle2' fontWeight={800} sx={{ mb:1 }}>Cost & sessions</Typography>
           <DualBarChartMini data={series} xKey='label' leftKey='cost' rightKey='sessions' />
         </Paper>

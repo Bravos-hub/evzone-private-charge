@@ -8,8 +8,7 @@ import {
   IconButton,
   Tooltip,
   MenuItem,
-  Typography,
-  Divider
+  Typography
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';

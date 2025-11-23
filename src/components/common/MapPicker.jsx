@@ -45,7 +45,7 @@ export default function MapPicker({ value, onChange, onResolveAddress }) {
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 0, borderRadius: 3, overflow: 'hidden', border: `1px solid ${EV.divider}` }}>
+    <Paper elevation={0} sx={{ p: 0, borderRadius: 1.5, overflow: 'hidden', border: `1px solid ${EV.divider}` }}>
       <Box sx={{ height: 240 }}>
         <PigeonMap height={240} center={center} defaultZoom={15} onClick={({ latLng }) => setAndMaybeReverse(latLng)}>
           <Marker width={38} anchor={marker} color="#d00" />

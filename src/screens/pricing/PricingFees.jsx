@@ -4,7 +4,7 @@ import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button,
   FormControl, FormLabel, RadioGroup, FormControlLabel, Radio,
   TextField, Switch, IconButton, Select, MenuItem, AppBar, Toolbar,
-  BottomNavigation, BottomNavigationAction, FormHelperText, Divider, Tooltip
+  BottomNavigation, BottomNavigationAction, FormHelperText, Tooltip
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -17,7 +17,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 // Example connectors by charger (stubbed for UI)
 const CONNECTORS = {
@@ -160,7 +160,7 @@ export default function PricingFeesPro({
         <MobileShell title="Pricing & fees" tagline="per‑charger or per‑connector with TOU" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v) => { setNavValue(v); onNavChange && onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Target selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Target</Typography>
               <Stack spacing={1}>
                 <FormControl size="small" fullWidth>
@@ -195,7 +195,7 @@ export default function PricingFeesPro({
             </Paper>
 
             {/* Tip Strip (orange theme) */}
-            <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, bgcolor: 'rgba(247,127,0,0.08)', borderLeft: '4px solid', borderColor: 'secondary.main', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'rgba(247,127,0,0.08)', borderLeft: '4px solid', borderColor: 'secondary.main', mb: 2 }}>
               <Stack direction="row" spacing={1.25} alignItems="center">
                 <InfoOutlinedIcon sx={{ color: 'secondary.main' }} />
                 <Typography variant="caption" color="text.secondary">Set different rates per connector (e.g., CCS vs Type 2) when needed.</Typography>
@@ -203,7 +203,7 @@ export default function PricingFeesPro({
             </Paper>
 
             {/* Charge by & Rate */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <FormControl component="fieldset" sx={{ mb: 2 }}>
                 <FormLabel>Charge by</FormLabel>
                 <RadioGroup row value={chargeBy} onChange={(e) => setChargeBy(e.target.value)}>
@@ -220,7 +220,7 @@ export default function PricingFeesPro({
             </Paper>
 
             {/* Pricing model */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <FormControl component="fieldset" sx={{ mb: 2 }}>
                 <FormLabel>Pricing model</FormLabel>
                 <RadioGroup value={model} onChange={(e) => setModel(e.target.value)}>
@@ -232,7 +232,7 @@ export default function PricingFeesPro({
               {model === 'tou' && (
                 <Box>
                   {periods.map(p => (
-                    <Paper key={p.id} variant="outlined" sx={{ p: 1.25, mb: 1, borderRadius: 2 }}>
+                    <Paper key={p.id} variant="outlined" sx={{ p: 1.25, mb: 1, borderRadius: 1 }}>
                       <Stack spacing={1}>
                         <Stack direction="row" spacing={1} alignItems="center">
                           <TextField label="Name" value={p.name} onChange={(e) => updatePeriod(p.id, { name: e.target.value })} sx={{ flex: 1 }} />
@@ -253,7 +253,7 @@ export default function PricingFeesPro({
             </Paper>
 
             {/* Extra fees & rules */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Extra fees & rules</Typography>
               <Stack spacing={1.5}>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -281,7 +281,7 @@ export default function PricingFeesPro({
             </Paper>
 
             {/* Booking fees */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>Booking fees</Typography>
               <Stack spacing={1.5}>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -296,7 +296,7 @@ export default function PricingFeesPro({
             </Paper>
 
             {/* Payment timing */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <FormControl component="fieldset">
                 <FormLabel>Payment timing</FormLabel>
                 <RadioGroup row value={timing} onChange={(e) => setTiming(e.target.value)}>

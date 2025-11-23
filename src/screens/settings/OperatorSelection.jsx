@@ -23,7 +23,7 @@ const theme = createTheme({
     secondary: { main: '#f77f00' },
     background: { default: '#f2f2f2' }
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
@@ -69,7 +69,7 @@ function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, fo
 
 function OperatorRow({ op, selected, onSelect }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, bgcolor: '#fff', border: selected ? '2px solid #f77f00' : '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#fff', border: selected ? '2px solid #f77f00' : '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1.25} alignItems="center">
         {selected ? <RadioButtonCheckedIcon color="secondary" /> : <RadioButtonUncheckedIcon color="disabled" />}
         <Avatar src={op.photo} alt={op.name} sx={{ width: 40, height: 40 }} />
@@ -97,12 +97,12 @@ export default function OperatorSelection({ onBack, onHelp, onNavChange, onConfi
   const [filterShift, setFilterShift] = useState('All'); // All | Day | Night
   const [selectedId, setSelectedId] = useState(null);
 
-  const operators = [
+  const operators = useMemo(() => [
     { id: '1', name: 'Robert Fox', shift: 'Day', status: 'Online', rating: 4, reviews: 87 },
     { id: '2', name: 'Albert Flores', shift: 'Night', status: 'Online', rating: 5, reviews: 132 },
     { id: '3', name: 'Marvin McKinney', shift: 'Day', status: 'Offline', rating: 4, reviews: 54 },
     { id: '4', name: 'Theresa Webb', shift: 'Day', status: 'Online', rating: 5, reviews: 203 }
-  ];
+  ], []);
 
   const filtered = useMemo(() => {
     return operators.filter(op =>

@@ -16,7 +16,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 const CONNECTORS = {
   st1: [ { id: 'c1', label: 'A1 — Type 2' }, { id: 'c2', label: 'A2 — CCS 2' } ],
@@ -101,8 +101,7 @@ export default function AvailabilityPro({
   const [holidayMode, setHolidayMode] = useState(false);
   const [blackout, setBlackout] = useState('');
 
-  const currentId = selectedChargerId || chargerId;
-  const isCommercial = currentId && commercialChargerId && currentId === commercialChargerId;
+  // const currentId = selectedChargerId || chargerId; // Unused but kept for potential future use
 
   const addSlot = () => setSlots(s => [...s, { id: Date.now(), start: '09:00', end: '12:00' }]);
   const removeSlot = (id) => setSlots(s => s.filter(x => x.id !== id));
@@ -124,7 +123,7 @@ export default function AvailabilityPro({
         <MobileShell title="Availability" tagline="set schedule per charger or connector" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v) => { setNavValue(v); onNavChange && onNavChange(v); }} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Target selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Target</Typography>
               <FormControl size="small" fullWidth sx={{ mb: 1 }}>
                 <FormLabel>Charger</FormLabel>
@@ -163,7 +162,7 @@ export default function AvailabilityPro({
                 sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Aggregator & CPMS</Button>
             </Stack>
 
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <FormControl component="fieldset" sx={{ mb: 2 }}>
                 <FormLabel>Status</FormLabel>
                 <RadioGroup row value={online ? 'online' : 'offline'} onChange={(e) => setOnline(e.target.value === 'online')}>
@@ -193,7 +192,7 @@ export default function AvailabilityPro({
               {model === 'Manual' && (
                 <Box sx={{ mt: 1 }}>
                   {slots.map((s) => (
-                    <Paper key={s.id} variant="outlined" sx={{ p: 1.25, mb: 1, borderRadius: 2 }}>
+                    <Paper key={s.id} variant="outlined" sx={{ p: 1.25, mb: 1, borderRadius: 1 }}>
                       <Stack direction="row" spacing={1}>
                         <TextField type="time" label="Start" value={s.start} onChange={(e) => updateSlot(s.id, { start: e.target.value })} sx={{ flex: 1 }} />
                         <TextField type="time" label="End" value={s.end} onChange={(e) => updateSlot(s.id, { end: e.target.value })} sx={{ flex: 1 }} />
@@ -212,7 +211,7 @@ export default function AvailabilityPro({
             </Paper>
 
             {/* Advanced rules */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Advanced rules</Typography>
               <Stack spacing={1.5}>
                 <Stack direction="row" spacing={1}>

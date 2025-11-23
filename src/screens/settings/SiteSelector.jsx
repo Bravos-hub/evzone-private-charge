@@ -14,13 +14,13 @@ const theme = createTheme({
     secondary: { main: '#f77f00' },
     background: { default: '#f2f2f2' }
   },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
 function SiteRow({ site, selected, onSelect }) {
   return (
-    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, bgcolor: '#fff', border: selected ? '2px solid #f77f00' : '1px solid #eef3f1' }}>
+    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 1.5, bgcolor: '#fff', border: selected ? '2px solid #f77f00' : '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1.25} alignItems="center" onClick={() => onSelect(site.id)}>
         {selected ? <RadioButtonCheckedIcon color="secondary" /> : <RadioButtonUncheckedIcon color="disabled" />}
         <Box sx={{ flex: 1 }}>

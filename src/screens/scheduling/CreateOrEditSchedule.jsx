@@ -20,7 +20,7 @@ import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
 const theme = createTheme({
   palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
@@ -94,6 +94,7 @@ export default function ScheduleEditor({
     ok('target is number', typeof form.target === 'number' || !isNaN(Number(form.target)));
     ok('days array not empty', Array.isArray(form.days) && form.days.length > 0);
     console.table(rows);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // once
 
   const Footer = (
@@ -144,7 +145,7 @@ export default function ScheduleEditor({
           footer={Footer}
         >
           <Box sx={{ px: 2, pt: 2 }}>
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <TextField
                 label="Name"
                 value={form.name}

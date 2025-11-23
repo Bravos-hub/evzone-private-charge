@@ -12,7 +12,7 @@ import FlashOnRoundedIcon from '@mui/icons-material/FlashOnRounded';
 import CloudOffRoundedIcon from '@mui/icons-material/CloudOffRounded';
 import MobileShell from '../../components/layout/MobileShell';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 14 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 export default function NotificationsRules({
   chargers = [{ id: 'st1', name: 'Home Charger' }, { id: 'st2', name: 'Office Charger' }],
@@ -67,7 +67,7 @@ export default function NotificationsRules({
       <MobileShell title="Notifications & rules" tagline="thresholds • recipients • channels" onBack={handleBack} onHelp={onHelp} navValue={navValue} onNavChange={handleNavChange}>
         <Box>
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -77,7 +77,7 @@ export default function NotificationsRules({
             </Paper>
 
             {/* Thresholds */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Thresholds</Typography>
               <Stack spacing={1}>
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -96,7 +96,7 @@ export default function NotificationsRules({
             </Paper>
 
             {/* Channels */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Channels</Typography>
               <Stack direction="row" spacing={2}>
                 <FormControlLabel control={<Switch checked={rules.channels.app} onChange={(e)=>setRules(r=>({...r, channels: {...r.channels, app: e.target.checked}}))} />} label="App" />
@@ -106,7 +106,7 @@ export default function NotificationsRules({
             </Paper>
 
             {/* Recipients */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Recipients</Typography>
               <List dense sx={{ border: '1px dashed #e0e0e0', borderRadius: 2, p: 1 }}>
                 {users.map(u => (

@@ -56,7 +56,7 @@ function DeviceInfoPanel({ device = {}, ocpp = {} }) {
   const { server = 'wss://ocpp.evzone.app', stationId = serial, password = '••••••••' } = ocpp;
 
   return (
-    <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+    <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
         <MemoryIcon fontSize="small" />
         <Typography variant="subtitle2" fontWeight={800}>Device & hardware</Typography>
@@ -216,6 +216,7 @@ export default function ChargerDetails({
       check('canSave reflects basic fields', canSave === !!(name && locationName));
       console.table(results);
     } catch (e) { console.warn('Dev tests crashed', e); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const Footer = (
@@ -244,7 +245,7 @@ export default function ChargerDetails({
             <TextField label="Location display name" value={locationName} onChange={(e) => setLocationName(e.target.value)} placeholder="e.g., Basement P2 – Slot 12" fullWidth sx={{ mt: 1.25 }} disabled={!editBasics} />
 
             {/* Basic details */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
               <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                 <Typography variant="subtitle2" fontWeight={800}>Basic details</Typography>
                 <Button size="small" startIcon={<EditRoundedIcon />} onClick={() => setEditBasics(p => !p)}>{editBasics ? 'Done' : 'Edit details'}</Button>
@@ -256,7 +257,7 @@ export default function ChargerDetails({
             </Paper>
 
             {/* Core settings */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Core settings</Typography>
               <Stack spacing={1.25}>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -284,7 +285,7 @@ export default function ChargerDetails({
             <DeviceInfoPanel device={device} ocpp={ocpp} />
 
             {/* Connectors actions */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 3, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Connectors</Typography>
               <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
                 <Chip size="small" avatar={<Box component="span" sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#03cd8c' }} />} label="B1 • CCS 2 • 90kW" onClick={() => alert('Select B1 on map')} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }} />

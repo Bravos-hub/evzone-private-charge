@@ -25,7 +25,7 @@ import MobileShell from '../../components/layout/MobileShell';
 
 const theme = createTheme({
   palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } },
-  shape: { borderRadius: 14 },
+  shape: { borderRadius: 7 },
   typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
 });
 
@@ -84,7 +84,7 @@ export default function SupportHelpCenter({
         <Box>
             {/* Prefill banner */}
             {prefill && (
-              <Paper elevation={0} sx={{ p: 1.5, borderRadius: 3, bgcolor: 'rgba(247,127,0,0.08)', borderLeft: '4px solid', borderColor: 'secondary.main', mb: 2 }}>
+              <Paper elevation={0} sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'rgba(247,127,0,0.08)', borderLeft: '4px solid', borderColor: 'secondary.main', mb: 2 }}>
                 <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                   <Typography variant="caption" color="text.secondary">
                     Prefilled from Notifications & Rules: category <strong>{prefill && prefill.cat ? prefill.cat : 'Technical'}</strong>{prefill && prefill.subject ? ` • subject "${prefill.subject}"` : ''}.
@@ -97,7 +97,7 @@ export default function SupportHelpCenter({
             )}
 
             {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>For charger</Typography>
               <FormControl size="small" fullWidth>
                 <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -107,7 +107,7 @@ export default function SupportHelpCenter({
             </Paper>
 
             {/* Ticket form */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Contact support</Typography>
               <Stack spacing={1.25}>
                 <FormControl size="small">
@@ -122,7 +122,7 @@ export default function SupportHelpCenter({
             </Paper>
 
             {/* FAQ */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>FAQs</Typography>
               {faqs.map((f,i)=> (
                 <Accordion key={i} disableGutters>
