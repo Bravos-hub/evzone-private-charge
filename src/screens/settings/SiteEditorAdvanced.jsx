@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, IconButton,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem, TextField,
+  Box, Typography, Paper, Stack, Button, IconButton,
+  FormControl, Select, MenuItem, TextField,
   Switch, FormControlLabel, List, ListItemButton
 } from '@mui/material';
 import PlaceRoundedIcon from '@mui/icons-material/PlaceRounded';
@@ -10,48 +10,7 @@ import MapRoundedIcon from '@mui/icons-material/MapRounded';
 import AddPhotoAlternateRoundedIcon from '@mui/icons-material/AddPhotoAlternateRounded';
 import AddLocationAltRoundedIcon from '@mui/icons-material/AddLocationAltRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import HistoryIcon from '@mui/icons-material/History';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
-
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
-
-function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
-  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
-  return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="fixed" elevation={1} color="primary"><Toolbar sx={{ px: 0 }}>
-        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
-          <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}><ArrowBackIosNewIcon fontSize="small" /></IconButton>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
-            {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}><HelpOutlineIcon fontSize="small" /></IconButton>
-        </Box>
-      </Toolbar></AppBar>
-      <Toolbar />
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
-        {footer}
-        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
-            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
-            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
-            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
-            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
-          </BottomNavigation>
-        </Paper>
-      </Box>
-    </Box>
-  );
-}
+import MobileShell from '../../components/layout/MobileShell';
 
 function HoursTable({ hours, onChange }) {
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -75,7 +34,34 @@ export default function SiteEditorAdvanced({
   onBack, onHelp, onNavChange,
   onSaveSite, onDeleteSite, onUploadPhotos, onOpenMobileRequests, onUseMyLocation
 }) {
-  const [navValue, setNavValue] = useState(1);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+  const [navValue, setNavValue] = useState(4); // Settings tab index
+
+  // Sync navValue with current route
+  useEffect(() => {
+    const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
+    if (pathIndex !== -1) {
+      setNavValue(pathIndex);
+    }
+  }, [location.pathname, routes]);
+
+  const handleNavChange = useCallback((value) => {
+    setNavValue(value);
+    if (routes[value] !== undefined) {
+      navigate(routes[value]);
+    }
+    if (onNavChange) onNavChange(value);
+  }, [navigate, routes, onNavChange]);
+
+  const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate, onBack]);
   const [siteId, setSiteId] = useState(defaultSiteId);
   const [name, setName] = useState('EVzone Site');
   const [address, setAddress] = useState('Kampala, Uganda');
@@ -118,11 +104,16 @@ export default function SiteEditorAdvanced({
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Site editor (advanced)" tagline="details • pin • geo‑fence • photos • hours" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
-          <Box sx={{ px: 2, pt: 2 }}>
+    <MobileShell 
+      title="Site editor (advanced)" 
+      tagline="details • pin • geo‑fence • photos • hours" 
+      onBack={handleBack} 
+      onHelp={onHelp} 
+      navValue={navValue} 
+      onNavChange={handleNavChange}
+      footerSlot={Footer}
+    >
+      <Box>
             {/* Site selector */}
             <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My sites</Typography>
@@ -197,9 +188,7 @@ export default function SiteEditorAdvanced({
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Opening hours</Typography>
               <HoursTable hours={hours} onChange={(day, v)=>setHours(prev=>({ ...prev, [day]: v }))} />
             </Paper>
-          </Box>
-        </MobileShell>
-      </Container>
-    </ThemeProvider>
+      </Box>
+    </MobileShell>
   );
 }

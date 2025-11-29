@@ -1,175 +1,165 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
 import {
-  CssBaseline,
   Box,
   Typography,
   Button,
   Paper,
   Stack,
   Chip,
+  CircularProgress,
+  List,
+  ListItemButton,
   IconButton,
-  Divider,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  FormControlLabel,
-  Switch,
-  Snackbar,
-  Alert,
-  Link as MuiLink,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails
 } from '@mui/material';
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
-import BlockRoundedIcon from '@mui/icons-material/BlockRounded';
-import LockRoundedIcon from '@mui/icons-material/LockRounded';
-import LanIcon from '@mui/icons-material/Lan';
-import MemoryIcon from '@mui/icons-material/Memory';
-import PowerIcon from '@mui/icons-material/Power';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { EVzoneTheme } from '../../utils/theme';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EvStationIcon from '@mui/icons-material/EvStation';
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
+import { useChargers } from '../../hooks/useChargers';
 import MobileShell from '../../components/layout/MobileShell';
-import MapPicker from '../../components/common/MapPicker';
-import Stat from '../../components/common/Stat';
 
-// ---- Helpers
-const onCallOr = (fn) => () => (typeof fn === 'function' ? fn() : alert('Action'));
-const copy = (text) => navigator.clipboard?.writeText(text).then(() => alert('Copied')).catch(() => alert(text));
-
-// ---------- New: Device & Hardware panel (merged from Device Info screen)
-function DeviceInfoPanel({ device = {}, ocpp = {} }) {
-  const {
-    make = 'EVmart',
-    model = 'AC22-T2-2S',
-    serial = 'EVZ-UG-KLA-000123',
-    firmware = 'v1.8.4',
-    power = '22 kW (dual 11 kW)',
-    connectors = [{ id: 'B1', type: 'CCS 2', power: '90 kW' }, { id: 'B2', type: 'Type 2', power: '22 kW' }],
-    heartbeat = '12s ago',
-    uptime = '99.2% (30d)'
-  } = device;
-  const { server = 'wss://ocpp.evzone.app', stationId = serial, password = '••••••••' } = ocpp;
+function ChargerCard({ charger, onSelect, onSettings }) {
+  const status = charger?.status || 'unknown';
+  const isOnline = status === 'online' || status === 'available';
+  const isCommercial = charger?.usage === 'commercial' || charger?.isCommercial;
 
   return (
-    <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-        <MemoryIcon fontSize="small" />
-        <Typography variant="subtitle2" fontWeight={800}>Device & hardware</Typography>
-      </Stack>
-
-      <Stack spacing={1.25}>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Make / Model</b></Typography>
-          <Typography variant="body2">{make} • {model}</Typography>
-        </Stack>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Serial</b></Typography>
-          <Typography variant="body2">{serial}</Typography>
-          <IconButton size="small" onClick={() => copy(serial)}><ContentCopyIcon fontSize="inherit" /></IconButton>
-        </Stack>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Firmware</b></Typography>
-          <Typography variant="body2">{firmware}</Typography>
-        </Stack>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Power</b></Typography>
-          <Typography variant="body2">{power}</Typography>
-        </Stack>
-        <Stack>
-          <Typography variant="body2" sx={{ mb: .5 }}><b>Connectors</b></Typography>
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-            {connectors.map((c) => (
-              <Chip key={c.id} size="small" icon={<PowerIcon />} label={`${c.id} • ${c.type} • ${c.power}`} />
-            ))}
+    <Paper 
+      elevation={0} 
+      sx={{ 
+        p: 1.5, 
+        borderRadius: 1.5, 
+        bgcolor: '#fff', 
+        border: '1px solid #eef3f1',
+        '&:hover': {
+          borderColor: 'secondary.main',
+          boxShadow: '0 2px 8px rgba(247, 127, 0, 0.1)',
+        },
+        transition: 'all 0.2s ease',
+      }}
+    >
+      <Stack direction="row" spacing={1.5} alignItems="center">
+        <Box
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: 1.5,
+            bgcolor: isOnline ? '#E0F3EC' : '#F5F5F5',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <EvStationIcon 
+            sx={{ 
+              fontSize: 28, 
+              color: isOnline ? '#03cd8c' : '#999' 
+            }} 
+          />
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+            <Typography 
+              variant="subtitle2" 
+              fontWeight={700}
+              sx={{ 
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {charger?.name || charger?.id || 'Unnamed Charger'}
+            </Typography>
+            {isCommercial && (
+              <Chip 
+                size="small" 
+                label="Commercial" 
+                color="secondary"
+                sx={{ 
+                  height: 20,
+                  fontSize: '0.65rem',
+                  '& .MuiChip-label': { px: 0.75 },
+                }}
+              />
+            )}
           </Stack>
-        </Stack>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {isOnline ? (
+              <>
+                <CheckCircleRoundedIcon sx={{ fontSize: 14, color: '#03cd8c' }} />
+                <Typography variant="caption" color="text.secondary">
+                  Online
+                </Typography>
+              </>
+            ) : (
+              <>
+                <ErrorOutlineRoundedIcon sx={{ fontSize: 14, color: '#999' }} />
+                <Typography variant="caption" color="text.secondary">
+                  {status === 'offline' ? 'Offline' : 'Unknown'}
+                </Typography>
+              </>
+            )}
+            {charger?.locationName && (
+              <>
+                <Typography variant="caption" color="text.secondary">•</Typography>
+                <Typography 
+                  variant="caption" 
+                  color="text.secondary"
+                  sx={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: 120,
+                  }}
+                >
+                  {charger.locationName}
+                </Typography>
+              </>
+            )}
+          </Stack>
+        </Box>
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onSettings) onSettings(charger);
+          }}
+          sx={{ 
+            color: 'text.secondary',
+            '&:hover': { bgcolor: 'secondary.main', color: 'common.white' },
+          }}
+        >
+          <SettingsRoundedIcon fontSize="small" />
+        </IconButton>
       </Stack>
-
-      <Divider sx={{ my: 2 }} />
-
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-        <LanIcon fontSize="small" />
-        <Typography variant="subtitle2" fontWeight={800}>OCPP & connectivity</Typography>
-      </Stack>
-      <Stack spacing={1.25}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Server</b></Typography>
-          <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>{server}</Typography>
-          <IconButton size="small" onClick={() => copy(server)}><ContentCopyIcon fontSize="inherit" /></IconButton>
-        </Stack>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Station ID</b></Typography>
-          <Typography variant="body2">{stationId}</Typography>
-          <IconButton size="small" onClick={() => copy(stationId)}><ContentCopyIcon fontSize="inherit" /></IconButton>
-        </Stack>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Password</b></Typography>
-          <Typography variant="body2">{password}</Typography>
-          <IconButton size="small" onClick={() => copy(password)}><ContentCopyIcon fontSize="inherit" /></IconButton>
-        </Stack>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Last heartbeat</b></Typography>
-          <Typography variant="body2">{heartbeat}</Typography>
-        </Stack>
-        <Stack direction="row" spacing={2}>
-          <Typography variant="body2" sx={{ minWidth: 110 }}><b>Uptime</b></Typography>
-          <Typography variant="body2">{uptime}</Typography>
-        </Stack>
-      </Stack>
-
-      <Accordion sx={{ mt: 2 }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}><Typography variant="body2" fontWeight={700}>Diagnostics & logs</Typography></AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="caption" color="text.secondary">Use Aggregator & CPMS for full telemetry, logs, and remote diagnostics. This device supports status notifications, meter values, and firmware updates via OCPP 1.6J.</Typography>
-        </AccordionDetails>
-      </Accordion>
     </Paper>
   );
 }
 
-export default function ChargerDetails({
+export default function MyChargers({
   onBack,
   onHelp,
   onNavChange,
-  onAssignOperator,
-  onViewOperator,
-  onEditOperator,
-  onOpenPricing,
-  onOpenAvail,
-  onOpenAccess,
-  onOpenAggregator,
-  onSave,
-  initial = {
-    name: 'EVZ Station – Bugolobi',
-    locationName: 'Rear parking lot, Block B',
-    coords: [0.3476, 32.5825],
-    accessNotes: 'Gate opens at 07:00, ask guard; max height 2.1m',
-    usage: 'private',
-    availabilityLabel: '24/7',
-    accessLabel: 'Public',
-    operatorAssigned: false,
-    device: { make: 'EVmart', model: 'AC22-T2-2S', serial: 'EVZ-UG-KLA-000123', firmware: 'v1.8.4', power: '22 kW (dual 11 kW)' },
-    ocpp: { server: 'wss://ocpp.evzone.app', stationId: 'EVZ-UG-KLA-000123', password: '••••••••' },
-  },
+  onAddCharger,
+  onSelectCharger,
+  onSettingsCharger,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [navValue, setNavValue] = useState(1);
+  const { chargers, loading, error, refetch } = useChargers();
+  const [navValue, setNavValue] = useState(1); // Stations tab index
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
-  
-  // Sync navValue with current route
+
   useEffect(() => {
     const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
     if (pathIndex !== -1) {
       setNavValue(pathIndex);
     }
   }, [location.pathname, routes]);
-  
+
   const handleNavChange = useCallback((value) => {
     setNavValue(value);
     if (routes[value] !== undefined) {
@@ -177,145 +167,167 @@ export default function ChargerDetails({
     }
     if (onNavChange) onNavChange(value);
   }, [navigate, routes, onNavChange]);
-  
+
   const handleBack = useCallback(() => {
     if (onBack) {
       onBack();
     } else {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [navigate, onBack]);
-  const [name, setName] = useState(initial.name || '');
-  const [locationName, setLocationName] = useState(initial.locationName || '');
-  const [coords, setCoords] = useState(initial.coords || [0.3476, 32.5825]);
-  const [accessNotes, setAccessNotes] = useState(initial.accessNotes || '');
-  const [usage, setUsage] = useState(initial.usage || 'private');
-  const [availability] = useState({ label: initial.availabilityLabel || '24/7' });
-  const [access, setAccess] = useState({ label: initial.accessLabel || 'Public' });
-  const [editBasics, setEditBasics] = useState(false);
-  const canSave = useMemo(() => Boolean(name && locationName), [name, locationName]);
-  const [snack, setSnack] = useState({ open: false, msg: '' });
 
-  // New: merged device info
-  const device = initial.device || {};
-  const ocpp = initial.ocpp || {};
+  const handleAddCharger = useCallback(() => {
+    if (onAddCharger) {
+      onAddCharger();
+    } else {
+      navigate('/chargers/add');
+    }
+  }, [navigate, onAddCharger]);
 
-  useEffect(() => {
-    try {
-      const results = [];
-      const check = (t, c) => results.push({ test: t, pass: !!c });
-      check('has name field', typeof name === 'string');
-      check('has locationName field', typeof locationName === 'string');
-      check('coords is [lat, lon]', Array.isArray(coords) && coords.length === 2 && coords.every(n => typeof n === 'number'));
-      check('usage valid', usage === 'private' || usage === 'commercial');
-      check('availability label present', typeof availability?.label === 'string');
-      check('access label present', typeof access?.label === 'string');
-      // New tests for merged info
-      check('device object present', typeof device === 'object');
-      check('ocpp object present', typeof ocpp === 'object');
-      check('canSave reflects basic fields', canSave === !!(name && locationName));
-      console.table(results);
-    } catch (e) { console.warn('Dev tests crashed', e); }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleSelectCharger = useCallback((charger) => {
+    if (onSelectCharger) {
+      onSelectCharger(charger);
+    } else {
+      navigate(`/chargers/${charger.id}`);
+    }
+  }, [navigate, onSelectCharger]);
 
-  const Footer = (
-    <Box sx={{ px: 2, pb: 'calc(10px + env(safe-area-inset-bottom))', pt: 1.25, background: '#f2f2f2', borderTop: '1px solid #eee' }}>
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Button variant="outlined" onClick={onCallOr(onBack)} sx={{ mr: 'auto', '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Back</Button>
-        <Button variant="outlined" onClick={onCallOr(onOpenPricing)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Pricing &amp; fees</Button>
-        <Button variant="outlined" onClick={onCallOr(onOpenAvail)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Availability</Button>
-        <Button variant="outlined" onClick={onCallOr(onOpenAccess)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Access</Button>
-        <Button disabled={!canSave} variant="contained" color="secondary" onClick={() => {
-          const payload = { name, locationName, coords, accessNotes, usage, availability: availability?.label, access: access?.label, device, ocpp };
-          if (typeof onSave === 'function') onSave(payload); else setSnack({ open: true, msg: `Saved: ${JSON.stringify(payload)}` });
-        }} sx={{ ml: 0.5, color: '#fff' }}>Save changes</Button>
-      </Stack>
-    </Box>
-  );
+  const handleSettingsCharger = useCallback((charger, e) => {
+    if (e) e.stopPropagation();
+    if (onSettingsCharger) {
+      onSettingsCharger(charger);
+    } else {
+      navigate(`/chargers/${charger.id}/settings`);
+    }
+  }, [navigate, onSettingsCharger]);
 
   return (
-    <ThemeProvider theme={EVzoneTheme}>
-      <CssBaseline />
-      <MobileShell title="Charger details" tagline="performance • schedule • access" onBack={handleBack} onHelp={onHelp} navValue={navValue} onNavChange={handleNavChange} footer={Footer} onOpenAggregator={onOpenAggregator}>
-        <Box>
-            {/* Location & map */}
-            <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Location</Typography>
-            <MapPicker value={coords} onChange={setCoords} />
-            <TextField label="Location display name" value={locationName} onChange={(e) => setLocationName(e.target.value)} placeholder="e.g., Basement P2 – Slot 12" fullWidth sx={{ mt: 1.25 }} disabled={!editBasics} />
+    <MobileShell
+      title="My Chargers"
+      tagline="stations • status • manage"
+      navValue={navValue}
+      onNavChange={handleNavChange}
+      onBack={handleBack}
+      onHelp={onHelp}
+    >
+      <Box>
+        {/* Header with Add button */}
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ flex: 1, fontWeight: 800 }}>
+            Stations
+          </Typography>
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={handleAddCharger}
+            sx={{
+              borderRadius: 1.5,
+              bgcolor: 'secondary.main',
+              color: 'common.white',
+              textTransform: 'none',
+              fontWeight: 700,
+              '&:hover': { bgcolor: 'secondary.dark' },
+            }}
+          >
+            Add Charger
+          </Button>
+        </Stack>
 
-            {/* Basic details */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-                <Typography variant="subtitle2" fontWeight={800}>Basic details</Typography>
-                <Button size="small" startIcon={<EditRoundedIcon />} onClick={() => setEditBasics(p => !p)}>{editBasics ? 'Done' : 'Edit details'}</Button>
-              </Stack>
-              <Stack spacing={1.25}>
-                <TextField label="Charger name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Home garage charger" fullWidth disabled={!editBasics} />
-                <TextField label="Access & parking notes" value={accessNotes} onChange={(e) => setAccessNotes(e.target.value)} placeholder="Gate opens at 07:00; ask guard; max vehicle height 2.1m" fullWidth multiline minRows={2} disabled={!editBasics} />
-              </Stack>
-            </Paper>
+        {/* Loading state */}
+        {loading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+            <CircularProgress size={32} />
+          </Box>
+        )}
 
-            {/* Core settings */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
-              <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Core settings</Typography>
-              <Stack spacing={1.25}>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="body2" sx={{ minWidth: 120 }}>Usage</Typography>
-                  <ToggleButtonGroup exclusive size="small" value={usage} onChange={(_, v) => v && setUsage(v)}>
-                    <ToggleButton value="private">Private</ToggleButton>
-                    <ToggleButton value="commercial">Commercial</ToggleButton>
-                  </ToggleButtonGroup>
-                  <MuiLink component="button" onClick={onCallOr(onOpenAggregator)} sx={{ ml: 'auto', color: 'secondary.main', '&:hover': { color: 'primary.dark' } }}>Manage in Aggregator &amp; CPMS</MuiLink>
-                </Stack>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="body2" sx={{ minWidth: 120 }}>Availability</Typography>
-                  <Chip size="small" label={availability?.label || '—'} />
-                  <Button size="small" variant="outlined" onClick={onCallOr(onOpenAvail)} sx={{ ml: 'auto', '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Edit</Button>
-                </Stack>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="body2" sx={{ minWidth: 120 }}>Access</Typography>
-                  <Chip size="small" label={access?.label || 'Public'} />
-                  <FormControlLabel control={<Switch checked={access?.label !== 'private'} onChange={(e) => setAccess({ label: e.target.checked ? 'Public' : 'private' })} />} label={access?.label} sx={{ ml: 'auto' }} />
-                </Stack>
-              </Stack>
-            </Paper>
+        {/* Error state */}
+        {error && !loading && (
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 3, 
+              borderRadius: 1.5, 
+              bgcolor: '#fff', 
+              border: '1px dashed #e0e0e0', 
+              textAlign: 'center' 
+            }}
+          >
+            <ErrorOutlineRoundedIcon sx={{ fontSize: 48, color: 'error.main', mb: 1 }} />
+            <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+              Failed to load chargers
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
+              {error}
+            </Typography>
+            <Button 
+              size="small" 
+              variant="outlined" 
+              onClick={refetch}
+              sx={{ borderRadius: 1.5 }}
+            >
+              Retry
+            </Button>
+          </Paper>
+        )}
 
-            {/* New merged section: Device & Hardware + OCPP */}
-            <DeviceInfoPanel device={device} ocpp={ocpp} />
+        {/* Empty state */}
+        {!loading && !error && (!chargers || chargers.length === 0) && (
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 4, 
+              borderRadius: 1.5, 
+              bgcolor: '#fff', 
+              border: '1px dashed #e0e0e0', 
+              textAlign: 'center' 
+            }}
+          >
+            <EvStationIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+              No chargers yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Add your first charger to get started with EVzone Private Charging.
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddCircleOutlineIcon />}
+              onClick={handleAddCharger}
+              sx={{
+                borderRadius: 1.5,
+                bgcolor: 'secondary.main',
+                color: 'common.white',
+                textTransform: 'none',
+                fontWeight: 700,
+                px: 3,
+                '&:hover': { bgcolor: 'secondary.dark' },
+              }}
+            >
+              Add Your First Charger
+            </Button>
+          </Paper>
+        )}
 
-            {/* Connectors actions */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
-              <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Connectors</Typography>
-              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-                <Chip size="small" avatar={<Box component="span" sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#03cd8c' }} />} label="B1 • CCS 2 • 90kW" onClick={() => alert('Select B1 on map')} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }} />
-                <Chip size="small" avatar={<Box component="span" sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#f77f00' }} />} label="B2 • Type 2 • 22kW" onClick={() => alert('Select B2 on map')} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }} />
-              </Stack>
-              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                <Button size="small" variant="outlined" startIcon={<PlayArrowRoundedIcon />} onClick={() => alert('Start selected connector')} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Start</Button>
-                <Button size="small" variant="outlined" startIcon={<BlockRoundedIcon />} onClick={() => alert('Disable selected connector')} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Disable</Button>
-                <Button size="small" variant="outlined" startIcon={<LockRoundedIcon />} onClick={() => alert('Lock cable')} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Lock</Button>
-              </Stack>
-            </Paper>
-
-            {/* Performance quick stats */}
-            <Box sx={{ mt: 2 }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
-                <Typography variant="subtitle2" fontWeight={700}>Performance</Typography>
-                <Button size="small" variant="text" onClick={() => alert('Open analytics')}>View analytics</Button>
-              </Stack>
-              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                <Stat label="Uptime" value="99.2%" />
-                <Stat label="Avg. kWh / session" value="17.3" />
-                <Stat label="Revenue" value="UGX 1.2M" />
-              </Stack>
-            </Box>
-        </Box>
-      </MobileShell>
-
-      <Snackbar open={snack.open} autoHideDuration={2000} onClose={() => setSnack({ open: false, msg: '' })} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert severity="success" sx={{ width: '100%' }}>{snack.msg}</Alert>
-      </Snackbar>
-    </ThemeProvider>
+        {/* Chargers list */}
+        {!loading && !error && chargers && chargers.length > 0 && (
+          <List sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {chargers.map((charger) => (
+              <ListItemButton
+                key={charger.id}
+                onClick={() => handleSelectCharger(charger)}
+                sx={{ p: 0, borderRadius: 1.5 }}
+              >
+                <ChargerCard
+                  charger={charger}
+                  onSelect={() => handleSelectCharger(charger)}
+                  onSettings={(c) => handleSettingsCharger(c)}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        )}
+      </Box>
+    </MobileShell>
   );
 }

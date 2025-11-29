@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
-  CssBaseline, Box, Typography, Paper, Stack, Button, Chip, List, ListItemButton
+  Box, Typography, Paper, Stack, Button, Chip, List, ListItemButton
 } from '@mui/material';
 import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import MobileShell from '../../components/layout/MobileShell';
-
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
 function FaultRow({ f }) {
   const color = f.severity === 'Critical' ? 'error' : f.severity === 'Warning' ? 'warning' : 'default';
@@ -55,30 +52,95 @@ export default function DiagnosticsLogs({ onBack, onHelp, onNavChange, onExport,
     }
   }, [navigate, onBack]);
   const [tab, setTab] = useState('faults');
-  const faults = [
+  const faults = useMemo(() => [
     { id: 'f1', code: 'E101', title: 'Overcurrent detected', severity: 'Critical', time: '2025-10-18 14:22' },
     { id: 'f2', code: 'W208', title: 'Temperature high', severity: 'Warning', time: '2025-10-15 09:10' }
-  ];
-  const events = [
+  ], []);
+  const events = useMemo(() => [
     { id: 'e1', title: 'Session started', time: '2025-10-18 14:00' },
     { id: 'e2', title: 'Connector locked', time: '2025-10-18 14:01' }
-  ];
+  ], []);
+
+  const handleFilter = useCallback(() => {
+    if (onFilter) {
+      onFilter(tab);
+    } else {
+      console.info('Open filter for', tab);
+      // You could open a filter dialog here if needed
+    }
+  }, [onFilter, tab]);
+
+  const handleExport = useCallback(() => {
+    if (onExport) {
+      onExport(tab);
+    } else {
+      console.info('Export logs for', tab);
+      // You could trigger a download here if needed
+      const data = tab === 'faults' ? faults : events;
+      const csv = [
+        ['Code', 'Title', 'Severity', 'Time'].join(','),
+        ...data.map(item => {
+          if (tab === 'faults') {
+            return [item.code, item.title, item.severity, item.time].join(',');
+          } else {
+            return [item.title, item.time].join(',');
+          }
+        })
+      ].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `diagnostics-${tab}-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+  }, [onExport, tab, faults, events]);
 
   const Footer = (
-    <Box sx={{ px: 2, pb: 'calc(12px + env(safe-area-inset-bottom))', pt: 1.5, background: '#f2f2f2', borderTop: '1px solid #e9eceb' }}>
+    <Box sx={{ px: 2, pb: 'calc(12px + env(safe-area-inset-bottom))', pt: 1.5, background: '#fff', borderTop: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1}>
-        <Button variant="outlined" startIcon={<FilterListRoundedIcon />} onClick={() => (onFilter ? onFilter(tab) : console.info('Open filter'))}
-          sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Filter</Button>
-        <Button variant="contained" color="secondary" startIcon={<FileDownloadRoundedIcon />} onClick={() => (onExport ? onExport(tab) : console.info('Export logs'))}
-          sx={{ ml: 'auto', color: 'common.white', '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } }}>Export</Button>
+        <Button 
+          variant="contained" 
+          color="primary"
+          startIcon={<FilterListRoundedIcon />} 
+          onClick={handleFilter}
+          sx={{ 
+            borderRadius: 1.5,
+            color: 'common.white',
+            '&:hover': { bgcolor: 'primary.dark', color: 'common.white' } 
+          }}
+        >
+          FILTER
+        </Button>
+        <Button 
+          variant="contained" 
+          color="secondary" 
+          startIcon={<FileDownloadRoundedIcon />} 
+          onClick={handleExport}
+          sx={{ 
+            ml: 'auto', 
+            borderRadius: 1.5,
+            color: 'common.white', 
+            '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } 
+          }}
+        >
+          EXPORT
+        </Button>
       </Stack>
     </Box>
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MobileShell title="Diagnostics & logs" tagline="faults • events • export" onBack={handleBack} onHelp={onHelp} navValue={navValue} onNavChange={handleNavChange} footer={Footer}>
+    <MobileShell 
+      title="Diagnostics & logs" 
+      tagline="faults • events • export" 
+      onBack={handleBack} 
+      onHelp={onHelp} 
+      navValue={navValue} 
+      onNavChange={handleNavChange} 
+      footerSlot={Footer}
+    >
         <Box>
             {/* Tab chips */}
             <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
@@ -109,6 +171,5 @@ export default function DiagnosticsLogs({ onBack, onHelp, onNavChange, onExport,
             )}
         </Box>
       </MobileShell>
-    </ThemeProvider>
   );
 }

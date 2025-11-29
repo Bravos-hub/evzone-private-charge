@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import {
-  Container, Box, Typography, TextField, Button, InputAdornment, IconButton,
+  Box, Typography, TextField, Button, InputAdornment, IconButton,
   Paper, LinearProgress, Stack, Link as MuiLink,
   Radio, RadioGroup, FormControlLabel,
-  Snackbar, Alert, Chip, Accordion, AccordionSummary, AccordionDetails, Divider, Switch
+  Snackbar, Alert, Chip, Accordion, AccordionSummary, AccordionDetails, Divider, Switch,
+  Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Select, FormControl, InputLabel
 } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
@@ -125,10 +126,10 @@ function ConnectionTest({ stationId, onSuccess, onStatusChange, onFindTechnician
           </AccordionDetails>
         </Accordion>
         <Stack direction='row' spacing={1} sx={{ mt: 1 }}>
-          <Button variant='contained' startIcon={<ReplayRoundedIcon />} onClick={() => setStatus('idle')} sx={{ bgcolor: '#f77f00', color:'#fff', borderRadius: 999, '&:hover': { bgcolor: alpha('#f77f00',.85) } }}>Retry</Button>
-          <Button variant='outlined' startIcon={<ManageSearchRoundedIcon />} onClick={() => (onFindTechnician ? onFindTechnician() : alert('Find Technician flow'))} sx={{ borderRadius: 999 }}>Find Technician</Button>
+          <Button variant='contained' startIcon={<ReplayRoundedIcon />} onClick={() => setStatus('idle')} sx={{ bgcolor: '#f77f00', color:'#fff', borderRadius: 1.5, '&:hover': { bgcolor: alpha('#f77f00',.85) } }}>Retry</Button>
+          <Button variant='outlined' startIcon={<ManageSearchRoundedIcon />} onClick={() => (onFindTechnician ? onFindTechnician() : alert('Find Technician flow'))} sx={{ borderRadius: 1.5 }}>Find Technician</Button>
           {ALLOW_CONTINUE_ON_FAIL && (
-            <Button variant='outlined' onClick={() => (onContinue ? onContinue() : null)} sx={{ borderRadius: 999 }}>Continue</Button>
+            <Button variant='outlined' onClick={() => (onContinue ? onContinue() : null)} sx={{ borderRadius: 1.5 }}>Continue</Button>
           )}
         </Stack>
       </Paper>
@@ -146,7 +147,7 @@ function ConnectionTest({ stationId, onSuccess, onStatusChange, onFindTechnician
 }
 
 
-function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricing, access, setAccess, availability, setAvailability }) {
+function DetailsStep({ operatorAssigned, setOperatorAssigned, operator, setOperator, onViewOperator, onEditOperator, onAddOperator, pricing, setPricing, access, setAccess, availability, setAvailability }) {
   return (
     <Box>
       {/* Map preview */}
@@ -186,13 +187,18 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricin
 
       {/* Operator section */}
       <Box sx={{ mt: 2 }}>
+        <Typography variant="subtitle2" fontWeight={800} gutterBottom>Operator</Typography>
         {!operatorAssigned ? (
           <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
             <Typography variant="subtitle1" fontWeight={700}>No operator assigned</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               Assign an accredited operator to manage operations and support.
             </Typography>
-            <Button fullWidth color="secondary" variant="contained" onClick={() => setOperatorAssigned(true)}
+            <Button fullWidth color="secondary" variant="contained" onClick={() => {
+              if (onAddOperator) {
+                onAddOperator();
+              }
+            }}
               sx={{ mt: 1.25, color: 'common.white', '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } }}>
               Assign operator
             </Button>
@@ -201,15 +207,50 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, pricing, setPricin
           <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Box>
-                <Chip label="Online" color="success" size="small" sx={{ mr: 1 }} />
-                <Typography variant="subtitle1" fontWeight={700}>Robert Fox</Typography>
-                <Typography variant="body2" color="text.secondary">Shift: Day</Typography>
+                <Chip label={operator.status || 'Online'} color="success" size="small" sx={{ mr: 1 }} />
+                <Typography variant="subtitle1" fontWeight={700}>{operator.name || 'Robert Fox'}</Typography>
+                <Typography variant="body2" color="text.secondary">Shift: {operator.shift || 'Day'}</Typography>
               </Box>
               <Stack direction="row" spacing={1}>
-                <Button variant="outlined" size="small" sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>View</Button>
-                <Button variant="outlined" size="small" sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Edit</Button>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  onClick={() => {
+                    if (onViewOperator) {
+                      onViewOperator(operator);
+                    }
+                  }}
+                  sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}
+                >
+                  View
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  onClick={() => {
+                    if (onEditOperator) {
+                      onEditOperator(operator);
+                    }
+                  }}
+                  sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}
+                >
+                  Edit
+                </Button>
               </Stack>
             </Stack>
+            <Button 
+              fullWidth 
+              variant="outlined" 
+              size="small" 
+              onClick={() => {
+                if (onAddOperator) {
+                  onAddOperator();
+                }
+              }}
+              sx={{ mt: 1.5, '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}
+            >
+              Add New Operator
+            </Button>
           </Paper>
         )}
       </Box>
@@ -293,9 +334,33 @@ export default function ConnectCommercializeChargerMobile({
 
   // Step 6: Details
   const [operatorAssigned, setOperatorAssigned] = useState(false);
+  const [operator, setOperator] = useState({ 
+    name: 'Robert Fox', 
+    shift: 'Day', 
+    status: 'Online',
+    phone: '+256 XXX XXX XXX',
+    email: 'robert.fox@example.com',
+    location: 'Kampala, Uganda',
+    rating: '4.8',
+    experience: '5+ years'
+  });
   const [pricing, setPricing] = useState({ model: 'kwh' });
   const [availability, setAvailability] = useState({ label: '24/7' });
   const [access, setAccess] = useState({ label: 'Public' });
+  
+  // Operator dialog states
+  const [viewOperatorOpen, setViewOperatorOpen] = useState(false);
+  const [editOperatorOpen, setEditOperatorOpen] = useState(false);
+  const [addOperatorOpen, setAddOperatorOpen] = useState(false);
+  const [operatorForm, setOperatorForm] = useState({ 
+    name: '', 
+    shift: 'Day',
+    phone: '',
+    email: '',
+    location: '',
+    rating: '',
+    experience: ''
+  });
 
   // API post snackbar
   const [apiSnack, setApiSnack] = useState({ open: false, severity: 'success', msg: '' });
@@ -326,7 +391,7 @@ export default function ConnectCommercializeChargerMobile({
     connection: { connected },
     location: { coords, locationName, accessNotes },
     commercialization: { mode: choice },
-    details: { operatorAssigned, pricing, availability, access }
+    details: { operatorAssigned, operator, pricing, availability, access }
   });
 
   // ---------- Lightweight DEV self-tests (run once; logs to console)
@@ -411,8 +476,8 @@ ${JSON.stringify(payload, null, 2)}`);
       {step === 3 && (
         testStatus === 'failed' ? (
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<ManageSearchRoundedIcon />} onClick={() => alert('Find Technician flow')}>Find Technician</Button>
-            {ALLOW_CONTINUE_ON_FAIL && <Button variant="contained" color="secondary" onClick={next} sx={{ color: '#fff' }}>Continue</Button>}
+            <Button variant="outlined" startIcon={<ManageSearchRoundedIcon />} onClick={() => alert('Find Technician flow')} sx={{ borderRadius: 1.5 }}>Find Technician</Button>
+            {ALLOW_CONTINUE_ON_FAIL && <Button variant="contained" color="secondary" onClick={next} sx={{ color: '#fff', borderRadius: 1.5 }}>Continue</Button>}
           </Stack>
         ) : (
           <Typography variant="caption" color="text.secondary">Run the test. If it fails, you can continue and fix later.</Typography>
@@ -463,16 +528,15 @@ ${JSON.stringify(payload, null, 2)}`);
 
   return (
     <>
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell
-          title={{1:'Connect charger',2:'OCPP server config',3:'Test connection',4:'Location',5:'Commercialization',6:'Charger details',7:'Summary & publish'}[step]}
-          tagline={{1:'fast pairing for EVmart chargers',2:'link your charger to the cloud',3:'verify that the charger is online',4:'pin the exact station location',5:'choose how to use this charger',6:'performance • schedule • access',7:'review & finalize'}[step]}
-          onBack={handleBack}
-          onHelp={() => (onHelp ? onHelp() : alert('Help & docs'))}
-          navValue={navValue}
-          onNavChange={handleNavChange}
-          footer={Footer}
-        >
+      <MobileShell
+        title={{1:'Connect charger',2:'OCPP server config',3:'Test connection',4:'Location',5:'Commercialization',6:'Charger details',7:'Summary & publish'}[step]}
+        tagline={{1:'fast pairing for EVmart chargers',2:'link your charger to the cloud',3:'verify that the charger is online',4:'pin the exact station location',5:'choose how to use this charger',6:'performance • schedule • access',7:'review & finalize'}[step]}
+        onBack={handleBack}
+        onHelp={() => (onHelp ? onHelp() : alert('Help & docs'))}
+        navValue={navValue}
+        onNavChange={handleNavChange}
+        footerSlot={Footer}
+      >
           <StepHeader step={step} total={TOTAL_STEPS} />
 
           {step === 1 && (
@@ -540,7 +604,54 @@ ${JSON.stringify(payload, null, 2)}`);
           )}
 
           {step === 6 && (
-            <DetailsStep operatorAssigned={operatorAssigned} setOperatorAssigned={setOperatorAssigned} pricing={pricing} setPricing={setPricing} availability={availability} setAvailability={setAvailability} access={access} setAccess={setAccess} />
+            <DetailsStep 
+              operatorAssigned={operatorAssigned} 
+              setOperatorAssigned={setOperatorAssigned}
+              operator={operator}
+              setOperator={setOperator}
+              onViewOperator={(op) => {
+                setOperatorForm({ 
+                  name: op.name || '', 
+                  shift: op.shift || 'Day',
+                  phone: op.phone || '',
+                  email: op.email || '',
+                  location: op.location || '',
+                  rating: op.rating || '',
+                  experience: op.experience || ''
+                });
+                setViewOperatorOpen(true);
+              }}
+              onEditOperator={(op) => {
+                setOperatorForm({ 
+                  name: op.name || '', 
+                  shift: op.shift || 'Day',
+                  phone: op.phone || '',
+                  email: op.email || '',
+                  location: op.location || '',
+                  rating: op.rating || '',
+                  experience: op.experience || ''
+                });
+                setEditOperatorOpen(true);
+              }}
+              onAddOperator={() => {
+                setOperatorForm({ 
+                  name: '', 
+                  shift: 'Day',
+                  phone: '',
+                  email: '',
+                  location: '',
+                  rating: '',
+                  experience: ''
+                });
+                setAddOperatorOpen(true);
+              }}
+              pricing={pricing} 
+              setPricing={setPricing} 
+              availability={availability} 
+              setAvailability={setAvailability} 
+              access={access} 
+              setAccess={setAccess} 
+            />
           )}
 
           {step === 7 && (
@@ -562,8 +673,290 @@ ${JSON.stringify(payload, null, 2)}`);
               <Typography variant="caption" color="text.secondary">Tip: After publishing, you can manage this charger in Aggregator & CPMS (pricing, tariffs, operator handoffs, and more).</Typography>
             </Paper>
           )}
-        </MobileShell>
-      </Container>
+      </MobileShell>
+
+      {/* View/Edit Operator Details Dialog */}
+      <Dialog open={viewOperatorOpen} onClose={() => setViewOperatorOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Operator Details</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <TextField
+              label="Operator Name"
+              value={operatorForm.name}
+              onChange={(e) => setOperatorForm({ ...operatorForm, name: e.target.value })}
+              fullWidth
+              required
+            />
+            <FormControl fullWidth>
+              <InputLabel>Shift</InputLabel>
+              <Select
+                value={operatorForm.shift}
+                label="Shift"
+                onChange={(e) => setOperatorForm({ ...operatorForm, shift: e.target.value })}
+              >
+                <MenuItem value="Day">Day</MenuItem>
+                <MenuItem value="Night">Night</MenuItem>
+              </Select>
+            </FormControl>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>Status</Typography>
+              <Chip label={operator.status} color="success" size="small" />
+            </Box>
+            <Divider />
+            <TextField
+              label="Phone Number"
+              value={operatorForm.phone}
+              onChange={(e) => setOperatorForm({ ...operatorForm, phone: e.target.value })}
+              fullWidth
+              placeholder="+256 XXX XXX XXX"
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={operatorForm.email}
+              onChange={(e) => setOperatorForm({ ...operatorForm, email: e.target.value })}
+              fullWidth
+              placeholder="operator@example.com"
+            />
+            <TextField
+              label="Location"
+              value={operatorForm.location}
+              onChange={(e) => setOperatorForm({ ...operatorForm, location: e.target.value })}
+              fullWidth
+              placeholder="City, Country"
+            />
+            <TextField
+              label="Rating"
+              type="number"
+              value={operatorForm.rating}
+              onChange={(e) => setOperatorForm({ ...operatorForm, rating: e.target.value })}
+              fullWidth
+              placeholder="4.8"
+              inputProps={{ min: 0, max: 5, step: 0.1 }}
+              helperText="Rating out of 5.0"
+            />
+            <TextField
+              label="Experience"
+              value={operatorForm.experience}
+              onChange={(e) => setOperatorForm({ ...operatorForm, experience: e.target.value })}
+              fullWidth
+              placeholder="e.g., 5+ years"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewOperatorOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              if (operatorForm.name.trim()) {
+                setOperator({ 
+                  ...operator, 
+                  name: operatorForm.name.trim(), 
+                  shift: operatorForm.shift,
+                  phone: operatorForm.phone.trim(),
+                  email: operatorForm.email.trim(),
+                  location: operatorForm.location.trim(),
+                  rating: operatorForm.rating.trim(),
+                  experience: operatorForm.experience.trim()
+                });
+                setViewOperatorOpen(false);
+              }
+            }}
+            sx={{ color: 'common.white' }}
+            disabled={!operatorForm.name.trim()}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Operator Dialog */}
+      <Dialog open={editOperatorOpen} onClose={() => setEditOperatorOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Edit Operator</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <TextField
+              label="Operator Name"
+              value={operatorForm.name}
+              onChange={(e) => setOperatorForm({ ...operatorForm, name: e.target.value })}
+              fullWidth
+              required
+            />
+            <FormControl fullWidth>
+              <InputLabel>Shift</InputLabel>
+              <Select
+                value={operatorForm.shift}
+                label="Shift"
+                onChange={(e) => setOperatorForm({ ...operatorForm, shift: e.target.value })}
+              >
+                <MenuItem value="Day">Day</MenuItem>
+                <MenuItem value="Night">Night</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              label="Phone Number"
+              value={operatorForm.phone}
+              onChange={(e) => setOperatorForm({ ...operatorForm, phone: e.target.value })}
+              fullWidth
+              placeholder="+256 XXX XXX XXX"
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={operatorForm.email}
+              onChange={(e) => setOperatorForm({ ...operatorForm, email: e.target.value })}
+              fullWidth
+              placeholder="operator@example.com"
+            />
+            <TextField
+              label="Location"
+              value={operatorForm.location}
+              onChange={(e) => setOperatorForm({ ...operatorForm, location: e.target.value })}
+              fullWidth
+              placeholder="City, Country"
+            />
+            <TextField
+              label="Rating"
+              type="number"
+              value={operatorForm.rating}
+              onChange={(e) => setOperatorForm({ ...operatorForm, rating: e.target.value })}
+              fullWidth
+              placeholder="4.8"
+              inputProps={{ min: 0, max: 5, step: 0.1 }}
+              helperText="Rating out of 5.0"
+            />
+            <TextField
+              label="Experience"
+              value={operatorForm.experience}
+              onChange={(e) => setOperatorForm({ ...operatorForm, experience: e.target.value })}
+              fullWidth
+              placeholder="e.g., 5+ years"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOperatorOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              if (operatorForm.name.trim()) {
+                setOperator({ 
+                  ...operator, 
+                  name: operatorForm.name.trim(), 
+                  shift: operatorForm.shift,
+                  phone: operatorForm.phone.trim(),
+                  email: operatorForm.email.trim(),
+                  location: operatorForm.location.trim(),
+                  rating: operatorForm.rating.trim(),
+                  experience: operatorForm.experience.trim()
+                });
+                setEditOperatorOpen(false);
+              }
+            }}
+            sx={{ color: 'common.white' }}
+            disabled={!operatorForm.name.trim()}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Operator Dialog */}
+      <Dialog open={addOperatorOpen} onClose={() => setAddOperatorOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Add New Operator</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <TextField
+              label="Operator Name"
+              value={operatorForm.name}
+              onChange={(e) => setOperatorForm({ ...operatorForm, name: e.target.value })}
+              fullWidth
+              required
+              placeholder="Enter operator name"
+            />
+            <FormControl fullWidth>
+              <InputLabel>Shift</InputLabel>
+              <Select
+                value={operatorForm.shift}
+                label="Shift"
+                onChange={(e) => setOperatorForm({ ...operatorForm, shift: e.target.value })}
+              >
+                <MenuItem value="Day">Day</MenuItem>
+                <MenuItem value="Night">Night</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              label="Phone Number"
+              value={operatorForm.phone}
+              onChange={(e) => setOperatorForm({ ...operatorForm, phone: e.target.value })}
+              fullWidth
+              placeholder="+256 XXX XXX XXX"
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={operatorForm.email}
+              onChange={(e) => setOperatorForm({ ...operatorForm, email: e.target.value })}
+              fullWidth
+              placeholder="operator@example.com"
+            />
+            <TextField
+              label="Location"
+              value={operatorForm.location}
+              onChange={(e) => setOperatorForm({ ...operatorForm, location: e.target.value })}
+              fullWidth
+              placeholder="City, Country"
+            />
+            <TextField
+              label="Rating"
+              type="number"
+              value={operatorForm.rating}
+              onChange={(e) => setOperatorForm({ ...operatorForm, rating: e.target.value })}
+              fullWidth
+              placeholder="4.8"
+              inputProps={{ min: 0, max: 5, step: 0.1 }}
+              helperText="Rating out of 5.0"
+            />
+            <TextField
+              label="Experience"
+              value={operatorForm.experience}
+              onChange={(e) => setOperatorForm({ ...operatorForm, experience: e.target.value })}
+              fullWidth
+              placeholder="e.g., 5+ years"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddOperatorOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              if (operatorForm.name.trim()) {
+                setOperator({ 
+                  name: operatorForm.name.trim(), 
+                  shift: operatorForm.shift, 
+                  status: 'Online',
+                  phone: operatorForm.phone.trim(),
+                  email: operatorForm.email.trim(),
+                  location: operatorForm.location.trim(),
+                  rating: operatorForm.rating.trim(),
+                  experience: operatorForm.experience.trim()
+                });
+                setOperatorAssigned(true);
+                setAddOperatorOpen(false);
+              }
+            }}
+            sx={{ color: 'common.white' }}
+            disabled={!operatorForm.name.trim()}
+          >
+            Add Operator
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar open={apiSnack.open} autoHideDuration={2000} onClose={() => setApiSnack({ ...apiSnack, open: false })}>
         <Alert severity={apiSnack.severity} sx={{ width: '100%' }}>{apiSnack.msg}</Alert>

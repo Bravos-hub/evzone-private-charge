@@ -1,98 +1,27 @@
-import React, { useMemo, useState } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  CssBaseline,
   Box,
   Paper,
   Stack,
   Typography,
   Button,
   Chip,
-  IconButton,
-  AppBar,
-  Toolbar,
-  BottomNavigation,
-  BottomNavigationAction,
-  Tooltip,
   FormControl,
   Select,
   MenuItem,
   TextField
 } from '@mui/material';
-import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
 import FlashOnRoundedIcon from '@mui/icons-material/FlashOnRounded';
 import LocalGasStationRoundedIcon from '@mui/icons-material/LocalGasStationRounded';
 import TimelineRoundedIcon from '@mui/icons-material/TimelineRounded';
+import MobileShell from '../../components/layout/MobileShell';
 
 /**
  * 35 — Energy Analytics (mobile, React + MUI, JS) — Clean
  * Rollup‑safe (no dynamic imports, no optional chaining), strict 420px shell.
  */
-
-const theme = createTheme({
-  palette: {
-    primary: { main: '#03cd8c' },
-    secondary: { main: '#f77f00' },
-    background: { default: '#f2f2f2' },
-    divider: '#eef3f1'
-  },
-  shape: { borderRadius: 7 },
-  typography: { fontFamily: 'Inter, system-ui, -apple-system, Roboto, Arial, sans-serif' }
-});
-
-function MobileShell(props) {
-  var title = props.title;
-  var tagline = props.tagline;
-  var onBack = props.onBack;
-  var onHelp = props.onHelp;
-  var navValue = props.navValue;
-  var onNavChange = props.onNavChange;
-  var children = props.children;
-  function handleBack(){ if (typeof onBack === 'function') onBack(); }
-  function handleBell(){ if (typeof onHelp === 'function') onHelp(); }
-  return (
-    <Box sx={{ minHeight:'100dvh', display:'flex', flexDirection:'column', bgcolor:'background.default' }}>
-      <AppBar position='fixed' elevation={1}
-        sx={{ backgroundImage:'linear-gradient(180deg, rgba(3,205,140,0.92) 0%, rgba(3,205,140,0.78) 60%, rgba(3,205,140,0.70) 100%)', backdropFilter:'blur(6px)' }}>
-        <Toolbar sx={{ px:0 }}>
-          <Box sx={{ width:'100%', maxWidth:420, mx:'auto', px:1, display:'flex', alignItems:'center' }}>
-            <IconButton size='small' edge='start' onClick={handleBack} aria-label='Back' sx={{ color:'common.white', mr:1 }}>
-              <ArrowBackIosNewIcon fontSize='small' />
-            </IconButton>
-            <Box sx={{ display:'flex', flexDirection:'column', minWidth:0 }}>
-              <Typography variant='h6' color='inherit' noWrap sx={{ fontWeight:800, lineHeight:1.1 }}>{title}</Typography>
-              {tagline ? <Typography variant='caption' color='common.white' noWrap sx={{ opacity:.9 }}>{tagline}</Typography> : null}
-            </Box>
-            <Box sx={{ flexGrow:1 }} />
-            <Tooltip title='Notifications'><span><IconButton size='small' edge='end' onClick={handleBell} sx={{ color:'common.white' }}><NotificationsRoundedIcon fontSize='small'/></IconButton></span></Tooltip>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <Toolbar />
-      <Box component='main' sx={{ flex:1 }}>
-        <Box sx={{ maxWidth:420, mx:'auto', px:2, pt:2, pb:2 }}>{children}</Box>
-      </Box>
-      <Paper elevation={8} sx={{ borderTopLeftRadius:16, borderTopRightRadius:16, position:'sticky', bottom:0, backdropFilter:'blur(6px)' }}>
-        <Box sx={{ maxWidth:420, mx:'auto' }}>
-          <BottomNavigation value={navValue} onChange={function(_,v){ if (typeof onNavChange==='function') onNavChange(v); }} showLabels sx={{ '& .Mui-selected, & .Mui-selected .MuiSvgIcon-root': { color: theme.palette.primary.main } }}>
-            <BottomNavigationAction label='Home' icon={<HomeRoundedIcon/>}/>
-            <BottomNavigationAction label='Dashboard' icon={<DashboardRoundedIcon/>}/>
-            <BottomNavigationAction label='Sessions' icon={<HistoryRoundedIcon/>}/>
-            <BottomNavigationAction label='Wallet' icon={<AccountBalanceWalletRoundedIcon/>}/>
-            <BottomNavigationAction label='Settings' icon={<SettingsRoundedIcon/>}/>
-          </BottomNavigation>
-        </Box>
-      </Paper>
-    </Box>
-  );
-}
 
 function Metric(props){
   return (
@@ -164,7 +93,43 @@ export default function EnergyAnalytics(props){
   var onExportAnalytics = props.onExportAnalytics;
   var onHelp = props.onHelp; var onBack = props.onBack; var onNavChange = props.onNavChange;
 
-  var [navValue,setNavValue] = useState(2);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+  const [navValue, setNavValue] = useState(0); // Default to Home tab
+
+  // Sync navValue with current route
+  useEffect(() => {
+    // Analytics pages don't have a direct tab, so map to Home tab
+    if (location.pathname.startsWith('/analytics')) {
+      setNavValue(0);
+    } else {
+      const pathIndex = routes.findIndex(route => 
+        (location.pathname === route || location.pathname.startsWith(route + '/')) && route !== '/'
+      );
+      if (pathIndex !== -1) {
+        setNavValue(pathIndex);
+      }
+    }
+  }, [location.pathname, routes]);
+
+  const handleNavChange = useCallback((value) => {
+    setNavValue(value);
+    if (value === 0) {
+      navigate('/dashboard');
+    } else if (routes[value] !== undefined) {
+      navigate(routes[value]);
+    }
+    if (onNavChange) onNavChange(value);
+  }, [navigate, routes, onNavChange]);
+
+  const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate, onBack]);
   var [chargerId,setChargerId] = useState(defaultChargerId);
   var [connectorId,setConnectorId] = useState('all');
   var [range,setRange] = useState('7d');
@@ -189,9 +154,14 @@ export default function EnergyAnalytics(props){
   var connectorList = connectorsMap[chargerId] || [{id:'all',name:'All connectors'}];
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline/>
-      <MobileShell title='Energy analytics' tagline='kWh • cost • sessions' onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={function(v){ setNavValue(v); if (typeof onNavChange==='function') onNavChange(v); }}>
+    <MobileShell 
+      title='Energy analytics' 
+      tagline='kWh • cost • sessions' 
+      onBack={handleBack} 
+      onHelp={onHelp} 
+      navValue={navValue} 
+      onNavChange={handleNavChange}
+    >
         <Paper elevation={0} sx={{ p:1.25, borderRadius: 1.5, bgcolor:'rgba(247,127,0,0.08)', mb:2 }}>
           <Typography variant='caption'>Charts are lightweight SVG for reliable bundling in sandboxed environments.</Typography>
         </Paper>
@@ -243,7 +213,6 @@ export default function EnergyAnalytics(props){
           <Typography variant='subtitle2' fontWeight={800} sx={{ mb:1 }}>Cost & sessions</Typography>
           <DualBarChartMini data={series} xKey='label' leftKey='cost' rightKey='sessions' />
         </Paper>
-      </MobileShell>
-    </ThemeProvider>
+    </MobileShell>
   );
 }

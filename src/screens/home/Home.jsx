@@ -9,6 +9,7 @@ import {
   Paper,
   Stack,
   Link as MuiLink,
+  CircularProgress,
 } from '@mui/material';
 import BoltIcon from '@mui/icons-material/Bolt';
 import EvStationIcon from '@mui/icons-material/EvStation';
@@ -21,6 +22,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { EVzoneTheme } from '../../utils/theme';
 import { useGreeting } from '../../hooks/useGreeting';
+import { useChargers } from '../../hooks/useChargers';
 
 /**
  * Private‑Charging Home (Mobile‑only) — Info + Get Started CTA
@@ -33,6 +35,14 @@ export default function PrivateChargingHome({
 }) {
   const navigate = useNavigate();
   const greeting = useGreeting(userName);
+  const { chargers, loading } = useChargers();
+
+  // Redirect to dashboard if user has chargers
+  useEffect(() => {
+    if (!loading && chargers && chargers.length > 0) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [loading, chargers, navigate]);
 
   // Dev sanity checks (console‑only) — DO NOT REMOVE existing tests, only extend
   useEffect(() => {
@@ -47,6 +57,22 @@ export default function PrivateChargingHome({
     ok('EvStationIcon imported', typeof EvStationIcon === 'function');
     console.table(checks);
   }, [greeting, onGetStarted]);
+
+  const hasChargers = chargers && chargers.length > 0;
+
+  // Show loading state while checking for chargers
+  if (loading) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Don't render if user has chargers (will redirect)
+  if (!loading && hasChargers) {
+    return null;
+  }
 
   return (
     /* Strict mobile frame: hard cap width & centered on larger screens */
@@ -186,7 +212,9 @@ export default function PrivateChargingHome({
               fullWidth
               size="large"
               variant="contained"
+              disabled={hasChargers}
               onClick={() => {
+                if (hasChargers) return;
                 if (onGetStarted) {
                   onGetStarted();
                 } else {
@@ -201,8 +229,13 @@ export default function PrivateChargingHome({
                 boxShadow: '0 8px 20px rgba(247, 127, 0, 0.35)',
                 textTransform: 'none',
                 py: 1.2,
-                '&:hover': { bgcolor: 'secondary.dark' },
-                '&:active': { transform: 'scale(0.98)' },
+                '&:hover': { bgcolor: hasChargers ? undefined : 'secondary.dark' },
+                '&:active': { transform: hasChargers ? undefined : 'scale(0.98)' },
+                '&.Mui-disabled': {
+                  bgcolor: 'action.disabledBackground',
+                  color: 'action.disabled',
+                  boxShadow: 'none',
+                },
               }}
             >
               Get&nbsp;Started

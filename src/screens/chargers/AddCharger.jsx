@@ -14,6 +14,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
 import MobileShell from '../../components/layout/MobileShell';
+import QRScanner from '../../components/common/QRScanner';
 import { EV } from '../../utils/theme';
 
 /********************
@@ -63,6 +64,7 @@ export default function AddChargerStartPro({
   };
   const [source, setSource] = useState('evmart'); // 'evmart' | 'other'
   const [showManual, setShowManual] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
   const [form, setForm] = useState({
     make: '',
     model: '',
@@ -94,11 +96,31 @@ export default function AddChargerStartPro({
     const modelOk = !!form.model?.trim();
     const serialOk = !!form.serial?.trim();
     const ocppOk = !!form.ocpp?.trim();
-    const powerOk = form.powerKw !== '' && !Number.isNaN(Number(form.powerKw));
+    
+    // Check if any connector has power filled
+    const hasConnectorPower = connectors.some(c => {
+      const power = String(c.powerKw || '').trim();
+      return power !== '' && !isNaN(parseFloat(power)) && parseFloat(power) > 0;
+    });
+    
+    // Charger-level power is required UNLESS at least one connector has power
+    const powerValue = String(form.powerKw || '').trim();
+    const chargerPowerOk = powerValue !== '' && !isNaN(parseFloat(powerValue)) && parseFloat(powerValue) > 0;
+    const powerOk = chargerPowerOk || hasConnectorPower;
+    
     const hasConnector = connectors.length >= 1;
     const connectorTypesOk = connectors.every(c => !!c.type?.trim());
     const connectorLabelsOk = connectors.every(c => !!c.label?.trim());
-    return hasConsents && makeOk && modelOk && serialOk && ocppOk && powerOk && hasConnector && connectorTypesOk && connectorLabelsOk;
+    
+    // Connector power is optional - only validate if provided
+    const connectorPowerOk = connectors.every(c => {
+      const power = String(c.powerKw || '').trim();
+      if (power === '') return true; // Optional field
+      const numPower = parseFloat(power);
+      return !isNaN(numPower) && numPower > 0;
+    });
+    
+    return hasConsents && makeOk && modelOk && serialOk && ocppOk && powerOk && hasConnector && connectorTypesOk && connectorLabelsOk && connectorPowerOk;
   }, [showManual, consent, form, connectors]);
 
   const footerSlot = (
@@ -206,7 +228,13 @@ export default function AddChargerStartPro({
               <Button
                 variant="contained"
                 startIcon={<QrCodeScannerIcon/>}
-                onClick={()=> (onScan ? onScan() : console.info('Scan QR'))}
+                onClick={() => {
+                  if (onScan) {
+                    onScan();
+                  } else {
+                    setShowQRScanner(true);
+                  }
+                }}
                 sx={{ color:'#fff', borderRadius: 999, px: 2, bgcolor: EV.orange, '&:hover': { bgcolor: alpha(EV.orange, .85) } }}
               >
                 Scan QR
@@ -299,6 +327,43 @@ export default function AddChargerStartPro({
           </Box>
         </Stack>
       </Paper>
+
+      {/* QR Scanner Dialog */}
+      <QRScanner
+        open={showQRScanner}
+        onClose={() => setShowQRScanner(false)}
+        onScanSuccess={(decodedText) => {
+          // Parse QR code data - expected format may vary
+          // Common formats: JSON string, URL with params, or simple text
+          try {
+            // Try parsing as JSON first
+            const parsed = JSON.parse(decodedText);
+            if (parsed.serial) setForm(prev => ({ ...prev, serial: parsed.serial }));
+            if (parsed.model) setForm(prev => ({ ...prev, model: parsed.model }));
+            if (parsed.make) setForm(prev => ({ ...prev, make: parsed.make }));
+            if (parsed.powerKw) setForm(prev => ({ ...prev, powerKw: parsed.powerKw }));
+            if (parsed.ocpp) setForm(prev => ({ ...prev, ocpp: parsed.ocpp }));
+          } catch {
+            // If not JSON, try URL params or treat as serial number
+            try {
+              const url = new URL(decodedText);
+              const params = new URLSearchParams(url.search);
+              if (params.get('serial')) setForm(prev => ({ ...prev, serial: params.get('serial') }));
+              if (params.get('model')) setForm(prev => ({ ...prev, model: params.get('model') }));
+              if (params.get('make')) setForm(prev => ({ ...prev, make: params.get('make') }));
+            } catch {
+              // Treat entire QR code as serial number if it's just text
+              if (decodedText.trim()) {
+                setForm(prev => ({ ...prev, serial: decodedText.trim() }));
+              }
+            }
+          }
+          // Show manual form after scanning to allow user to verify/edit
+          setShowManual(true);
+          setShowQRScanner(false);
+        }}
+        title="Scan Charger QR Code"
+      />
     </MobileShell>
   );
 }

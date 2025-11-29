@@ -1,58 +1,17 @@
-import React, { useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, IconButton, List, ListItemButton, Switch, TextField, Slider,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControlLabel, Select, MenuItem, FormControl
+  Box, Typography, Paper, Stack, Button, Chip, IconButton, List, ListItemButton, Switch, TextField, Slider,
+  FormControlLabel, Select, MenuItem, FormControl
 } from '@mui/material';
 import ElectricBoltRoundedIcon from '@mui/icons-material/ElectricBoltRounded';
 import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import HistoryIcon from '@mui/icons-material/History';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
-
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
-
-function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
-  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 06 — Charger Details'); };
-  return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="fixed" elevation={1} color="primary"><Toolbar sx={{ px: 0 }}>
-        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
-          <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}><ArrowBackIosNewIcon fontSize="small" /></IconButton>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
-            {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}><HelpOutlineIcon fontSize="small" /></IconButton>
-        </Box>
-      </Toolbar></AppBar>
-      <Toolbar />
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
-        {footer}
-        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
-            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
-            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
-            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
-            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
-          </BottomNavigation>
-        </Paper>
-      </Box>
-    </Box>
-  );
-}
+import MobileShell from '../../components/layout/MobileShell';
 
 function CommercialBadge({ isCommercial }) {
   return (
-    <Chip size="small" label={isCommercial ? 'Commercial Chareger' : 'Not commercial'}
+    <Chip size="small" label={isCommercial ? 'Commercial Charger' : 'Not commercial'}
       color={isCommercial ? 'secondary' : 'default'} sx={{ color: isCommercial ? 'common.white' : undefined }} />
   );
 }
@@ -87,7 +46,34 @@ export default function ConnectorManagementPatched({
   onOpenAggregator,
   onBack, onHelp, onNavChange, onSave, onToggle, onTest, onOpenPricingGlobal, onOpenAvailability, onOpenPricingConnector
 }) {
-  const [navValue, setNavValue] = useState(1);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+  const [navValue, setNavValue] = useState(4); // Settings tab index
+
+  // Sync navValue with current route
+  useEffect(() => {
+    const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
+    if (pathIndex !== -1) {
+      setNavValue(pathIndex);
+    }
+  }, [location.pathname, routes]);
+
+  const handleNavChange = useCallback((value) => {
+    setNavValue(value);
+    if (routes[value] !== undefined) {
+      navigate(routes[value]);
+    }
+    if (onNavChange) onNavChange(value);
+  }, [navigate, routes, onNavChange]);
+
+  const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate, onBack]);
   const [unit, setUnit] = useState('UGX/kWh');
   const [applyAllPrice, setApplyAllPrice] = useState('1200');
   const [applyAllCurrent, setApplyAllCurrent] = useState(32);
@@ -106,9 +92,21 @@ export default function ConnectorManagementPatched({
   const Footer = (
     <Box sx={{ px: 2, pb: 'calc(12px + env(safe-area-inset-bottom))', pt: 1.5, background: '#f2f2f2', borderTop: '1px solid #e9eceb' }}>
       <Stack direction="row" spacing={1}>
-        <Button variant="outlined" onClick={() => (onOpenPricingGlobal ? onOpenPricingGlobal() : console.info('Navigate to: 07 — Pricing & Fees (global)'))}
+        <Button variant="outlined" onClick={() => {
+          if (onOpenPricingGlobal) {
+            onOpenPricingGlobal();
+          } else {
+            navigate('/pricing');
+          }
+        }}
           sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Global pricing</Button>
-        <Button variant="outlined" onClick={() => (onOpenAvailability ? onOpenAvailability() : console.info('Navigate to: 08 — Availability'))}
+        <Button variant="outlined" onClick={() => {
+          if (onOpenAvailability) {
+            onOpenAvailability();
+          } else {
+            navigate('/availability');
+          }
+        }}
           sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Availability</Button>
         <Button variant="contained" color="secondary" onClick={() => (onSave ? onSave(connectors) : console.info('Save connectors'))}
           sx={{ ml: 'auto', color: 'common.white', '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } }}>Save all</Button>
@@ -139,11 +137,16 @@ export default function ConnectorManagementPatched({
   const testConnector = (c) => { onTest ? onTest(c) : console.info('Run test on', c.name); };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Connector management" tagline="status • pricing • current • tests" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{setNavValue(v); onNavChange&&onNavChange(v);}} footer={Footer}>
-          <Box sx={{ px: 2, pt: 2 }}>
+    <MobileShell 
+      title="Connector management" 
+      tagline="status • pricing • current • tests" 
+      onBack={handleBack} 
+      onHelp={onHelp} 
+      navValue={navValue} 
+      onNavChange={handleNavChange}
+      footerSlot={Footer}
+    >
+      <Box>
             {/* Commercial badge + Aggregator CTA */}
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
               <CommercialBadge isCommercial={isCommercial} />
@@ -184,9 +187,7 @@ export default function ConnectorManagementPatched({
                 ))}
               </List>
             </Paper>
-          </Box>
-        </MobileShell>
-      </Container>
-    </ThemeProvider>
+      </Box>
+    </MobileShell>
   );
 }

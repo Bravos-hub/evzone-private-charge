@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import {
-  Container, Box, Typography, Paper, Stack, Button, Chip, IconButton,
+  Box, Typography, Paper, Stack, Button, Chip, IconButton,
   FormControl, Select, MenuItem,
   CircularProgress, Grid,
   Tooltip, Snackbar, Alert, Menu, ListItemIcon
@@ -64,20 +64,30 @@ export default function HomeDashboard({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const [navValue, setNavValue] = useState(1); // Stations tab
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+  const [navValue, setNavValue] = useState(0); // Home tab (Dashboard is the home view)
   
   // Sync navValue with current route
   useEffect(() => {
-    const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
-    if (pathIndex !== -1) {
-      setNavValue(pathIndex);
+    // Map /dashboard to Home tab (index 0)
+    if (location.pathname === '/dashboard' || location.pathname === '/') {
+      setNavValue(0);
+    } else {
+      const pathIndex = routes.findIndex(route => 
+        (location.pathname === route || location.pathname.startsWith(route + '/')) && route !== '/'
+      );
+      if (pathIndex !== -1) {
+        setNavValue(pathIndex);
+      }
     }
   }, [location.pathname, routes]);
   
   const handleNavChange = useCallback((value) => {
     setNavValue(value);
-    if (routes[value] !== undefined) {
+    if (value === 0) {
+      // Home tab should navigate to dashboard
+      navigate('/dashboard');
+    } else if (routes[value] !== undefined) {
       navigate(routes[value]);
     }
     if (onNavChange) onNavChange(value);
@@ -97,33 +107,33 @@ export default function HomeDashboard({
 
   // Header actions (Refresh + Add Charger + More)
   const HeaderActions = (
-    <Box sx={{ mb: 1, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, maxWidth: 420, mx: 'auto' }}>
+    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
       <Button
         size="small"
         variant="outlined"
         startIcon={<RefreshRoundedIcon />}
         onClick={() => { onRefresh ? onRefresh(selectedChargerId) : console.info('Refresh'); setSnack(true); }}
-        sx={{ borderRadius: 999, whiteSpace: 'nowrap' }}
+        sx={{ borderRadius: 1.5, whiteSpace: 'nowrap', flex: '0 1 auto' }}
       >
-        Refresh
+        REFRESH
       </Button>
       <Button
         size="small"
         variant="outlined"
         startIcon={<AddCircleOutlineIcon />}
         onClick={() => setAddOpen(true)}
-        sx={{ borderRadius: 999, whiteSpace: 'nowrap' }}
+        sx={{ borderRadius: 1.5, whiteSpace: 'nowrap', flex: '0 1 auto' }}
       >
-        Add Charger
+        ADD CHARGER
       </Button>
       <Button
         size="small"
         variant="outlined"
         startIcon={<MoreHorizRoundedIcon />}
         onClick={openMore}
-        sx={{ borderRadius: 999, whiteSpace: 'nowrap' }}
+        sx={{ borderRadius: 1.5, whiteSpace: 'nowrap', flex: '0 1 auto' }}
       >
-        More
+        MORE
       </Button>
       {errorMessage && (
         <Chip size="small" color="warning" label={errorMessage} sx={{ gridColumn: '1 / -1', justifySelf: 'center' }} />
@@ -135,7 +145,14 @@ export default function HomeDashboard({
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <MenuItem onClick={() => { closeMore(); openSupport ? openSupport() : console.info('Open support'); }}>
+        <MenuItem onClick={() => { 
+          closeMore(); 
+          if (openSupport) {
+            openSupport();
+          } else {
+            navigate('/settings/support');
+          }
+        }}>
           <ListItemIcon><SupportAgentRoundedIcon fontSize="small" /></ListItemIcon>
           Support
         </MenuItem>
@@ -196,7 +213,7 @@ export default function HomeDashboard({
         <CommercialBadge isCommercial={isCommercial} />
         {!isCommercial && (
           <Button size="small" variant="outlined" onClick={() => { onRequestCommercial ? onRequestCommercial(selectedChargerId) : console.info('Request commercial', selectedChargerId); setSwitchOpen(true); }}
-            sx={{ ml: 'auto', '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Make this my Commercial Charger</Button>
+            sx={{ ml: 'auto', borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>MAKE THIS MY COMMERCIAL CHARGER</Button>
         )}
       </Stack>
       {!isCommercial && (
@@ -217,33 +234,74 @@ export default function HomeDashboard({
 
   const LiveCard = (
     <Card delay={120}>
-      <Stack direction="row" spacing={1.5} alignItems="center">
+      <Stack direction="row" spacing={1} alignItems="center">
         <FlashOnRoundedIcon color={liveSession ? 'secondary' : 'disabled'} />
-        <Box sx={{ flex: 1 }}>
-          {liveSession ? (
-            <>
-              <Typography variant="subtitle2" fontWeight={800}>Live session • {selectedName}</Typography>
-              <Typography variant="caption" color="text.secondary">{liveSession.powerKW} kW • {liveSession.kwh} kWh • {Math.floor(liveSession.elapsedSec/60)} min</Typography>
-            </>
-          ) : (
-            <>
-              <Typography variant="subtitle2" fontWeight={800}>No live session</Typography>
-              <Typography variant="caption" color="text.secondary">Start a session quickly by QR or open actions.</Typography>
-            </>
-          )}
-        </Box>
+        <Typography variant="subtitle2" fontWeight={800}>
+          {liveSession ? 'Live session' : 'No live session'}
+        </Typography>
         {liveSession ? (
-          <Button size="small" variant="outlined" onClick={() => (openActions ? openActions(selectedChargerId) : console.info('Open actions'))}
-            sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Control</Button>
-        ) : (
-          <Stack direction="row" spacing={1}>
-            <Button size="small" variant="outlined" startIcon={<QrCodeScannerIcon />} onClick={() => (openStartQR ? openStartQR(selectedChargerId) : console.info('Start by QR/ID'))}
-              sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Start by QR</Button>
-            <Button size="small" variant="outlined" onClick={() => (openActions ? openActions(selectedChargerId) : console.info('Open actions'))}
-              sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Actions</Button>
-          </Stack>
-        )}
+          <Chip 
+            size="small" 
+            label={`${liveSession.powerKW} kW`} 
+            color="secondary"
+            sx={{ ml: 'auto' }} 
+            onClick={() => navigate('/sessions/live')}
+            clickable
+          />
+        ) : null}
       </Stack>
+      {liveSession ? (
+        <>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+            {selectedName} • {liveSession.kwh} kWh • {Math.floor(liveSession.elapsedSec/60)} min
+          </Typography>
+          <Button 
+            size="small" 
+            variant="outlined" 
+            onClick={() => navigate('/sessions/live')}
+            sx={{ mt: 1, borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}
+          >
+            View
+          </Button>
+        </>
+      ) : (
+        <>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+            Start a session quickly by QR or open actions.
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+            <Button 
+              size="small" 
+              variant="outlined" 
+              startIcon={<QrCodeScannerIcon />} 
+              onClick={() => {
+                if (openStartQR) {
+                  openStartQR(selectedChargerId);
+                } else {
+                  navigate('/start');
+                }
+              }}
+              sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}
+            >
+              START BY QR
+            </Button>
+            <Button 
+              size="small" 
+              variant="outlined" 
+              onClick={() => {
+                if (openActions) {
+                  openActions(selectedChargerId);
+                } else {
+                  navigate('/start');
+                }
+              }}
+              sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}
+            >
+              ACTIONS
+            </Button>
+          </Stack>
+        </>
+      )}
     </Card>
   );
 
@@ -258,10 +316,22 @@ export default function HomeDashboard({
         <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>Bookings are available only on your Commercial Charger.</Typography>
       )}
       <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-        <Button size="small" variant="outlined" onClick={() => (openBookings ? openBookings(selectedChargerId) : console.info('Open bookings'))}
-          disabled={!isCommercial} sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Manage</Button>
-        <Button size="small" variant="outlined" onClick={() => (openCalendar ? openCalendar(selectedChargerId) : console.info('Open calendar'))}
-          sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Calendar</Button>
+        <Button size="small" variant="outlined" onClick={() => {
+          if (openBookings) {
+            openBookings(selectedChargerId);
+          } else {
+            navigate('/bookings');
+          }
+        }}
+          disabled={!isCommercial} sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>MANAGE</Button>
+        <Button size="small" variant="outlined" onClick={() => {
+          if (openCalendar) {
+            openCalendar(selectedChargerId);
+          } else {
+            navigate('/settings/calendars');
+          }
+        }}
+          sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>CALENDAR</Button>
       </Stack>
     </Card>
   );
@@ -274,8 +344,14 @@ export default function HomeDashboard({
         <Chip size="small" label={`Faults ${alerts.faults}`} color={alerts.faults ? 'warning' : 'default'} sx={{ ml: 'auto' }} />
         <Chip size="small" label={`Offline ${alerts.offline}`} color={alerts.offline ? 'warning' : 'default'} />
       </Stack>
-      <Button size="small" variant="outlined" sx={{ mt: 1, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}
-        onClick={() => (openDiagnostics ? openDiagnostics(selectedChargerId) : console.info('Open diagnostics'))}>Open diagnostics</Button>
+      <Button size="small" variant="outlined" sx={{ mt: 1, borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}
+        onClick={() => {
+          if (openDiagnostics) {
+            openDiagnostics(selectedChargerId);
+          } else {
+            navigate('/settings/diagnostics');
+          }
+        }}>OPEN DIAGNOSTICS</Button>
     </Card>
   );
 
@@ -292,10 +368,22 @@ export default function HomeDashboard({
         <Typography variant="caption" color="text.secondary">This charger is not commercial — public pricing won’t go live here.</Typography>
       )}
       <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-        <Button size="small" variant="outlined" onClick={() => (openPricing ? openPricing(selectedChargerId) : console.info('Open pricing'))}
-          sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Pricing</Button>
-        <Button size="small" variant="outlined" onClick={() => (openAvailability ? openAvailability(selectedChargerId) : console.info('Open availability'))}
-          sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Availability</Button>
+        <Button size="small" variant="outlined" onClick={() => {
+          if (openPricing) {
+            openPricing(selectedChargerId);
+          } else {
+            navigate('/pricing');
+          }
+        }}
+          sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>PRICING</Button>
+        <Button size="small" variant="outlined" onClick={() => {
+          if (openAvailability) {
+            openAvailability(selectedChargerId);
+          } else {
+            navigate('/availability');
+          }
+        }}
+          sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>AVAILABILITY</Button>
       </Stack>
     </Card>
   );
@@ -309,37 +397,58 @@ export default function HomeDashboard({
           <Typography variant="caption" color="text.secondary">Balance: {wallet.currency} {wallet.balance.toLocaleString()} • Last invoice: {lastInvoice.currency} {lastInvoice.amount.toLocaleString()}</Typography>
         </Box>
         <Stack direction="row" spacing={1}>
-          <Button size="small" variant="outlined" onClick={() => (openWallet ? openWallet() : console.info('Open wallet'))}
-            sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Wallet</Button>
-          <Button size="small" variant="outlined" onClick={() => (openInvoices ? openInvoices(selectedChargerId) : console.info('Open invoices'))}
-            sx={{ '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>Invoices</Button>
+          <Button size="small" variant="outlined" onClick={() => {
+            if (openWallet) {
+              openWallet();
+            } else {
+              navigate('/wallet');
+            }
+          }}
+            sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>WALLET</Button>
+          <Button size="small" variant="outlined" onClick={() => {
+            if (openInvoices) {
+              openInvoices(selectedChargerId);
+            } else {
+              navigate('/invoices');
+            }
+          }}
+            sx={{ borderRadius: 1.5, '&:hover': { bgcolor:'secondary.main', color:'common.white', borderColor:'secondary.main' } }}>INVOICES</Button>
         </Stack>
       </Stack>
     </Card>
   );
 
   const QuickGrid = (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
-      {[{ label:'Start by QR', icon:<QrCodeScannerIcon/>, fn:openStartQR },
-        { label:'Actions', icon:<SettingsEthernetRoundedIcon/>, fn:openActions },
-        { label:'Connectors', icon:<SettingsEthernetRoundedIcon/>, fn:openConnectorMgmt },
-        { label:'Access', icon:<LockPersonRoundedIcon/>, fn:openAccess },
-        { label:'Site', icon:<PlaceRoundedIcon/>, fn:openSiteEditor },
-        { label:'Support', icon:<SupportAgentRoundedIcon/>, fn:openSupport },
-        { label:'Analytics', icon:<TrendingUpRoundedIcon/>, fn:openEnergyAnalytics },
-        { label:'CO₂', icon:<ForestRoundedIcon/>, fn:openCO2 }
+    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
+      {[
+        { label:'Start b...', icon:<QrCodeScannerIcon/>, route: '/start', fn:openStartQR },
+        { label:'Actions', icon:<SettingsEthernetRoundedIcon/>, route: '/start', fn:openActions },
+        { label:'Conne...', icon:<SettingsEthernetRoundedIcon/>, route: '/settings/connectors', fn:openConnectorMgmt },
+        { label:'Access', icon:<LockPersonRoundedIcon/>, route: '/access', fn:openAccess },
+        { label:'Site', icon:<PlaceRoundedIcon/>, route: '/settings/site-editor', fn:openSiteEditor },
+        { label:'Support', icon:<SupportAgentRoundedIcon/>, route: '/settings/support', fn:openSupport },
+        { label:'Analytics', icon:<TrendingUpRoundedIcon/>, route: '/analytics/energy', fn:openEnergyAnalytics },
+        { label:'CO₂', icon:<ForestRoundedIcon/>, route: '/analytics/co2', fn:openCO2 }
       ].map((t, i) => (
         <Paper key={i} elevation={0} sx={{
-          borderRadius: 999, textAlign: 'center', border: '1px solid', borderColor:'divider', bgcolor: '#fff',
-          width: '100%', height: 96, display: 'grid', placeItems: 'center', p: 1,
+          borderRadius: 1.5, textAlign: 'center', border: '1px solid', borderColor:'divider', bgcolor: '#fff',
+          width: '100%', aspectRatio: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 1.5,
           '&:active':{ transform: 'scale(.98)' },
           animation: 'popIn .36s ease both', animationDelay: `${i*60}ms`,
           '@keyframes popIn': { from:{ opacity:0, transform:'scale(.96)' }, to:{ opacity:1, transform:'scale(1)' } }
         }}>
           <Tooltip title={t.label}>
-            <IconButton onClick={() => (t.fn ? t.fn(selectedChargerId) : console.info('Open', t.label))}>{t.icon}</IconButton>
+            <IconButton onClick={() => {
+              if (t.fn) {
+                t.fn(selectedChargerId);
+              } else if (t.route) {
+                navigate(t.route);
+              } else {
+                console.info('Open', t.label);
+              }
+            }} sx={{ mb: 0.5 }}>{t.icon}</IconButton>
           </Tooltip>
-          <Typography variant="caption" sx={{ whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', maxWidth:'100%' }}>{t.label}</Typography>
+          <Typography variant="caption" sx={{ fontSize: '0.7rem', lineHeight: 1.2, textAlign: 'center' }}>{t.label}</Typography>
         </Paper>
       ))}
     </Box>
@@ -347,29 +456,37 @@ export default function HomeDashboard({
 
 
   return (
-    <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Dashboard" tagline="glance • act • resolve" onBack={onBack} onHelp={() => (openSupport ? openSupport() : console.info('Open support'))} navValue={navValue} onNavChange={handleNavChange}>
-          <Box sx={{ px: 2, pt: 2, pb: 2 }}>
+    <>
+      <MobileShell 
+        title="Dashboard" 
+        tagline="glance • act • resolve" 
+        onBack={onBack} 
+        onHelp={() => (openSupport ? openSupport() : console.info('Open support'))} 
+        navValue={navValue} 
+        onNavChange={handleNavChange}
+      >
+        <Box>
             {HeaderActions}
+            <Box sx={{ mb: 1.5 }} />
             {StatusCard}
-            <Box sx={{ height: 8 }} />
+            <Box sx={{ mb: 1.5 }} />
             {KpiCard}
-            <Box sx={{ height: 8 }} />
+            <Box sx={{ mb: 1.5 }} />
             {LiveCard}
-            <Box sx={{ height: 8 }} />
+            <Box sx={{ mb: 1.5 }} />
             {BookingsCard}
-            <Box sx={{ height: 8 }} />
+            <Box sx={{ mb: 1.5 }} />
             {AlertsCard}
-            <Box sx={{ height: 8 }} />
+            <Box sx={{ mb: 1.5 }} />
             {PricesCard}
-            <Box sx={{ height: 8 }} />
+            <Box sx={{ mb: 1.5 }} />
             {WalletCard}
-            <Box sx={{ height: 8 }} />
-            {QuickGrid}
-          </Box>
-        </MobileShell>
+            <Box sx={{ mb: 1.5 }} />
+          {QuickGrid}
+        </Box>
+      </MobileShell>
 
-        {/* Switch modal */}
+      {/* Switch modal */}
         <SwitchCommercialModal
           open={switchOpen}
           onClose={() => setSwitchOpen(false)}
@@ -397,7 +514,7 @@ export default function HomeDashboard({
         >
           <Alert icon={<RefreshRoundedIcon />} severity="success" variant="filled" sx={{ bgcolor:'secondary.main' }}>Refreshed!</Alert>
         </Snackbar>
-      </Container>
+    </>
   );
 }
 

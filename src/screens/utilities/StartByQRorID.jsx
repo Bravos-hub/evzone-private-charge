@@ -1,64 +1,49 @@
-import React, { useMemo, useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, TextField, IconButton, Chip, Checkbox, FormControlLabel,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Dialog, DialogTitle, DialogContent, DialogActions, InputAdornment,
+  Box, Typography, Paper, Stack, Button, TextField, Chip, Checkbox, FormControlLabel,
+  InputAdornment,
   FormControl, Select, MenuItem
 } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
-import CameraAltOutlinedIcon from '@mui/icons-material/CameraAltOutlined';
-import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
 import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import HistoryIcon from '@mui/icons-material/History';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
-
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
-
-function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
-  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 06 — Charger Details (Mobile, React + MUI, JS)'); };
-  return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="fixed" elevation={1} color="primary"><Toolbar sx={{ px: 0 }}>
-        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
-          <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}><ArrowBackIosNewIcon fontSize="small" /></IconButton>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
-            {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}><HelpOutlineIcon fontSize="small" /></IconButton>
-        </Box>
-      </Toolbar></AppBar>
-      <Toolbar />
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
-        {footer}
-        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
-            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
-            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
-            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
-            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
-          </BottomNavigation>
-        </Paper>
-      </Box>
-    </Box>
-  );
-}
+import MobileShell from '../../components/layout/MobileShell';
+import QRScanner from '../../components/common/QRScanner';
 
 export default function StartByQrManual({ onBack, onHelp, onNavChange, onResolve, onStart, onOpenActions }) {
-  const [navValue, setNavValue] = useState(1);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+  const [navValue, setNavValue] = useState(2); // Sessions tab index
   const [manualId, setManualId] = useState('');
   const [safetyOk, setSafetyOk] = useState(false);
   const [scanOpen, setScanOpen] = useState(false);
   const [resolved, setResolved] = useState(null);
+
+  // Sync navValue with current route
+  useEffect(() => {
+    const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
+    if (pathIndex !== -1) {
+      setNavValue(pathIndex);
+    }
+  }, [location.pathname, routes]);
+
+  const handleNavChange = useCallback((value) => {
+    setNavValue(value);
+    if (routes[value] !== undefined) {
+      navigate(routes[value]);
+    }
+    if (onNavChange) onNavChange(value);
+  }, [navigate, routes, onNavChange]);
+
+  const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate, onBack]);
 
   // Multi‑charger awareness
   const chargers = useMemo(() => ([
@@ -88,11 +73,16 @@ export default function StartByQrManual({ onBack, onHelp, onNavChange, onResolve
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Start session" tagline="scan QR or enter ID • safety" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{setNavValue(v); onNavChange&&onNavChange(v);}} footer={null}>
-          <Box sx={{ px: 2, pt: 2 }}>
+    <>
+      <MobileShell 
+        title="Start session" 
+        tagline="scan QR or enter ID • safety" 
+        onBack={handleBack} 
+        onHelp={onHelp} 
+        navValue={navValue} 
+        onNavChange={handleNavChange}
+      >
+        <Box>
             {/* Charger selector */}
             <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
@@ -110,8 +100,14 @@ export default function StartByQrManual({ onBack, onHelp, onNavChange, onResolve
                 <Button variant="outlined" startIcon={<QrCodeScannerIcon />} onClick={() => setScanOpen(true)}
                   sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Scan QR</Button>
                 <TextField placeholder="Enter charger ID" value={manualId} onChange={(e)=>setManualId(e.target.value)}
-                  InputProps={{ startAdornment: <InputAdornment position="start">ID</InputAdornment> }} sx={{ flex: 1 }} />
-                <Button variant="contained" color="secondary" onClick={() => resolve(manualId)} sx={{ color: 'common.white' }}>Resolve</Button>
+                  InputProps={{ 
+                    startAdornment: <InputAdornment position="start">ID</InputAdornment>,
+                    endAdornment: <InputAdornment position="end">
+                      <Button size="small" variant="contained" color="secondary" onClick={() => resolve(manualId)} sx={{ color: 'common.white', minWidth: 'auto', px: 1.5 }}>Resolve</Button>
+                    </InputAdornment>
+                  }} 
+                  sx={{ flex: 1 }} 
+                />
               </Stack>
 
               {resolved && (
@@ -141,27 +137,19 @@ export default function StartByQrManual({ onBack, onHelp, onNavChange, onResolve
                 Start charging
               </Button>
             </Paper>
-          </Box>
-        </MobileShell>
+        </Box>
+      </MobileShell>
 
-        {/* Scan dialog (stub) */}
-        <Dialog open={scanOpen} onClose={() => setScanOpen(false)} fullWidth>
-          <DialogTitle>Scan charger QR</DialogTitle>
-          <DialogContent>
-            <Stack spacing={1} alignItems="center" sx={{ py: 2 }}>
-              <QrCode2RoundedIcon sx={{ fontSize: 72, color: 'primary.main' }} />
-              <Typography variant="caption" color="text.secondary">Live camera scanning to be integrated. Use manual ID for now.</Typography>
-              <Button startIcon={<CameraAltOutlinedIcon />} variant="outlined" component="label">
-                Open camera
-                <input type="file" accept="image/*" capture="environment" hidden onChange={(e)=>{ setScanOpen(false); resolve('EVZ-QR-000999'); }} />
-              </Button>
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={()=>setScanOpen(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
-    </ThemeProvider>
+      {/* QR Scanner Dialog */}
+      <QRScanner
+        open={scanOpen}
+        onClose={() => setScanOpen(false)}
+        onScanSuccess={(decodedText) => {
+          resolve(decodedText);
+          setScanOpen(false);
+        }}
+        title="Scan Charger QR Code"
+      />
+    </>
   );
 }

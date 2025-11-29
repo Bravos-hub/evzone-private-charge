@@ -1,68 +1,21 @@
-import React, { useState, useMemo } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, TextField, Switch, Chip, IconButton,
+  Box, Typography, Paper, Stack, Button, TextField, Switch, Chip, IconButton,
   Avatar, FormControl, FormLabel, RadioGroup, Radio, FormControlLabel, ListItemButton,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Select, MenuItem, Divider, Tooltip
+  Select, MenuItem, Divider, Tooltip
 } from '@mui/material';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
 import PinRoundedIcon from '@mui/icons-material/PinRounded';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import HistoryIcon from '@mui/icons-material/History';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
-
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+import MobileShell from '../../components/layout/MobileShell';
 
 const CONNECTORS = {
   st1: [ { id: 'c1', label: 'A1 — Type 2' }, { id: 'c2', label: 'A2 — CCS 2' } ],
   st2: [ { id: 'c3', label: 'B1 — CHAdeMO' } ]
 };
-
-function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
-  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
-  return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="fixed" elevation={1} color="primary">
-        <Toolbar sx={{ px: 0 }}>
-          <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
-            <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}>
-              <ArrowBackIosNewIcon fontSize="small" />
-            </IconButton>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
-              {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
-            </Box>
-            <Box sx={{ flexGrow: 1 }} />
-            <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}>
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <Toolbar />
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
-        {footer}
-        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
-            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
-            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
-            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
-            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
-          </BottomNavigation>
-        </Paper>
-      </Box>
-    </Box>
-  );
-}
 
 function UserCard({ user, onOpen, onOpenVehicles, onRemove }) {
   return (
@@ -93,7 +46,38 @@ export default function AccessPermissionsPro({
   onOpenAggregator,
   onBack, onHelp, onNavChange, onSave, onOpenUser, onOpenUserVehicles
 }) {
-  const [navValue, setNavValue] = useState(1);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+  const [navValue, setNavValue] = useState(1); // Stations tab
+
+  // Sync navValue with current route
+  useEffect(() => {
+    const pathIndex = routes.findIndex(route => 
+      (location.pathname === route || location.pathname.startsWith(route + '/')) && route !== '/'
+    );
+    if (pathIndex !== -1) {
+      setNavValue(pathIndex);
+    }
+  }, [location.pathname, routes]);
+
+  const handleNavChange = useCallback((value) => {
+    setNavValue(value);
+    if (value === 0) {
+      navigate('/dashboard');
+    } else if (routes[value] !== undefined) {
+      navigate(routes[value]);
+    }
+    if (onNavChange) onNavChange(value);
+  }, [navigate, routes, onNavChange]);
+
+  const handleBack = useCallback(() => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/dashboard');
+    }
+  }, [navigate, onBack]);
   const [chargerId, setChargerId] = useState(defaultChargerId);
   const [scope, setScope] = useState('charger'); // 'charger' | 'connector'
   const connectors = useMemo(() => CONNECTORS[chargerId] || [], [chargerId]);
@@ -137,11 +121,16 @@ export default function AccessPermissionsPro({
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Access & permissions" tagline="who can use per charger or connector" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v) => { setNavValue(v); onNavChange && onNavChange(v); }} footer={Footer}>
-          <Box sx={{ px: 2, pt: 2 }}>
+    <MobileShell 
+      title="Access & permissions" 
+      tagline="who can use per charger or connector" 
+      onBack={handleBack} 
+      onHelp={onHelp} 
+      navValue={navValue} 
+      onNavChange={handleNavChange}
+      footerSlot={Footer}
+    >
+      <Box>
             {/* Target selector */}
             <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
               <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Target</Typography>
@@ -242,9 +231,7 @@ export default function AccessPermissionsPro({
                 <TextField label="Max duration (min)" type="number" sx={{ flex: 1 }} />
               </Stack>
             </Paper>
-          </Box>
-        </MobileShell>
-      </Container>
-    </ThemeProvider>
+      </Box>
+    </MobileShell>
   );
 }
