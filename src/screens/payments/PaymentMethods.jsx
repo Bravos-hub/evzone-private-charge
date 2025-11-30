@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MobileShell from '../../components/layout/MobileShell';
+import OnboardingOverlay from '../../components/onboarding/OnboardingOverlay';
+import { useOnboarding } from '../../context/OnboardingContext';
 import {
   Box,
   Typography,
@@ -15,7 +17,6 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import AddCardRoundedIcon from '@mui/icons-material/AddCardRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -74,6 +75,7 @@ export default function PaymentMethodsPatched({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { completeStep } = useOnboarding();
   const [navValue, setNavValue] = useState(3);
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
   
@@ -174,6 +176,14 @@ export default function PaymentMethodsPatched({
                   sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Save card</Button>
               </Stack>
             </Paper>
+            <OnboardingOverlay
+              stepId="payments"
+              title="Payment & Payouts"
+              description="Set up your payment methods and wallet. Add cards, verify them, and configure how you'll receive payouts from charging sessions."
+              onComplete={() => {
+                completeStep('payments');
+              }}
+            />
     </MobileShell>
   );
 }

@@ -17,6 +17,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PaymentIcon from '@mui/icons-material/Payment';
 import SecurityIcon from '@mui/icons-material/Security';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 /**
  * Guide Page - Explains how EVzone Private Charging works
@@ -24,6 +25,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
  */
 export default function Guide() {
   const navigate = useNavigate();
+  const { startOnboarding } = useOnboarding();
 
   const sections = [
     {
@@ -83,7 +85,7 @@ export default function Guide() {
                 Getting Started with EVzone
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Set up your private charging station in minutes. Follow these simple steps to get started.
+                Let's guide you through setting up your private charging station step by step.
               </Typography>
             </Box>
           </Stack>
@@ -133,13 +135,16 @@ export default function Guide() {
         {/* CTA Section */}
         <Box sx={{ mt: 4, textAlign: 'center' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-            Ready to get started?
+            Ready to get started? We'll guide you through each step.
           </Typography>
           <Button
             fullWidth
             size="large"
             variant="contained"
-            onClick={() => navigate('/chargers/add')}
+            onClick={() => {
+              startOnboarding();
+              navigate('/chargers/add');
+            }}
             sx={{
               fontWeight: 800,
               borderRadius: 999,
@@ -151,7 +156,7 @@ export default function Guide() {
               '&:hover': { bgcolor: 'secondary.dark' },
             }}
           >
-            Add Your First Charger
+            Start Guided Setup
           </Button>
         </Box>
       </Box>

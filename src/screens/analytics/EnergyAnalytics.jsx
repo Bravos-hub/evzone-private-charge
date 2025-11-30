@@ -17,6 +17,8 @@ import FlashOnRoundedIcon from '@mui/icons-material/FlashOnRounded';
 import LocalGasStationRoundedIcon from '@mui/icons-material/LocalGasStationRounded';
 import TimelineRoundedIcon from '@mui/icons-material/TimelineRounded';
 import MobileShell from '../../components/layout/MobileShell';
+import OnboardingOverlay from '../../components/onboarding/OnboardingOverlay';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 /**
  * 35 — Energy Analytics (mobile, React + MUI, JS) — Clean
@@ -91,6 +93,7 @@ export default function EnergyAnalytics(props){
   var defaultChargerId = props.defaultChargerId || 'st1';
   var currency = props.currency || 'UGX';
   var onExportAnalytics = props.onExportAnalytics;
+  var { completeStep, finishOnboarding } = useOnboarding();
   var onHelp = props.onHelp; var onBack = props.onBack; var onNavChange = props.onNavChange;
 
   const navigate = useNavigate();
@@ -213,6 +216,15 @@ export default function EnergyAnalytics(props){
           <Typography variant='subtitle2' fontWeight={800} sx={{ mb:1 }}>Cost & sessions</Typography>
           <DualBarChartMini data={series} xKey='label' leftKey='cost' rightKey='sessions' />
         </Paper>
+        <OnboardingOverlay
+          stepId="monitor-analyze"
+          title="Monitor & Analyze"
+          description="Track your charging station's performance. View energy usage, costs, sessions, and revenue. Use these insights to optimize your operations."
+          onComplete={() => {
+            completeStep('monitor-analyze');
+            finishOnboarding();
+          }}
+        />
     </MobileShell>
   );
 }

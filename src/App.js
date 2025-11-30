@@ -5,6 +5,7 @@ import { CssBaseline } from '@mui/material';
 import { EVzoneTheme } from './utils/theme';
 import AppRoutes from './routes';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { OnboardingProvider } from './context/OnboardingContext';
 
 function App() {
   return (
@@ -17,7 +18,9 @@ function App() {
             v7_relativeSplatPath: true,
           }}
         >
-          <AppRoutes />
+          <OnboardingProvider>
+            <AppRoutes />
+          </OnboardingProvider>
         </BrowserRouter>
       </ThemeProvider>
     </ErrorBoundary>

@@ -15,6 +15,8 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import BoltRoundedIcon from '@mui/icons-material/BoltRounded';
 import MobileShell from '../../components/layout/MobileShell';
 import QRScanner from '../../components/common/QRScanner';
+import OnboardingOverlay from '../../components/onboarding/OnboardingOverlay';
+import { useOnboarding } from '../../context/OnboardingContext';
 import { EV } from '../../utils/theme';
 
 /********************
@@ -36,6 +38,7 @@ export default function AddChargerStartPro({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { completeStep, setChargerIdForOnboarding } = useOnboarding();
   const [navValue, setNavValue] = useState(1);
   const routes = ['/', '/chargers', '/sessions', '/wallet', '/settings'];
   
@@ -363,6 +366,25 @@ export default function AddChargerStartPro({
           setShowQRScanner(false);
         }}
         title="Scan Charger QR Code"
+      />
+      <OnboardingOverlay
+        stepId="add-charger"
+        title="Add Your Charger"
+        description="Fill in your charger details below. You can scan the QR code on your charger for faster setup, or add the information manually."
+        onComplete={() => {
+          completeStep('add-charger');
+        }}
+        onScanQR={() => {
+          if (onScan) {
+            onScan();
+          } else {
+            setShowQRScanner(true);
+          }
+        }}
+        onAddManually={() => {
+          setShowManual(true);
+        }}
+        hideOverlay={showManual || showQRScanner}
       />
     </MobileShell>
   );

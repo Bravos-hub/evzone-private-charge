@@ -11,6 +11,8 @@ import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
 import PinRoundedIcon from '@mui/icons-material/PinRounded';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import MobileShell from '../../components/layout/MobileShell';
+import OnboardingOverlay from '../../components/onboarding/OnboardingOverlay';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 const CONNECTORS = {
   st1: [ { id: 'c1', label: 'A1 — Type 2' }, { id: 'c2', label: 'A2 — CCS 2' } ],
@@ -48,6 +50,7 @@ export default function AccessPermissionsPro({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { completeStep } = useOnboarding();
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
   const [navValue, setNavValue] = useState(1); // Stations tab
 
@@ -232,6 +235,14 @@ export default function AccessPermissionsPro({
               </Stack>
             </Paper>
       </Box>
+      <OnboardingOverlay
+        stepId="access-control"
+        title="Access Control"
+        description="Manage who can use your charger. Add users, set up guest passes, create access codes, and configure permissions per charger or connector."
+        onComplete={() => {
+          completeStep('access-control');
+        }}
+      />
     </MobileShell>
   );
 }

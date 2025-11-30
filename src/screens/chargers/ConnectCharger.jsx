@@ -27,6 +27,7 @@ import MobileShell from '../../components/layout/MobileShell';
 import { OCPPPanel } from '../../components/forms';
 import MapPicker from '../../components/common/MapPicker';
 import GeoSearch from '../../components/common/GeoSearch';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 function StepHeader({ step, total, label }) {
   const pct = Math.round((step / total) * 100);
@@ -343,6 +344,7 @@ export default function ConnectCommercializeChargerMobile({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isOnboarding, completeStep, nextStep, setChargerIdForOnboarding, getStepRoute } = useOnboarding();
   const routes = ['/', '/chargers', '/sessions', '/wallet', '/settings'];
   
   // Wizard steps
@@ -573,10 +575,37 @@ ${JSON.stringify(payload, null, 2)}`);
             color="secondary"
             onClick={async () => {
               const payload = buildPayload();
-              if (onConfirm) onConfirm(payload);
-              else if (ATTEMPT_API_POST_ON_PUBLISH) await postToApi(payload);
-              else alert(`Setup complete:
+              
+              // Generate or get charger ID (in real app, this would come from API response)
+              const chargerId = stationId || 'st1'; // Use stationId or default
+              
+              if (onConfirm) {
+                onConfirm(payload);
+              } else if (ATTEMPT_API_POST_ON_PUBLISH) {
+                await postToApi(payload);
+              } else {
+                alert(`Setup complete:
 ${JSON.stringify(payload, null, 2)}`);
+              }
+              
+              // Handle onboarding flow after publish
+              if (isOnboarding) {
+                // Complete the add-charger step
+                completeStep('add-charger');
+                
+                // Save charger ID for next steps
+                setChargerIdForOnboarding(chargerId);
+                
+                // Move to next onboarding step (configure settings)
+                nextStep();
+                
+                // Navigate to charger settings page (step 2: configure-settings)
+                // Construct route directly with charger ID
+                navigate(`/chargers/${chargerId}/settings`);
+              } else {
+                // Normal flow: navigate to charger details
+                navigate(`/chargers/${chargerId}`);
+              }
             }}
             sx={{ color: '#fff' }}
           >

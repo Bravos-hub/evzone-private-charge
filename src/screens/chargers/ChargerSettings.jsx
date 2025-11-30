@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, Card, CardActionArea,
+  Box, Typography, Paper, Stack, Card, CardActionArea,
   Select, MenuItem, FormControl, FormLabel, RadioGroup, Radio, FormControlLabel, Tooltip
 } from '@mui/material';
 import DevicesOtherRoundedIcon from '@mui/icons-material/DevicesOtherRounded';
@@ -16,12 +15,8 @@ import HistoryIcon from '@mui/icons-material/History';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import LaunchRoundedIcon from '@mui/icons-material/LaunchRounded';
 import MobileShell from '../../components/layout/MobileShell';
-
-const theme = createTheme({
-  palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } },
-  shape: { borderRadius: 7 },
-  typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
-});
+import OnboardingOverlay from '../../components/onboarding/OnboardingOverlay';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 // Example connectors per charger (would come from API)
 const CONNECTORS = {
@@ -62,6 +57,16 @@ export default function ChargerSettingsHubPro({
   openHistory,
   onOpenAggregator
 }) {
+  const params = useParams();
+  const { completeStep, setChargerIdForOnboarding } = useOnboarding();
+  const chargerIdFromRoute = params.id || defaultChargerId;
+  
+  // Set charger ID for onboarding if in onboarding mode
+  useEffect(() => {
+    if (chargerIdFromRoute) {
+      setChargerIdForOnboarding(chargerIdFromRoute);
+    }
+  }, [chargerIdFromRoute, setChargerIdForOnboarding]);
   const navigate = useNavigate();
   const location = useLocation();
   const [navValue, setNavValue] = useState(1);
@@ -111,30 +116,15 @@ export default function ChargerSettingsHubPro({
     alert(`${msg} — ${chargerId}${scopeMsg}`);
   };
 
-  const Footer = (
-    <Box sx={{ px: 2, pb: 'calc(12px + env(safe-area-inset-bottom))', pt: 1.5, background: '#f2f2f2', borderTop: '1px solid #e9eceb' }}>
-      <Stack direction="row" spacing={1}>
-        <Button fullWidth variant="contained" color="secondary" onClick={pass(openPricing, 'Pricing & Fees')}
-          sx={{ color: 'common.white', '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } }}>Open pricing</Button>
-        <Button fullWidth variant="outlined" onClick={pass(openAvailability, 'Availability')}
-          sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Open availability</Button>
-      </Stack>
-    </Box>
-  );
-
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell
-          title="Charger settings"
-          tagline="quick actions hub (per‑charger or per‑connector)"
-          onBack={handleBack}
-          onHelp={onHelp}
-          navValue={navValue}
-          onNavChange={handleNavChange}
-          footer={Footer}
-        >
+    <MobileShell
+      title="Charger settings"
+      tagline="quick actions hub (per‑charger or per‑connector)"
+      onBack={handleBack}
+      onHelp={onHelp}
+      navValue={navValue}
+      onNavChange={handleNavChange}
+    >
           <Box>
             {/* Charger & scope selector */}
             <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
@@ -183,8 +173,14 @@ export default function ChargerSettingsHubPro({
                 cta={<LaunchRoundedIcon color="secondary" />} />
             </Stack>
           </Box>
-        </MobileShell>
-      </Container>
-    </ThemeProvider>
+          <OnboardingOverlay
+            stepId="configure-settings"
+            title="Configure Settings"
+            description="Set up pricing, access controls, schedules, and availability for your charger. Click on any option below to configure it. When you're done, click Continue to proceed."
+            onComplete={() => {
+              completeStep('configure-settings');
+            }}
+          />
+    </MobileShell>
   );
 }
