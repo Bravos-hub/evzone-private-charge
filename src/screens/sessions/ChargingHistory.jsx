@@ -14,6 +14,7 @@ function CommercialBadge({ isCommercial }) {
   );
 }
 
+
 function Row({ s, onOpenReceipt }) {
   return (
     <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>

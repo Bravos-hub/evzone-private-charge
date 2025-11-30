@@ -16,8 +16,6 @@ import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
-
 function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
   const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
   return (
@@ -142,6 +140,29 @@ export default function ScheduleCalendarsWired({
     const d = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate()+delta*7);
     setCursor(d);
     onNavigate ? onNavigate({ chargerId, mode:'week', start:d }) : console.info('Navigate week', d);
+  };
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      console.info('Navigate back');
+    }
+  };
+
+  const handleHelp = () => {
+    if (onHelp) {
+      onHelp();
+    } else {
+      console.info('Help');
+    }
+  };
+
+  const handleNavChange = (value) => {
+    setNavValue(value);
+    if (onNavChange) {
+      onNavChange(value);
+    }
   };
 
   const Footer = (
