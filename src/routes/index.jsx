@@ -3,6 +3,8 @@ import PrivateRoute from './PrivateRoute';
 
 // Home screens
 import Home from '../screens/home/Home';
+import Login from '../screens/home/Login';
+import Register from '../screens/home/Register';
 import Dashboard from '../screens/home/Dashboard';
 import Guide from '../screens/home/Guide';
 
@@ -87,7 +89,8 @@ import NotFound from '../screens/error/NotFound';
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/guide" element={<Guide />} />
       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       
