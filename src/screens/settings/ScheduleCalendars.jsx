@@ -11,6 +11,16 @@ import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import ViewWeekRoundedIcon from '@mui/icons-material/ViewWeekRounded';
 import MobileShell from '../../components/layout/MobileShell';
 
+const theme = createTheme({
+  palette: {
+    primary: { main: '#03cd8c' },
+    secondary: { main: '#f77f00' },
+    background: { default: '#f2f2f2' }
+  },
+  shape: { borderRadius: 7 },
+  typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' }
+});
+
 function MonthGrid({ year, month, items, onOpen, highlightDate }) {
   const first = new Date(year, month, 1);
   const startDay = first.getDay();
@@ -149,7 +159,7 @@ export default function ScheduleCalendars({
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Schedule calendars" tagline="overlap • month • week" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{ setNavValue(v); onNavChange&&onNavChange(v); }} footer={Footer}>
+        <MobileShell title="Schedule calendars" tagline="overlap • month • week" onBack={handleBack} onHelp={handleHelp} navValue={navValue} onNavChange={handleNavChange} footer={Footer}>
           <Box sx={{ px: 2, pt: 2 }}>
             {/* Charger selector + nav */}
             <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>

@@ -256,15 +256,76 @@ function DetailsStep({ operatorAssigned, setOperatorAssigned, operator, setOpera
       </Box>
 
       {/* Amenities */}
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2, width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
         <Typography variant="subtitle2" fontWeight={800} gutterBottom>Amenities</Typography>
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
-          <Stack direction="row" spacing={2}>
-            <FormControlLabel control={<Switch defaultChecked />} label="Restroom" />
-            <FormControlLabel control={<Switch />} label="Food nearby" />
-            <FormControlLabel control={<Switch />} label="24/7" />
-            <FormControlLabel control={<Switch />} label="Security" />
-          </Stack>
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            p: 2, 
+            borderRadius: 1.5, 
+            border: '1px solid #eef3f1', 
+            bgcolor: '#fff',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            overflow: 'hidden'
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+              gap: { xs: 1.5, sm: 2 },
+              width: '100%',
+              maxWidth: '100%',
+              '& .MuiFormControlLabel-root': {
+                margin: 0,
+                width: '100%',
+                maxWidth: '100%',
+                minWidth: 0,
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0.5,
+                '& .MuiFormControlLabel-label': {
+                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                  lineHeight: 1.3,
+                  marginTop: 0.5,
+                  textAlign: 'center',
+                  width: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                },
+                '& .MuiSwitch-root': {
+                  flexShrink: 0,
+                  transform: { xs: 'scale(0.75)', sm: 'scale(0.85)' },
+                  transformOrigin: 'center'
+                }
+              }
+            }}
+          >
+            <FormControlLabel 
+              control={<Switch defaultChecked size="small" />} 
+              label="Restroom" 
+              labelPlacement="bottom"
+            />
+            <FormControlLabel 
+              control={<Switch size="small" />} 
+              label="Food nearby" 
+              labelPlacement="bottom"
+            />
+            <FormControlLabel 
+              control={<Switch size="small" />} 
+              label="24/7" 
+              labelPlacement="bottom"
+            />
+            <FormControlLabel 
+              control={<Switch size="small" />} 
+              label="Security" 
+              labelPlacement="bottom"
+            />
+          </Box>
         </Paper>
       </Box>
     </Box>
@@ -865,7 +926,19 @@ ${JSON.stringify(payload, null, 2)}`);
       </Dialog>
 
       {/* Add Operator Dialog */}
-      <Dialog open={addOperatorOpen} onClose={() => setAddOperatorOpen(false)} fullWidth maxWidth="sm">
+      <Dialog 
+        open={addOperatorOpen} 
+        onClose={() => setAddOperatorOpen(false)} 
+        fullWidth 
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            maxWidth: { xs: 420, sm: '600px' },
+            mx: { xs: 'auto', sm: 'auto' },
+            width: '100%'
+          }
+        }}
+      >
         <DialogTitle>Add New Operator</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>

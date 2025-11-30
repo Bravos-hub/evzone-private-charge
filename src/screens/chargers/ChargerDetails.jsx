@@ -292,14 +292,56 @@ export default function ChargerDetails({
             </Box>
 
             {/* Amenities (editable) */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
+            <Paper 
+              elevation={0} 
+              sx={{ 
+                mt: 2, 
+                p: 2, 
+                borderRadius: 1.5, 
+                border: '1px solid #eef3f1', 
+                bgcolor: '#fff',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden'
+              }}
+            >
               <Typography variant="subtitle2" fontWeight={800} gutterBottom>Amenities</Typography>
-              <Stack direction="row" spacing={2}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+                  gap: { xs: 1.5, sm: 2 },
+                  width: '100%',
+                  maxWidth: '100%',
+                  '& .MuiFormControlLabel-root': {
+                    margin: 0,
+                    width: '100%',
+                    maxWidth: '100%',
+                    minWidth: 0,
+                    justifyContent: 'flex-start',
+                    overflow: 'hidden',
+                    '& .MuiFormControlLabel-label': {
+                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                      lineHeight: 1.3,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '100%',
+                      minWidth: 0
+                    },
+                    '& .MuiSwitch-root': {
+                      flexShrink: 0,
+                      marginRight: { xs: '8px', sm: '12px' }
+                    }
+                  }
+                }}
+              >
                 <FormControlLabel control={<Switch defaultChecked />} label="Restroom" />
-                <FormControlLabel control={<Switch />} label="Food &amp; drinks" />
+                <FormControlLabel control={<Switch />} label="Food & drinks" />
                 <FormControlLabel control={<Switch defaultChecked />} label="24/7" />
                 <FormControlLabel control={<Switch />} label="Security" />
-              </Stack>
+              </Box>
             </Paper>
 
             {/* Connectors quick actions (status + ops) */}

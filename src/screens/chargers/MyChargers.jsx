@@ -1,158 +1,43 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Box,
-  Typography,
-  Button,
-  Paper,
-  Stack,
-  Chip,
-  CircularProgress,
-  List,
-  ListItemButton,
-  IconButton,
+  Box, Typography, Button, Paper, List, ListItemButton, Chip, Stack
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
-import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
-import { useChargers } from '../../hooks/useChargers';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import MobileShell from '../../components/layout/MobileShell';
 
-function ChargerCard({ charger, onSelect, onSettings }) {
-  const status = charger?.status || 'unknown';
-  const isOnline = status === 'online' || status === 'available';
-  const isCommercial = charger?.usage === 'commercial' || charger?.isCommercial;
-
+function ChargerCard({ charger, selected, onSelect }) {
   return (
-    <Paper 
-      elevation={0} 
-      sx={{ 
-        p: 1.5, 
-        borderRadius: 1.5, 
-        bgcolor: '#fff', 
-        border: '1px solid #eef3f1',
-        '&:hover': {
-          borderColor: 'secondary.main',
-          boxShadow: '0 2px 8px rgba(247, 127, 0, 0.1)',
-        },
-        transition: 'all 0.2s ease',
-      }}
-    >
-      <Stack direction="row" spacing={1.5} alignItems="center">
-        <Box
-          sx={{
-            width: 48,
-            height: 48,
-            borderRadius: 1.5,
-            bgcolor: isOnline ? '#E0F3EC' : '#F5F5F5',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <EvStationIcon 
-            sx={{ 
-              fontSize: 28, 
-              color: isOnline ? '#03cd8c' : '#999' 
-            }} 
-          />
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-            <Typography 
-              variant="subtitle2" 
-              fontWeight={700}
-              sx={{ 
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {charger?.name || charger?.id || 'Unnamed Charger'}
-            </Typography>
-            {isCommercial && (
-              <Chip 
-                size="small" 
-                label="Commercial" 
-                color="secondary"
-                sx={{ 
-                  height: 20,
-                  fontSize: '0.65rem',
-                  '& .MuiChip-label': { px: 0.75 },
-                }}
-              />
-            )}
+    <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: selected ? '2px solid #f77f00' : '1px solid #eef3f1' }}>
+      <Stack direction="row" alignItems="flex-start" spacing={1.5}>
+        {selected ? <RadioButtonCheckedIcon color="secondary" /> : <RadioButtonUncheckedIcon color="disabled" />}
+        <Box sx={{ flex: 1 }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="subtitle1" fontWeight={700}>{charger.name}</Typography>
+            <Chip size="small" label={charger.tag} color={charger.tag === 'Commercial' ? 'success' : 'default'} />
           </Stack>
-          <Stack direction="row" spacing={1} alignItems="center">
-            {isOnline ? (
-              <>
-                <CheckCircleRoundedIcon sx={{ fontSize: 14, color: '#03cd8c' }} />
-                <Typography variant="caption" color="text.secondary">
-                  Online
-                </Typography>
-              </>
-            ) : (
-              <>
-                <ErrorOutlineRoundedIcon sx={{ fontSize: 14, color: '#999' }} />
-                <Typography variant="caption" color="text.secondary">
-                  {status === 'offline' ? 'Offline' : 'Unknown'}
-                </Typography>
-              </>
-            )}
-            {charger?.locationName && (
-              <>
-                <Typography variant="caption" color="text.secondary">•</Typography>
-                <Typography 
-                  variant="caption" 
-                  color="text.secondary"
-                  sx={{
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    maxWidth: 120,
-                  }}
-                >
-                  {charger.locationName}
-                </Typography>
-              </>
-            )}
+          <Typography variant="body2" color="text.secondary">{charger.location}</Typography>
+          <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+            <Typography variant="caption"><strong>Connector:</strong> {charger.connector}</Typography>
+            <Typography variant="caption"><strong>Max:</strong> {charger.maxPower}</Typography>
+            <Typography variant="caption"><strong>Amount:</strong> UGX {charger.amount.toLocaleString()}</Typography>
           </Stack>
         </Box>
-        <IconButton
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onSettings) onSettings(charger);
-          }}
-          sx={{ 
-            color: 'text.secondary',
-            '&:hover': { bgcolor: 'secondary.main', color: 'common.white' },
-          }}
-        >
-          <SettingsRoundedIcon fontSize="small" />
-        </IconButton>
       </Stack>
     </Paper>
   );
 }
 
-export default function MyChargers({
-  onBack,
-  onHelp,
-  onNavChange,
-  onAddCharger,
-  onSelectCharger,
-  onSettingsCharger,
-}) {
+export default function MyChargers({ onAdd, onBack, onHelp, onNavChange, onOpenCharger }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { chargers, loading, error, refetch } = useChargers();
-  const [navValue, setNavValue] = useState(1); // Stations tab index
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
-
+  const [navValue, setNavValue] = useState(1);
+  const [selectedId, setSelectedId] = useState('1');
+  
+  // Sync navValue with current route
   useEffect(() => {
     const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
     if (pathIndex !== -1) {
@@ -176,157 +61,60 @@ export default function MyChargers({
     }
   }, [navigate, onBack]);
 
-  const handleAddCharger = useCallback(() => {
-    if (onAddCharger) {
-      onAddCharger();
-    } else {
-      navigate('/chargers/add');
-    }
-  }, [navigate, onAddCharger]);
-
-  const handleSelectCharger = useCallback((charger) => {
-    if (onSelectCharger) {
-      onSelectCharger(charger);
+  const handleChargerClick = useCallback((charger) => {
+    setSelectedId(charger.id);
+    if (onOpenCharger) {
+      onOpenCharger(charger);
     } else {
       navigate(`/chargers/${charger.id}`);
     }
-  }, [navigate, onSelectCharger]);
+  }, [navigate, onOpenCharger]);
 
-  const handleSettingsCharger = useCallback((charger, e) => {
-    if (e) e.stopPropagation();
-    if (onSettingsCharger) {
-      onSettingsCharger(charger);
-    } else {
-      navigate(`/chargers/${charger.id}/settings`);
-    }
-  }, [navigate, onSettingsCharger]);
+  const chargers = [
+    { id: '1', name: 'Home Charger', tag: 'Home', location: 'Kampala, Uganda', connector: 'Type 2', maxPower: '22 kW', amount: 124000 },
+    { id: '2', name: 'EVzone Charge Station', tag: 'Commercial', location: 'Bugolobi, Kampala', connector: 'CCS 2', maxPower: '90 kW', amount: 240000 },
+    { id: '3', name: 'Office Charger', tag: 'Office', location: 'Wandegeya, Kampala', connector: 'CHAdeMO', maxPower: '50 kW', amount: 82000 }
+  ];
 
   return (
     <MobileShell
-      title="My Chargers"
-      tagline="stations • status • manage"
-      navValue={navValue}
-      onNavChange={handleNavChange}
+      title="My chargers"
+      tagline="manage all your sites"
       onBack={handleBack}
       onHelp={onHelp}
+      navValue={navValue}
+      onNavChange={handleNavChange}
     >
-      <Box>
-        {/* Header with Add button */}
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-          <Typography variant="h6" sx={{ flex: 1, fontWeight: 800 }}>
-            Stations
-          </Typography>
-          <Button
-            size="small"
-            variant="contained"
-            startIcon={<AddCircleOutlineIcon />}
-            onClick={handleAddCharger}
-            sx={{
-              borderRadius: 1.5,
-              bgcolor: 'secondary.main',
-              color: 'common.white',
-              textTransform: 'none',
-              fontWeight: 700,
-              '&:hover': { bgcolor: 'secondary.dark' },
+      <Box sx={{ pt: 2 }}>
+        <List sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+          {chargers.map((c) => (
+            <ListItemButton key={c.id} onClick={() => handleChargerClick(c)} sx={{ p: 0 }}>
+              <ChargerCard charger={c} selected={selectedId === c.id} />
+            </ListItemButton>
+          ))}
+        </List>
+        <Box sx={{ mt: 2, px: 2, pb: 2 }}>
+          <Button 
+            fullWidth 
+            size="large" 
+            color="secondary" 
+            variant="contained" 
+            startIcon={<AddCircleOutlineIcon />} 
+            onClick={onAdd}
+            sx={{ 
+              py: 1.25, 
+              color: 'common.white', 
+              '& .MuiButton-startIcon>*': { color: 'common.white' }, 
+              '&:hover': { 
+                bgcolor: 'secondary.dark', 
+                color: 'common.white', 
+                '& .MuiButton-startIcon>*': { color: 'common.white' } 
+              } 
             }}
           >
-            Add Charger
+            Add charger
           </Button>
-        </Stack>
-
-        {/* Loading state */}
-        {loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-            <CircularProgress size={32} />
-          </Box>
-        )}
-
-        {/* Error state */}
-        {error && !loading && (
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 3, 
-              borderRadius: 1.5, 
-              bgcolor: '#fff', 
-              border: '1px dashed #e0e0e0', 
-              textAlign: 'center' 
-            }}
-          >
-            <ErrorOutlineRoundedIcon sx={{ fontSize: 48, color: 'error.main', mb: 1 }} />
-            <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-              Failed to load chargers
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
-              {error}
-            </Typography>
-            <Button 
-              size="small" 
-              variant="outlined" 
-              onClick={refetch}
-              sx={{ borderRadius: 1.5 }}
-            >
-              Retry
-            </Button>
-          </Paper>
-        )}
-
-        {/* Empty state */}
-        {!loading && !error && (!chargers || chargers.length === 0) && (
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 4, 
-              borderRadius: 1.5, 
-              bgcolor: '#fff', 
-              border: '1px dashed #e0e0e0', 
-              textAlign: 'center' 
-            }}
-          >
-            <EvStationIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
-              No chargers yet
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Add your first charger to get started with EVzone Private Charging.
-            </Typography>
-            <Button
-              variant="contained"
-              startIcon={<AddCircleOutlineIcon />}
-              onClick={handleAddCharger}
-              sx={{
-                borderRadius: 1.5,
-                bgcolor: 'secondary.main',
-                color: 'common.white',
-                textTransform: 'none',
-                fontWeight: 700,
-                px: 3,
-                '&:hover': { bgcolor: 'secondary.dark' },
-              }}
-            >
-              Add Your First Charger
-            </Button>
-          </Paper>
-        )}
-
-        {/* Chargers list */}
-        {!loading && !error && chargers && chargers.length > 0 && (
-          <List sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            {chargers.map((charger) => (
-              <ListItemButton
-                key={charger.id}
-                onClick={() => handleSelectCharger(charger)}
-                sx={{ p: 0, borderRadius: 1.5 }}
-              >
-                <ChargerCard
-                  charger={charger}
-                  onSelect={() => handleSelectCharger(charger)}
-                  onSettings={(c) => handleSettingsCharger(c)}
-                />
-              </ListItemButton>
-            ))}
-          </List>
-        )}
+        </Box>
       </Box>
     </MobileShell>
   );
