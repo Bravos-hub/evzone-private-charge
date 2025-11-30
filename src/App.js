@@ -3,8 +3,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { EVzoneTheme } from './utils/theme';
-import { AuthProvider } from './context/AuthContext';
-import { SiteProvider } from './context/SiteContext';
 import AppRoutes from './routes';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
@@ -13,18 +11,14 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider theme={EVzoneTheme}>
         <CssBaseline />
-        <AuthProvider>
-          <SiteProvider>
-            <BrowserRouter
-              future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true,
-              }}
-            >
-              <AppRoutes />
-            </BrowserRouter>
-          </SiteProvider>
-        </AuthProvider>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <AppRoutes />
+        </BrowserRouter>
       </ThemeProvider>
     </ErrorBoundary>
   );

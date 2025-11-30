@@ -1,15 +1,55 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, IconButton,
-  FormControl, Select, MenuItem
+  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, Select, MenuItem
 } from '@mui/material';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import ViewWeekRoundedIcon from '@mui/icons-material/ViewWeekRounded';
-import MobileShell from '../../components/layout/MobileShell';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import EvStationIcon from '@mui/icons-material/EvStation';
+import HistoryIcon from '@mui/icons-material/History';
+import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
+import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
+
+const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+
+function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
+  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate back'); };
+  return (
+    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
+      <AppBar position="fixed" elevation={1} color="primary"><Toolbar sx={{ px: 0 }}>
+        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
+          <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}><ArrowBackIosNewIcon fontSize="small" /></IconButton>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
+            {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
+          </Box>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}><HelpOutlineIcon fontSize="small" /></IconButton>
+        </Box>
+      </Toolbar></AppBar>
+      <Toolbar />
+      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
+      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
+        {footer}
+        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
+            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
+            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
+            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
+            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
+            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
+          </BottomNavigation>
+        </Paper>
+      </Box>
+    </Box>
+  );
+}
 
 const theme = createTheme({
   palette: {
@@ -75,49 +115,14 @@ function WeekList({ startDate, items, onOpen, highlightDate }) {
   );
 }
 
-export default function ScheduleCalendars({
+export default function ScheduleCalendarsWired({
   chargers = [{ id: 'st1', name: 'Home Charger' }, { id: 'st2', name: 'Office Charger' }],
   defaultChargerId = 'st1',
   onBack, onHelp, onNavChange,
   onNavigate, onOpenItem, onCreateSchedule,
   highlight // { date?: 'YYYY-MM-DD' }
 }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [navValue, setNavValue] = useState(1); // Stations tab index
-  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
-
-  useEffect(() => {
-    const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
-    if (pathIndex !== -1) {
-      setNavValue(pathIndex);
-    }
-  }, [location.pathname, routes]);
-
-  const handleNavChange = useCallback((value) => {
-    setNavValue(value);
-    if (routes[value] !== undefined) {
-      navigate(routes[value]);
-    }
-    if (onNavChange) onNavChange(value);
-  }, [navigate, routes, onNavChange]);
-
-  const handleBack = useCallback(() => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate('/settings');
-    }
-  }, [navigate, onBack]);
-
-  const handleHelp = useCallback(() => {
-    if (onHelp) {
-      onHelp();
-    } else {
-      console.info('Help');
-    }
-  }, [onHelp]);
-
+  const [navValue, setNavValue] = useState(1);
   const [chargerId, setChargerId] = useState(defaultChargerId);
   const [mode, setMode] = useState('month');
   const today = new Date();
@@ -133,7 +138,6 @@ export default function ScheduleCalendars({
     setCursor(d);
     onNavigate ? onNavigate({ chargerId, mode:'month', year:d.getFullYear(), month:d.getMonth()+1 }) : console.info('Navigate month', d);
   };
-  
   const changeWeek = (delta) => {
     const d = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate()+delta*7);
     setCursor(d);
