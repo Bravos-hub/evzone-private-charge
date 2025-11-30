@@ -1,9 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import MobileShell from '../../components/layout/MobileShell';
 import {
-  CssBaseline,
-  Container,
   Box,
   Typography,
   Paper,
@@ -15,67 +13,12 @@ import {
   RadioGroup,
   Radio,
   FormControlLabel,
-  AppBar,
-  Toolbar,
-  BottomNavigation,
-  BottomNavigationAction
 } from '@mui/material';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import AddCardRoundedIcon from '@mui/icons-material/AddCardRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import HistoryIcon from '@mui/icons-material/History';
-import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
-
-const theme = createTheme({
-  palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } },
-  shape: { borderRadius: 7 },
-  typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' },
-});
-
-function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
-  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 12 — Charger Settings (Mobile, React + MUI, JS)'); };
-  return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="fixed" elevation={1} color="primary">
-        <Toolbar sx={{ px: 0 }}>
-          <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
-            <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}>
-              <ArrowBackIosNewIcon fontSize="small" />
-            </IconButton>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
-              {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
-            </Box>
-            <Box sx={{ flexGrow: 1 }} />
-            <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}>
-              <HelpOutlineIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <Toolbar />
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
-        {footer}
-        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
-            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
-            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
-            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
-            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
-          </BottomNavigation>
-        </Paper>
-      </Box>
-    </Box>
-  );
-}
 
 function CommercialBadge({ isCommercial }) {
   return (
@@ -165,27 +108,17 @@ export default function PaymentMethodsPatched({
 
   const isCommercial = selectedChargerId && commercialChargerId && selectedChargerId === commercialChargerId;
 
-  const Footer = (
-    <Box sx={{ px: 2, pb: 'calc(12px + env(safe-area-inset-bottom))', pt: 1.5, background: '#f2f2f2', borderTop: '1px solid #e9eceb' }}>
-      <Stack direction="row" spacing={1}>
-        <Button variant="outlined" startIcon={<AccountBalanceWalletRoundedIcon />} onClick={() => (onTopUp ? onTopUp() : console.info('Top up wallet'))}
-          sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Top up</Button>
-        <Button variant="outlined" onClick={() => (onWithdraw ? onWithdraw() : console.info('Withdraw from wallet'))}
-          sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Withdraw</Button>
-        <Button variant="contained" color="secondary" startIcon={<AddCardRoundedIcon />} onClick={() => (onAddCard ? onAddCard() : console.info('Add new card'))}
-          sx={{ ml: 'auto', color: 'common.white', '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } }}>Add card</Button>
-      </Stack>
-    </Box>
-  );
-
   const totalVerified = useMemo(() => cards.filter(c => c.verified).length, [cards]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Payment methods" tagline="wallet • cards • verification" onBack={handleBack} onHelp={onHelp} navValue={navValue} onNavChange={handleNavChange} footer={Footer}>
-          <Box sx={{ px: 2, pt: 2 }}>
+    <MobileShell 
+      title="Payment methods" 
+      tagline="wallet • cards • verification" 
+      onBack={handleBack} 
+      onHelp={onHelp} 
+      navValue={navValue} 
+      onNavChange={handleNavChange}
+    >
             {/* Commercial badge + Aggregator CTA */}
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
               <CommercialBadge isCommercial={isCommercial} />
@@ -241,9 +174,6 @@ export default function PaymentMethodsPatched({
                   sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Save card</Button>
               </Stack>
             </Paper>
-          </Box>
-        </MobileShell>
-      </Container>
-    </ThemeProvider>
+    </MobileShell>
   );
 }

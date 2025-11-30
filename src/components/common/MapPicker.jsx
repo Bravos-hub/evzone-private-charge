@@ -51,14 +51,43 @@ export default function MapPicker({ value, onChange, onResolveAddress }) {
           <Marker width={38} anchor={marker} color="#d00" />
         </PigeonMap>
       </Box>
-      <Stack direction="row" spacing={1} sx={{ p: 1.25, flexWrap: 'wrap' }}>
-        <Button size="small" variant="outlined" onClick={locate} startIcon={<RoomIcon />}
-          sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff', borderColor: 'secondary.main' } }}>
-          Use my location
+      <Box sx={{ p: 1.25 }}>
+        <Button 
+          size="small" 
+          variant="outlined" 
+          onClick={locate} 
+          startIcon={<RoomIcon />}
+          fullWidth
+          sx={{ 
+            mb: 1,
+            color: EV.green,
+            borderColor: EV.green,
+            '&:hover': { 
+              bgcolor: EV.green, 
+              color: '#fff', 
+              borderColor: EV.green 
+            } 
+          }}
+        >
+          USE MY LOCATION
         </Button>
-        <TextField size="small" fullWidth label="Latitude" value={marker[0].toFixed(6)} InputProps={{ readOnly: true }} sx={{ flex: 1, minWidth: '140px' }} />
-        <TextField size="small" fullWidth label="Longitude" value={marker[1].toFixed(6)} InputProps={{ readOnly: true }} sx={{ flex: 1, minWidth: '140px' }} />
-      </Stack>
+        <Stack direction="row" spacing={1}>
+          <TextField 
+            size="small" 
+            fullWidth 
+            label="Latitude" 
+            value={marker[0].toFixed(6)} 
+            InputProps={{ readOnly: true }} 
+          />
+          <TextField 
+            size="small" 
+            fullWidth 
+            label="Longitude" 
+            value={marker[1].toFixed(6)} 
+            InputProps={{ readOnly: true }} 
+          />
+        </Stack>
+      </Box>
     </Paper>
   );
 }

@@ -70,6 +70,14 @@ export default function MyChargers({ onAdd, onBack, onHelp, onNavChange, onOpenC
     }
   }, [navigate, onOpenCharger]);
 
+  const handleAddCharger = useCallback(() => {
+    if (onAdd) {
+      onAdd();
+    } else {
+      navigate('/chargers/add');
+    }
+  }, [navigate, onAdd]);
+
   const chargers = [
     { id: '1', name: 'Home Charger', tag: 'Home', location: 'Kampala, Uganda', connector: 'Type 2', maxPower: '22 kW', amount: 124000 },
     { id: '2', name: 'EVzone Charge Station', tag: 'Commercial', location: 'Bugolobi, Kampala', connector: 'CCS 2', maxPower: '90 kW', amount: 240000 },
@@ -100,7 +108,7 @@ export default function MyChargers({ onAdd, onBack, onHelp, onNavChange, onOpenC
             color="secondary" 
             variant="contained" 
             startIcon={<AddCircleOutlineIcon />} 
-            onClick={onAdd}
+            onClick={handleAddCharger}
             sx={{ 
               py: 1.25, 
               color: 'common.white', 

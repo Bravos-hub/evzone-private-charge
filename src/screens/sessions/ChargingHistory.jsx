@@ -9,7 +9,7 @@ import MobileShell from '../../components/layout/MobileShell';
 
 function CommercialBadge({ isCommercial }) {
   return (
-    <Chip size="small" label={isCommercial ? 'Commercial Chareger' : 'Not commercial'}
+    <Chip size="small" label={isCommercial ? 'Commercial Charger' : 'Not commercial'}
       color={isCommercial ? 'secondary' : 'default'} sx={{ color: isCommercial ? 'common.white' : undefined }} />
   );
 }
@@ -66,31 +66,18 @@ export default function ChargingHistory({
   }, [navigate, routes, onNavChange]);
 
   const data = useMemo(() => ([
-    { id: 's1', date: '2025-10-18', site: 'Home Charger', kwh: 12.4, duration: '01:32', amount: 14880, type: 'public' },
-    { id: 's2', date: '2025-10-12', site: 'Home Charger', kwh: 6.1, duration: '00:45', amount: 6120, type: 'private' }
+    { id: 's1', date: '2025-10-18', site: 'Home Charger', chargerId: 'st1', kwh: 12.4, duration: '01:32', amount: 14880, type: 'public' },
+    { id: 's2', date: '2025-10-12', site: 'Home Charger', chargerId: 'st1', kwh: 6.1, duration: '00:45', amount: 6120, type: 'private' },
+    { id: 's3', date: '2025-10-15', site: 'Office Charger', chargerId: 'st2', kwh: 8.5, duration: '01:15', amount: 10200, type: 'private' },
+    { id: 's4', date: '2025-10-10', site: 'Office Charger', chargerId: 'st2', kwh: 15.2, duration: '02:00', amount: 18240, type: 'public' }
   ]), []);
 
-  const filtered = data.filter(s => (
-    (mode === 'all' || s.type === mode) &&
-    (query.trim() === '' || s.site.toLowerCase().includes(query.toLowerCase()))
-  ));
-
-  const Footer = (
-    <Box sx={{ px: 2, pb: 'calc(12px + env(safe-area-inset-bottom))', pt: 1.5, background: '#f2f2f2', borderTop: '1px solid #e9eceb' }}>
-      <Stack direction="row" spacing={1}>
-        <TextField size="small" placeholder="Search" value={query} onChange={(e) => setQuery(e.target.value)}
-          InputProps={{ startAdornment: <InputAdornment position="start"><SearchRoundedIcon /></InputAdornment> }} sx={{ flex: 1, bgcolor: '#fff', borderRadius: 1 }} />
-        <FormControl size="small">
-          <FormLabel>Mode</FormLabel>
-          <Select value={mode} onChange={(e) => setMode(e.target.value)} sx={{ minWidth: 120 }}>
-            <MenuItem value="all">All</MenuItem>
-            <MenuItem value="public" disabled={!isCommercial}>Public</MenuItem>
-            <MenuItem value="private">Private</MenuItem>
-          </Select>
-        </FormControl>
-      </Stack>
-    </Box>
-  );
+  const filtered = data.filter(s => {
+    const matchesCharger = !chargerId || s.chargerId === chargerId;
+    const matchesMode = mode === 'all' || s.type === mode;
+    const matchesQuery = query.trim() === '' || s.site.toLowerCase().includes(query.toLowerCase());
+    return matchesCharger && matchesMode && matchesQuery;
+  });
 
   return (
     <MobileShell
@@ -100,10 +87,32 @@ export default function ChargingHistory({
       onNavChange={handleNavChange}
       onBack={onBack || (() => navigate('/dashboard'))}
       onHelp={onHelp}
-      footerSlot={Footer}
     >
-      {/* Charger selector */}
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1 }}>
+      <Box sx={{ pt: 2 }}>
+        {/* Search and Mode filter */}
+        <Stack direction="row" spacing={1} alignItems="flex-end" sx={{ mb: 2, px: 2 }}>
+          <TextField 
+            size="small" 
+            placeholder="Search" 
+            value={query} 
+            onChange={(e) => setQuery(e.target.value)}
+            InputProps={{ 
+              startAdornment: <InputAdornment position="start"><SearchRoundedIcon /></InputAdornment> 
+            }} 
+            sx={{ flex: 1 }} 
+          />
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <FormLabel sx={{ mb: 0.5, fontSize: '0.75rem' }}>Mode</FormLabel>
+            <Select value={mode} onChange={(e) => setMode(e.target.value)}>
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="public" disabled={!isCommercial}>Public</MenuItem>
+              <MenuItem value="private">Private</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+
+        {/* Charger selector */}
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1, mx: 2 }}>
           <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
           <FormControl size="small" fullWidth>
             <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
@@ -113,7 +122,7 @@ export default function ChargingHistory({
         </Paper>
 
         {/* Commercial badge + Aggregator CTA */}
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1, px: 2 }}>
           <CommercialBadge isCommercial={isCommercial} />
           {!isCommercial && (
             <Button size="small" variant="text" onClick={() => (onOpenAggregator ? onOpenAggregator(aggregatorUrl) : console.info('Open Aggregator', aggregatorUrl))}>Aggregator & CPMS</Button>
@@ -121,7 +130,7 @@ export default function ChargingHistory({
         </Stack>
 
         {/* List */}
-        <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <List sx={{ display: 'flex', flexDirection: 'column', gap: 1, px: 2 }}>
           {filtered.map(s => (
             <ListItemButton key={s.id} sx={{ p: 0 }}>
               <Row s={s} onOpenReceipt={onOpenReceipt} />
@@ -130,10 +139,11 @@ export default function ChargingHistory({
         </List>
 
         {!filtered.length && (
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center' }}>
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center', mx: 2 }}>
             <Typography variant="caption" color="text.secondary">No results for the selected filters.</Typography>
           </Paper>
         )}
+      </Box>
     </MobileShell>
   );
 }

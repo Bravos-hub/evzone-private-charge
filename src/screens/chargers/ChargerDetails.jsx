@@ -133,19 +133,6 @@ export default function ChargerDetails({
     else setSnack({ open: true, msg: `Saved: ${JSON.stringify(payload)}` });
   };
 
-  const Footer = (
-    <Box sx={{ px: 2, pb: 'calc(10px + env(safe-area-inset-bottom))', pt: 1.25, background: '#f2f2f2', borderTop: '1px solid #eee' }}>
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Button variant="outlined" onClick={handleBack} sx={{ mr: 'auto', '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Back</Button>
-        <Button variant="outlined" onClick={onCallOr(onOpenPricing)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Pricing &amp; fees</Button>
-        <Button variant="outlined" onClick={onCallOr(onOpenAvail)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Availability</Button>
-        <Button variant="outlined" onClick={onCallOr(onOpenAccess)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Access</Button>
-        <Button disabled={!canSave} variant="contained" color="secondary" onClick={handleSave} sx={{ ml: 0.5, color: '#fff' }}>
-          Save changes
-        </Button>
-      </Stack>
-    </Box>
-  );
 
   return (
     <ThemeProvider theme={EVzoneTheme}>
@@ -157,7 +144,6 @@ export default function ChargerDetails({
           onHelp={onHelp}
           navValue={navValue}
           onNavChange={handleNavChange}
-          footer={Footer}
           onOpenAggregator={onOpenAggregator}
         >
           <Box sx={{ px: 2, pt: 2 }}>
@@ -205,8 +191,22 @@ export default function ChargerDetails({
             </Paper>
 
             {/* Core settings (quick tweaks) */}
-            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff' }}>
-              <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Core settings</Typography>
+            <Paper elevation={0} sx={{ mt: 2, p: 2, borderRadius: 1.5, border: '1px solid #eef3f1', bgcolor: '#fff', width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                <Typography variant="subtitle2" fontWeight={800}>Core settings</Typography>
+                <MuiLink 
+                  component="button" 
+                  onClick={onCallOr(onOpenAggregator)} 
+                  sx={{ 
+                    color: 'secondary.main', 
+                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                    whiteSpace: 'nowrap',
+                    '&:hover': { color: 'primary.dark' } 
+                  }}
+                >
+                  Manage in Aggregator &amp; CPMS
+                </MuiLink>
+              </Stack>
               <Stack spacing={1.25}>
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <Typography variant="body2" sx={{ minWidth: 120 }}>Usage</Typography>
@@ -219,9 +219,6 @@ export default function ChargerDetails({
                     <ToggleButton value="private">Private</ToggleButton>
                     <ToggleButton value="commercial">Commercial</ToggleButton>
                   </ToggleButtonGroup>
-                  <MuiLink component="button" onClick={onCallOr(onOpenAggregator)} sx={{ ml: 'auto', color: 'secondary.main', '&:hover': { color: 'primary.dark' } }}>
-                    Manage in Aggregator &amp; CPMS
-                  </MuiLink>
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1}>
                   <Typography variant="body2" sx={{ minWidth: 120 }}>Availability</Typography>
@@ -319,28 +316,48 @@ export default function ChargerDetails({
                     width: '100%',
                     maxWidth: '100%',
                     minWidth: 0,
-                    justifyContent: 'flex-start',
-                    overflow: 'hidden',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 0.5,
                     '& .MuiFormControlLabel-label': {
-                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                      lineHeight: 1.3,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '100%',
-                      minWidth: 0
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                      lineHeight: 1.4,
+                      marginTop: 0.5,
+                      textAlign: 'center',
+                      width: '100%',
+                      overflow: 'visible',
+                      whiteSpace: 'normal',
+                      wordBreak: 'break-word'
                     },
                     '& .MuiSwitch-root': {
                       flexShrink: 0,
-                      marginRight: { xs: '8px', sm: '12px' }
+                      transform: { xs: 'scale(0.75)', sm: 'scale(0.85)' },
+                      transformOrigin: 'center'
                     }
                   }
                 }}
               >
-                <FormControlLabel control={<Switch defaultChecked />} label="Restroom" />
-                <FormControlLabel control={<Switch />} label="Food & drinks" />
-                <FormControlLabel control={<Switch defaultChecked />} label="24/7" />
-                <FormControlLabel control={<Switch />} label="Security" />
+                <FormControlLabel 
+                  control={<Switch defaultChecked size="small" />} 
+                  label="Restroom" 
+                  labelPlacement="bottom"
+                />
+                <FormControlLabel 
+                  control={<Switch size="small" />} 
+                  label="Food & drinks" 
+                  labelPlacement="bottom"
+                />
+                <FormControlLabel 
+                  control={<Switch defaultChecked size="small" />} 
+                  label="24/7" 
+                  labelPlacement="bottom"
+                />
+                <FormControlLabel 
+                  control={<Switch size="small" />} 
+                  label="Security" 
+                  labelPlacement="bottom"
+                />
               </Box>
             </Paper>
 
@@ -380,6 +397,18 @@ export default function ChargerDetails({
                 <Stat label="Uptime" value="99.2%" />
                 <Stat label="Avg. kWh / session" value="17.3" />
                 <Stat label="Revenue" value="UGX 1.2M" />
+              </Stack>
+            </Box>
+
+            {/* Action buttons */}
+            <Box sx={{ mt: 2, px: 0, pb: 2 }}>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap', gap: 1 }}>
+                <Button variant="outlined" onClick={onCallOr(onOpenPricing)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Pricing &amp; fees</Button>
+                <Button variant="outlined" onClick={onCallOr(onOpenAvail)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Availability</Button>
+                <Button variant="outlined" onClick={onCallOr(onOpenAccess)} sx={{ '&:hover': { bgcolor: 'secondary.main', color: '#fff' } }}>Access</Button>
+                <Button disabled={!canSave} variant="contained" color="secondary" onClick={handleSave} sx={{ ml: 'auto', color: '#fff' }}>
+                  Save changes
+                </Button>
               </Stack>
             </Box>
           </Box>

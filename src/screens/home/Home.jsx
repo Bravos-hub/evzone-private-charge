@@ -28,7 +28,7 @@ import { useChargers } from '../../hooks/useChargers';
  * Private‑Charging Home (Mobile‑only) — Info + Get Started CTA
  * Strictly informational with one primary CTA. Max width ~420px to emulate mobile.
  */
-export default function PrivateChargingHome({
+export default function Home({
   userName = 'Ronald',
   onGetStarted,
   onLearnMore, // optional
