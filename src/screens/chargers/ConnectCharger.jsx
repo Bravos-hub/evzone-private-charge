@@ -344,7 +344,7 @@ export default function ConnectCommercializeChargerMobile({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isOnboarding, completeStep, nextStep, setChargerIdForOnboarding, getStepRoute } = useOnboarding();
+  const { isOnboarding, completeStep, nextStep, setChargerIdForOnboarding } = useOnboarding();
   const routes = ['/', '/chargers', '/sessions', '/wallet', '/settings'];
   
   // Wizard steps

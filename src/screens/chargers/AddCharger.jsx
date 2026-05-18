@@ -38,7 +38,7 @@ export default function AddChargerStartPro({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { completeStep, setChargerIdForOnboarding } = useOnboarding();
+  const { completeStep } = useOnboarding();
   const [navValue, setNavValue] = useState(1);
   const routes = ['/', '/chargers', '/sessions', '/wallet', '/settings'];
   
