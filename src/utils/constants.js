@@ -1,9 +1,12 @@
-export const APP_NAME = 'EVzone • Private Charging';
+export const APP_NAME = 'EVzone Private Charging';
 
 export const NAV_ITEMS = [
   { label: 'Home', icon: 'HomeRounded', path: '/' },
   { label: 'Dashboard', icon: 'DashboardRounded', path: '/dashboard' },
+  { label: 'Private', icon: 'EvStationRounded', path: '/private-charging' },
+  { label: 'Access', icon: 'VpnKeyRounded', path: '/access' },
   { label: 'Sessions', icon: 'HistoryRounded', path: '/sessions' },
+  { label: 'Reports', icon: 'AssessmentRounded', path: '/private-charging/reports' },
   { label: 'Wallet', icon: 'AccountBalanceWalletRounded', path: '/wallet' },
   { label: 'Settings', icon: 'SettingsRounded', path: '/settings' },
 ];

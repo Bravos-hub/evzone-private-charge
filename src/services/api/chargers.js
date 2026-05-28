@@ -1,12 +1,12 @@
 import api from './index';
 
 export const chargerApi = {
-  getAll: () => api.get('/chargers'),
-  getById: (id) => api.get(`/chargers/${id}`),
-  create: (data) => api.post('/chargers', data),
-  update: (id, data) => api.put(`/chargers/${id}`, data),
-  delete: (id) => api.delete(`/chargers/${id}`),
-  testConnection: (id) => api.post(`/chargers/${id}/test-connection`),
-  publish: (id) => api.post(`/chargers/${id}/publish`),
+  getAll: () => api.get('/charge-points'),
+  getById: (id) => api.get(`/charge-points/${id}`),
+  create: (data) => api.post('/charge-points', data),
+  update: (id, data) => api.patch(`/charge-points/${id}`, data),
+  delete: (id) => api.delete(`/charge-points/${id}`),
+  testConnection: (id) => api.post(`/charge-points/${id}/commands/soft-reset`),
+  publish: (id) => api.put(`/charge-points/${id}/publication`, { published: true }),
 };
 

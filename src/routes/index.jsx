@@ -52,6 +52,9 @@ import OperatorMarketplace from '../screens/marketplace/OperatorMarketplace';
 import AccessUserProfile from '../screens/users/AccessUserProfile';
 import QRPoster from '../screens/users/QRPoster';
 
+// Private charging control center
+import PrivateChargingControlCenter from '../screens/private/PrivateChargingControlCenter';
+
 // Utility screens
 import ReceiptViewer from '../screens/utilities/ReceiptViewer';
 import StartByQRorID from '../screens/utilities/StartByQRorID';
@@ -111,6 +114,8 @@ export default function AppRoutes() {
       {/* Access routes */}
       <Route path="/availability" element={<PrivateRoute><Availability /></PrivateRoute>} />
       <Route path="/access" element={<PrivateRoute><AccessPermissions /></PrivateRoute>} />
+      <Route path="/private-charging" element={<PrivateRoute><PrivateChargingControlCenter /></PrivateRoute>} />
+      <Route path="/private-charging/reports" element={<PrivateRoute><PrivateChargingControlCenter view="reports" /></PrivateRoute>} />
       
       {/* Scheduling routes */}
       <Route path="/schedules" element={<PrivateRoute><Schedules /></PrivateRoute>} />
