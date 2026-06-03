@@ -1,0 +1,282 @@
+name: Deploy Private App
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: private-production-deploy
+  cancel-in-progress: false
+
+env:
+  BUILD_OUTPUT: build
+  NODE_VERSION: 20
+
+jobs:
+  validate:
+    name: Validate and Build
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      APP_NAME: ${{ vars.APP_NAME }}
+      VITE_APP_ENV: ${{ vars.VITE_APP_ENV }}
+      VITE_PUBLIC_BASE_URL: ${{ vars.VITE_PUBLIC_BASE_URL }}
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+      VITE_KEYCLOAK_URL: ${{ vars.VITE_KEYCLOAK_URL }}
+      VITE_KEYCLOAK_REALM: ${{ vars.VITE_KEYCLOAK_REALM }}
+      REACT_APP_API_URL: ${{ vars.REACT_APP_API_URL }}
+      REACT_APP_ENV: ${{ vars.REACT_APP_ENV }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect package manager
+        id: pm
+        shell: bash
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            echo "manager=pnpm" >> "$GITHUB_OUTPUT"
+            echo "install=pnpm install --frozen-lockfile" >> "$GITHUB_OUTPUT"
+            echo "build=pnpm run build" >> "$GITHUB_OUTPUT"
+            echo "lint=pnpm run lint" >> "$GITHUB_OUTPUT"
+            echo "test=pnpm test -- --watch=false" >> "$GITHUB_OUTPUT"
+          elif [ -f yarn.lock ]; then
+            echo "manager=yarn" >> "$GITHUB_OUTPUT"
+            echo "install=yarn install --frozen-lockfile" >> "$GITHUB_OUTPUT"
+            echo "build=yarn build" >> "$GITHUB_OUTPUT"
+            echo "lint=yarn lint" >> "$GITHUB_OUTPUT"
+            echo "test=yarn test --watch=false" >> "$GITHUB_OUTPUT"
+          elif [ -f bun.lockb ] || [ -f bun.lock ]; then
+            echo "manager=bun" >> "$GITHUB_OUTPUT"
+            echo "install=bun install --frozen-lockfile" >> "$GITHUB_OUTPUT"
+            echo "build=bun run build" >> "$GITHUB_OUTPUT"
+            echo "lint=bun run lint" >> "$GITHUB_OUTPUT"
+            echo "test=bun test" >> "$GITHUB_OUTPUT"
+          else
+            echo "manager=npm" >> "$GITHUB_OUTPUT"
+            if [ -f package-lock.json ]; then
+              echo "install=npm ci" >> "$GITHUB_OUTPUT"
+            else
+              echo "install=npm install" >> "$GITHUB_OUTPUT"
+            fi
+            echo "build=npm run build" >> "$GITHUB_OUTPUT"
+            echo "lint=npm run lint" >> "$GITHUB_OUTPUT"
+            echo "test=npm test -- --watch=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate production config
+        shell: bash
+        run: |
+          missing=0
+          for name in APP_NAME VITE_APP_ENV VITE_PUBLIC_BASE_URL VITE_API_URL VITE_KEYCLOAK_URL VITE_KEYCLOAK_REALM REACT_APP_API_URL REACT_APP_ENV; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required production variable: ${name}"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: ${{ steps.pm.outputs.manager == 'bun' && '' || steps.pm.outputs.manager }}
+          registry-url: https://npm.pkg.github.com
+          scope: "@evzone-group-dev"
+
+      - name: Setup pnpm
+        if: steps.pm.outputs.manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Bun
+        if: steps.pm.outputs.manager == 'bun'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: ${{ steps.pm.outputs.install }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.EVZONE_PACKAGES_TOKEN }}
+          EVZONE_PACKAGES_TOKEN: ${{ secrets.EVZONE_PACKAGES_TOKEN }}
+
+      - name: Run lint if available
+        shell: bash
+        run: |
+          if node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.lint ? 0 : 1)"; then
+            ${{ steps.pm.outputs.lint }}
+          else
+            echo "No lint script found. Skipping lint."
+          fi
+
+      - name: Run tests if available
+        shell: bash
+        run: |
+          if node -e "const p=require('./package.json'); process.exit(p.scripts && p.scripts.test ? 0 : 1)"; then
+            ${{ steps.pm.outputs.test }}
+          else
+            echo "No test script found. Skipping tests."
+          fi
+
+      - name: Build production app
+        run: ${{ steps.pm.outputs.build }}
+
+      - name: Verify build output
+        shell: bash
+        run: |
+          test -d "${BUILD_OUTPUT}"
+          test -f "${BUILD_OUTPUT}/index.html"
+          echo "Build output verified: ${BUILD_OUTPUT}"
+
+      - name: Create release archive
+        shell: bash
+        run: |
+          RELEASE_ID="${GITHUB_REF_NAME}-${GITHUB_SHA::7}-$(date +%Y%m%d%H%M%S)"
+          echo "$RELEASE_ID" > release-id.txt
+          tar -czf "${APP_NAME}-release.tar.gz" -C "${BUILD_OUTPUT}" .
+          ls -lh "${APP_NAME}-release.tar.gz"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-release
+          path: |
+            ${{ env.APP_NAME }}-release.tar.gz
+            release-id.txt
+          retention-days: 14
+
+  deploy:
+    name: Deploy to Droplet
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    environment: production
+    env:
+      APP_NAME: ${{ vars.APP_NAME }}
+      APP_DOMAIN: ${{ vars.APP_DOMAIN }}
+      SERVER_ROOT: ${{ vars.SERVER_ROOT }}
+      SERVER_ROOT_PREFIX: ${{ vars.SERVER_ROOT_PREFIX }}
+      DEPLOY_BASE: ${{ vars.DEPLOY_BASE }}
+      RELEASE_ROOT: ${{ vars.RELEASE_ROOT }}
+      BACKUP_ROOT: ${{ vars.BACKUP_ROOT }}
+
+    steps:
+      - name: Download release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-release
+          path: release
+
+      - name: Show release files
+        run: ls -lah release
+
+      - name: Upload archive to droplet
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: ${{ secrets.DROPLET_PORT }}
+          source: "release/${{ env.APP_NAME }}-release.tar.gz,release/release-id.txt"
+          target: "${{ env.DEPLOY_BASE }}/${{ env.APP_NAME }}"
+          strip_components: 1
+
+      - name: Install release on droplet
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_NAME: ${{ env.APP_NAME }}
+          APP_DOMAIN: ${{ env.APP_DOMAIN }}
+          SERVER_ROOT: ${{ env.SERVER_ROOT }}
+          SERVER_ROOT_PREFIX: ${{ env.SERVER_ROOT_PREFIX }}
+          DEPLOY_BASE: ${{ env.DEPLOY_BASE }}
+          RELEASE_ROOT: ${{ env.RELEASE_ROOT }}
+          BACKUP_ROOT: ${{ env.BACKUP_ROOT }}
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          port: ${{ secrets.DROPLET_PORT }}
+          envs: APP_NAME,APP_DOMAIN,SERVER_ROOT,SERVER_ROOT_PREFIX,DEPLOY_BASE,RELEASE_ROOT,BACKUP_ROOT
+          script: |
+            set -euo pipefail
+            : "${APP_NAME:?APP_NAME is required}"
+            : "${APP_DOMAIN:?APP_DOMAIN is required}"
+            : "${SERVER_ROOT:?SERVER_ROOT is required}"
+            : "${SERVER_ROOT_PREFIX:?SERVER_ROOT_PREFIX is required}"
+            : "${DEPLOY_BASE:?DEPLOY_BASE is required}"
+            : "${RELEASE_ROOT:?RELEASE_ROOT is required}"
+            : "${BACKUP_ROOT:?BACKUP_ROOT is required}"
+
+            case "$SERVER_ROOT" in
+              "$SERVER_ROOT_PREFIX"/*) ;;
+              *)
+                echo "Refusing to deploy to unexpected SERVER_ROOT: $SERVER_ROOT"
+                exit 1
+                ;;
+            esac
+
+            APP_DEPLOY_BASE="${DEPLOY_BASE}/${APP_NAME}"
+            ARCHIVE="${APP_DEPLOY_BASE}/${APP_NAME}-release.tar.gz"
+            RELEASE_ID_FILE="${APP_DEPLOY_BASE}/release-id.txt"
+
+            if [ ! -f "$ARCHIVE" ]; then
+              echo "Release archive missing: $ARCHIVE"
+              exit 1
+            fi
+
+            if [ -f "$RELEASE_ID_FILE" ]; then
+              RELEASE_ID="$(cat "$RELEASE_ID_FILE" | tr -cd '[:alnum:]._-')"
+            else
+              RELEASE_ID="$(date +%Y%m%d%H%M%S)"
+            fi
+
+            RELEASE_DIR="${RELEASE_ROOT}/${APP_NAME}/${RELEASE_ID}"
+            BACKUP_DIR="${BACKUP_ROOT}/${APP_NAME}/$(date +%Y%m%d%H%M%S)"
+
+            echo "Deploying ${APP_NAME}"
+            echo "Release ID: ${RELEASE_ID}"
+            echo "Release dir: ${RELEASE_DIR}"
+            echo "Server root: ${SERVER_ROOT}"
+
+            sudo mkdir -p "$(dirname "$SERVER_ROOT")"
+            sudo mkdir -p "$RELEASE_DIR"
+            sudo mkdir -p "$BACKUP_DIR"
+
+            sudo tar -xzf "$ARCHIVE" -C "$RELEASE_DIR"
+
+            if [ ! -f "$RELEASE_DIR/index.html" ]; then
+              echo "index.html missing after extraction"
+              exit 1
+            fi
+
+            if [ -e "$SERVER_ROOT" ] || [ -L "$SERVER_ROOT" ]; then
+              sudo cp -aL "$SERVER_ROOT"/. "$BACKUP_DIR"/ 2>/dev/null || true
+            fi
+
+            if [ -d "$SERVER_ROOT" ] && [ ! -L "$SERVER_ROOT" ]; then
+              sudo rm -rf "$SERVER_ROOT"
+            fi
+
+            sudo ln -sfn "$RELEASE_DIR" "$SERVER_ROOT"
+
+            sudo chown -R www-data:www-data "$RELEASE_DIR"
+            sudo chown -h www-data:www-data "$SERVER_ROOT"
+            sudo chmod -R 755 "$RELEASE_DIR"
+
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+            echo "Deployment complete for ${APP_NAME} (${APP_DOMAIN})"
+            ls -lah "$SERVER_ROOT"
