@@ -10,6 +10,8 @@ import {
   List,
   Card,
   CardActionArea,
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import PaymentRoundedIcon from '@mui/icons-material/PaymentRounded';
@@ -23,7 +25,7 @@ export default function Wallet() {
   const [navValue, setNavValue] = useState(3);
 
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
-  
+
   // Sync navValue with current route
   useEffect(() => {
     const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
@@ -32,10 +34,9 @@ export default function Wallet() {
     }
   }, [location.pathname, routes]);
 
-  const wallet = {
-    balance: 180000,
-    currency: 'UGX',
-  };
+  // TODO: integrate with backend wallet API when available
+  const [wallet] = useState({ balance: 0, currency: 'UGX' });
+  const [loading] = useState(false);
 
   const handleNavChange = useCallback((value) => {
     setNavValue(value);
@@ -70,53 +71,47 @@ export default function Wallet() {
       onBack={() => navigate('/dashboard')}
     >
       <Box sx={{ pt: 2 }}>
-        {/* Wallet Balance Card */}
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2, textAlign: 'center' }}>
-          <AccountBalanceWalletRoundedIcon sx={{ fontSize: 48, color: EV.secondary, mb: 1 }} />
-          <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>
-            {wallet.currency} {wallet.balance.toLocaleString()}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">Current balance</Typography>
+        {loading && (
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+            <CircularProgress size={18} />
+            <Typography variant="body2" color="text.secondary">Loading wallet…</Typography>
+          </Stack>
+        )}
+
+        <Paper elevation={0} sx={{ p: 3, borderRadius: 2, bgcolor: '#fff', border: `1px solid ${EV.divider}`, mb: 2 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+            <AccountBalanceWalletRoundedIcon sx={{ color: EV.green }} />
+            <Typography variant="subtitle2" fontWeight={800}>Balance</Typography>
+          </Stack>
+          <Typography variant="h4" fontWeight={800}>{wallet.currency} {wallet.balance.toLocaleString()}</Typography>
+          <Button variant="contained" color="secondary" fullWidth sx={{ mt: 2, color: 'common.white' }} onClick={() => navigate('/payments')}>
+            Top up
+          </Button>
         </Paper>
 
-        {/* Quick Actions */}
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={() => navigate('/payments')}
-            sx={{ '&:hover': { bgcolor: EV.secondary, color: 'common.white', borderColor: EV.secondary } }}
-          >
-            Top Up
-          </Button>
-          <Button
-            fullWidth
-            variant="contained"
-            color="secondary"
-            onClick={() => navigate('/payments')}
-            sx={{ color: 'common.white', '&:hover': { bgcolor: EV.secondaryDark } }}
-          >
-            Payment Methods
-          </Button>
-        </Stack>
+        <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>
+          Menu
+        </Typography>
 
-        {/* Menu Items */}
-        <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <List>
           <MenuTile
-            icon={<PaymentRoundedIcon color="secondary" />}
-            title="Payment Methods"
-            subtitle="Cards, wallet, verification"
+            icon={<PaymentRoundedIcon sx={{ color: EV.green }} />}
+            title="Payment methods"
+            subtitle="Cards, mobile money"
             onClick={() => navigate('/payments')}
           />
           <MenuTile
-            icon={<ReceiptRoundedIcon color="secondary" />}
-            title="Invoices & Billing"
-            subtitle="View and manage invoices"
+            icon={<ReceiptRoundedIcon sx={{ color: EV.green }} />}
+            title="Invoices"
+            subtitle="Download & history"
             onClick={() => navigate('/invoices')}
           />
         </List>
+
+        <Alert severity="info" sx={{ mt: 2 }}>
+          Wallet balance is managed by the backend. Frontend will sync when the wallet API endpoint is exposed.
+        </Alert>
       </Box>
     </MobileShell>
   );
 }
-

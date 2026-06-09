@@ -26,6 +26,8 @@ import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceW
 import MobileShell from '../../components/layout/MobileShell';
 import { SwitchCommercialModal, AddChargerModal } from '../../components/modals';
 import Sparkline from '../../components/common/Sparkline';
+import { useChargers } from '../../hooks/useChargers';
+import { useBookings } from '../../hooks/useBookings';
 
 function CommercialBadge({ isCommercial }) {
   return (
@@ -36,18 +38,20 @@ function CommercialBadge({ isCommercial }) {
 
 export default function HomeDashboard({
   // Data
-  chargers = [{ id: 'st1', name: 'Home Charger' }, { id: 'st2', name: 'Office Charger' }],
+  chargers: propChargers,
   commercialChargerId,
   selectedChargerId: selectedId,
   liveSession,          // { chargerId, powerKW, kwh, elapsedSec }
-  todayBookings = 0,    // number for commercial charger
-  alerts = { faults: 0, offline: 0 },
-  priceSummary = { rate: 1200, unit: 'UGX/kWh', publicHours: '09:00–18:00' },
-  wallet = { balance: 180000, currency: 'UGX' },
-  lastInvoice = { amount: 14880, currency: 'UGX' },
-  energyTrend = [4,6,5,7,8,6,9], sessionsTrend = [1,2,1,2,3,2,3], revenueTrend = [9,11,10,12,13,12,15],
+  todayBookings: propTodayBookings,
+  alerts: propAlerts,
+  priceSummary: propPriceSummary,
+  wallet: propWallet,
+  lastInvoice: propLastInvoice,
+  energyTrend: propEnergyTrend,
+  sessionsTrend: propSessionsTrend,
+  revenueTrend: propRevenueTrend,
   errorMessage,
-  loading = false,
+  loading: propLoading,
   aggregatorUrl = 'https://aggregator.evzone.app',
 
   // Navigation
@@ -66,14 +70,33 @@ export default function HomeDashboard({
   const location = useLocation();
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
   const [navValue, setNavValue] = useState(0); // Home tab (Dashboard is the home view)
-  
+
+  // Fetch real data when props are not provided
+  const { chargers: fetchedChargers, loading: chargersLoading } = useChargers();
+  const { bookings: fetchedBookings } = useBookings();
+
+  const chargers = propChargers || fetchedChargers;
+  const loading = propLoading || chargersLoading;
+  const todayBookings = propTodayBookings ?? (fetchedBookings ? fetchedBookings.filter(b => {
+    const start = b.startTime ? new Date(b.startTime) : null;
+    const now = new Date();
+    return start && start.toDateString() === now.toDateString();
+  }).length : 0);
+  const alerts = propAlerts || { faults: 0, offline: 0 };
+  const priceSummary = propPriceSummary || { rate: 1200, unit: 'UGX/kWh', publicHours: '09:00–18:00' };
+  const wallet = propWallet || { balance: 0, currency: 'UGX' };
+  const lastInvoice = propLastInvoice || { amount: 0, currency: 'UGX' };
+  const energyTrend = propEnergyTrend || [4,6,5,7,8,6,9];
+  const sessionsTrend = propSessionsTrend || [1,2,1,2,3,2,3];
+  const revenueTrend = propRevenueTrend || [9,11,10,12,13,12,15];
+
   // Sync navValue with current route
   useEffect(() => {
     // Map /dashboard to Home tab (index 0)
     if (location.pathname === '/dashboard' || location.pathname === '/') {
       setNavValue(0);
     } else {
-      const pathIndex = routes.findIndex(route => 
+      const pathIndex = routes.findIndex(route =>
         (location.pathname === route || location.pathname.startsWith(route + '/')) && route !== '/'
       );
       if (pathIndex !== -1) {

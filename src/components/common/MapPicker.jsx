@@ -1,94 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Paper, Stack, Button, TextField } from '@mui/material';
-import { Map as PigeonMap, Marker } from 'pigeon-maps';
-import RoomIcon from '@mui/icons-material/Room';
-import { EV } from '../../utils/theme';
+import { useState, useMemo, useCallback, useRef } from 'react';
+import { Box, Typography, Skeleton } from '@mui/material';
+import { GoogleMap, MarkerF } from '@react-google-maps/api';
+import { useGoogleMaps } from '../../hooks/useGoogleMaps';
 
-export default function MapPicker({ value, onChange, onResolveAddress }) {
-  const [center, setCenter] = useState(value || [0.3476, 32.5825]); // Kampala default
-  const [marker, setMarker] = useState(value || [0.3476, 32.5825]);
+const mapContainerStyle = { width: '100%', height: '100%' };
+const defaultCenter = { lat: 0.3476, lng: 32.5825 };
 
-  useEffect(() => {
-    if (value) {
-      setCenter(value);
-      setMarker(value);
-    }
-  }, [value]);
+export default function MapPicker({ initial, onChange }) {
+  const { isLoaded, loading, error } = useGoogleMaps();
+  const [marker, setMarker] = useState(initial || null);
+  const mapRef = useRef(null);
 
-  const setAndMaybeReverse = async (coords) => {
-    setCenter(coords);
+  const center = useMemo(
+    () => marker || initial || defaultCenter,
+    [marker, initial],
+  );
+
+  const handleMapClick = useCallback((e) => {
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+    const coords = { lat, lng };
     setMarker(coords);
-    onChange && onChange(coords);
-    if (onResolveAddress) {
-      try {
-        const data = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords[0]}&lon=${coords[1]}`)
-          .then(res => res.json());
-        const addr = (data && (data.display_name || data.name)) || '';
-        if (addr) onResolveAddress(addr);
-      } catch (err) {
-        console.warn('Reverse geocoding failed', err);
-      }
-    }
-  };
+    onChange?.(coords);
+  }, [onChange]);
 
-  const locate = () => {
-    if (!navigator.geolocation) {
-      alert('Geolocation not supported');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setAndMaybeReverse([pos.coords.latitude, pos.coords.longitude]);
-      },
-      () => alert('Could not fetch current location')
+  const handleMarkerDragEnd = useCallback((e) => {
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+    const coords = { lat, lng };
+    setMarker(coords);
+    onChange?.(coords);
+  }, [onChange]);
+
+  if (error) {
+    return (
+      <Box sx={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.100', borderRadius: 2 }}>
+        <Typography color="error">Failed to load maps: {error}</Typography>
+      </Box>
     );
-  };
+  }
+
+  if (!isLoaded || loading) {
+    return <Skeleton variant="rectangular" height={240} sx={{ borderRadius: 2 }} />;
+  }
 
   return (
-    <Paper elevation={0} sx={{ p: 0, borderRadius: 1.5, overflow: 'hidden', border: `1px solid ${EV.divider}` }}>
-      <Box sx={{ height: 240 }}>
-        <PigeonMap height={240} center={center} defaultZoom={15} onClick={({ latLng }) => setAndMaybeReverse(latLng)}>
-          <Marker width={38} anchor={marker} color="#d00" />
-        </PigeonMap>
-      </Box>
-      <Box sx={{ p: 1.25 }}>
-        <Button 
-          size="small" 
-          variant="outlined" 
-          onClick={locate} 
-          startIcon={<RoomIcon />}
-          fullWidth
-          sx={{ 
-            mb: 1,
-            color: EV.green,
-            borderColor: EV.green,
-            '&:hover': { 
-              bgcolor: EV.green, 
-              color: '#fff', 
-              borderColor: EV.green 
-            } 
-          }}
-        >
-          USE MY LOCATION
-        </Button>
-        <Stack direction="row" spacing={1}>
-          <TextField 
-            size="small" 
-            fullWidth 
-            label="Latitude" 
-            value={marker[0].toFixed(6)} 
-            InputProps={{ readOnly: true }} 
+    <Box sx={{ width: '100%', height: 240, borderRadius: 2, overflow: 'hidden', position: 'relative' }}>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={center}
+        zoom={14}
+        onClick={handleMapClick}
+        onLoad={(map) => { mapRef.current = map; }}
+        options={{
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+          zoomControl: true,
+        }}
+      >
+        {marker && (
+          <MarkerF
+            position={marker}
+            draggable
+            onDragEnd={handleMarkerDragEnd}
+            icon={{
+              url: 'data:image/svg+xml;base64,' + btoa(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path fill="#03cd8c" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>',
+              ),
+              scaledSize: new window.google.maps.Size(28, 28),
+              anchor: new window.google.maps.Point(14, 28),
+            }}
           />
-          <TextField 
-            size="small" 
-            fullWidth 
-            label="Longitude" 
-            value={marker[1].toFixed(6)} 
-            InputProps={{ readOnly: true }} 
-          />
-        </Stack>
-      </Box>
-    </Paper>
+        )}
+      </GoogleMap>
+      <Typography
+        variant="caption"
+        sx={{
+          position: 'absolute',
+          bottom: 8,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bgcolor: 'rgba(255,255,255,0.9)',
+          px: 1,
+          py: 0.5,
+          borderRadius: 1,
+          fontSize: 11,
+          pointerEvents: 'none',
+        }}
+      >
+        {marker ? `${marker.lat.toFixed(5)}, ${marker.lng.toFixed(5)}` : 'Tap on the map to place a pin'}
+      </Typography>
+    </Box>
   );
 }
-

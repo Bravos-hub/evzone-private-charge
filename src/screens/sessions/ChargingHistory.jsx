@@ -2,10 +2,13 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box, Typography, Paper, Stack, Button, Chip, List, ListItemButton,
-  TextField, InputAdornment, MenuItem, Select, FormControl, FormLabel
+  TextField, InputAdornment, MenuItem, Select, FormControl, FormLabel,
+  Alert, CircularProgress
 } from '@mui/material';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import MobileShell from '../../components/layout/MobileShell';
+import { useChargers } from '../../hooks/useChargers';
+import { useSessions } from '../../hooks/useSessions';
 
 function CommercialBadge({ isCommercial }) {
   return (
@@ -14,14 +17,21 @@ function CommercialBadge({ isCommercial }) {
   );
 }
 
-
 function Row({ s, onOpenReceipt }) {
+  const dateStr = s.startTime ? new Date(s.startTime).toLocaleDateString() : '—';
+  const siteName = s.chargePoint?.station?.name || s.station?.name || 'Unknown';
+  const kwh = s.totalEnergy ?? s.energyDelivered ?? 0;
+  const duration = s.durationMinutes
+    ? `${Math.floor(s.durationMinutes / 60)}h ${s.durationMinutes % 60}m`
+    : '—';
+  const amount = s.totalCost ?? s.cost ?? 0;
+
   return (
     <Paper elevation={0} sx={{ p: 1.25, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
         <Box>
-          <Typography variant="subtitle2" fontWeight={700}>{s.date} — {s.site}</Typography>
-          <Typography variant="caption" color="text.secondary">{s.kwh} kWh • {s.duration} • UGX {s.amount.toLocaleString()}</Typography>
+          <Typography variant="subtitle2" fontWeight={700}>{dateStr} — {siteName}</Typography>
+          <Typography variant="caption" color="text.secondary">{kwh} kWh • {duration} • UGX {Number(amount).toLocaleString()}</Typography>
         </Box>
         <Button size="small" onClick={() => (onOpenReceipt ? onOpenReceipt(s) : console.info('Open receipt', s))}>Receipt</Button>
       </Stack>
@@ -30,8 +40,7 @@ function Row({ s, onOpenReceipt }) {
 }
 
 export default function ChargingHistory({
-  chargers = [{ id: 'st1', name: 'Home Charger' }, { id: 'st2', name: 'Office Charger' }],
-  defaultChargerId = 'st1',
+  chargers: propChargers,
   commercialChargerId,
   selectedChargerId,
   aggregatorUrl,
@@ -41,12 +50,17 @@ export default function ChargingHistory({
   const navigate = useNavigate();
   const location = useLocation();
   const [navValue, setNavValue] = useState(2);
-  const [chargerId, setChargerId] = useState(defaultChargerId);
+  const [chargerId, setChargerId] = useState('');
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState('all'); // all | public | private
 
+  const { chargers: fetchedChargers } = useChargers();
+  const { sessions, loading, error } = useSessions();
+
+  const chargers = propChargers || fetchedChargers;
+
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
-  
+
   // Sync navValue with current route
   useEffect(() => {
     const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
@@ -55,8 +69,22 @@ export default function ChargingHistory({
     }
   }, [location.pathname, routes]);
 
+  useEffect(() => {
+    if (chargers.length > 0 && !chargerId) {
+      setChargerId(chargers[0].id);
+    }
+  }, [chargers, chargerId]);
+
   const currentId = selectedChargerId || chargerId;
   const isCommercial = currentId && commercialChargerId && currentId === commercialChargerId;
+
+  const filtered = sessions.filter(s => {
+    const matchesCharger = !chargerId || s.chargePointId === chargerId || s.chargePoint?.id === chargerId;
+    const matchesMode = mode === 'all' || s.mode === mode || s.type === mode;
+    const siteName = s.chargePoint?.station?.name || s.station?.name || '';
+    const matchesQuery = query.trim() === '' || siteName.toLowerCase().includes(query.toLowerCase());
+    return matchesCharger && matchesMode && matchesQuery;
+  });
 
   const handleNavChange = useCallback((value) => {
     setNavValue(value);
@@ -65,20 +93,6 @@ export default function ChargingHistory({
     }
     if (onNavChange) onNavChange(value);
   }, [navigate, routes, onNavChange]);
-
-  const data = useMemo(() => ([
-    { id: 's1', date: '2025-10-18', site: 'Home Charger', chargerId: 'st1', kwh: 12.4, duration: '01:32', amount: 14880, type: 'public' },
-    { id: 's2', date: '2025-10-12', site: 'Home Charger', chargerId: 'st1', kwh: 6.1, duration: '00:45', amount: 6120, type: 'private' },
-    { id: 's3', date: '2025-10-15', site: 'Office Charger', chargerId: 'st2', kwh: 8.5, duration: '01:15', amount: 10200, type: 'private' },
-    { id: 's4', date: '2025-10-10', site: 'Office Charger', chargerId: 'st2', kwh: 15.2, duration: '02:00', amount: 18240, type: 'public' }
-  ]), []);
-
-  const filtered = data.filter(s => {
-    const matchesCharger = !chargerId || s.chargerId === chargerId;
-    const matchesMode = mode === 'all' || s.type === mode;
-    const matchesQuery = query.trim() === '' || s.site.toLowerCase().includes(query.toLowerCase());
-    return matchesCharger && matchesMode && matchesQuery;
-  });
 
   return (
     <MobileShell
@@ -90,17 +104,25 @@ export default function ChargingHistory({
       onHelp={onHelp}
     >
       <Box sx={{ pt: 2 }}>
+        {loading && (
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2, px: 2 }}>
+            <CircularProgress size={18} />
+            <Typography variant="body2" color="text.secondary">Loading sessions…</Typography>
+          </Stack>
+        )}
+        {error && <Alert severity="warning" sx={{ mb: 2, mx: 2 }}>{error}</Alert>}
+
         {/* Search and Mode filter */}
         <Stack direction="row" spacing={1} alignItems="flex-end" sx={{ mb: 2, px: 2 }}>
-          <TextField 
-            size="small" 
-            placeholder="Search" 
-            value={query} 
+          <TextField
+            size="small"
+            placeholder="Search"
+            value={query}
             onChange={(e) => setQuery(e.target.value)}
-            InputProps={{ 
-              startAdornment: <InputAdornment position="start"><SearchRoundedIcon /></InputAdornment> 
-            }} 
-            sx={{ flex: 1 }} 
+            InputProps={{
+              startAdornment: <InputAdornment position="start"><SearchRoundedIcon /></InputAdornment>
+            }}
+            sx={{ flex: 1 }}
           />
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <FormLabel sx={{ mb: 0.5, fontSize: '0.75rem' }}>Mode</FormLabel>
@@ -116,8 +138,9 @@ export default function ChargingHistory({
         <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 1, mx: 2 }}>
           <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
           <FormControl size="small" fullWidth>
-            <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
-              {chargers.map(c => <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>)}
+            <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)} displayEmpty>
+              <MenuItem value="">All chargers</MenuItem>
+              {chargers.map(c => <MenuItem key={c.id} value={c.id}>{c.name || c.model || c.ocppId}</MenuItem>)}
             </Select>
           </FormControl>
         </Paper>
@@ -139,7 +162,7 @@ export default function ChargingHistory({
           ))}
         </List>
 
-        {!filtered.length && (
+        {!loading && filtered.length === 0 && (
           <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px dashed #e0e0e0', textAlign: 'center', mx: 2 }}>
             <Typography variant="caption" color="text.secondary">No results for the selected filters.</Typography>
           </Paper>

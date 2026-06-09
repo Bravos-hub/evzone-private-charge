@@ -44,6 +44,15 @@ import Wallet from '../screens/wallet/Wallet';
 
 // Booking screens
 import BookingsReservations from '../screens/bookings/BookingsReservations';
+import CreateReservation from '../screens/bookings/CreateReservation';
+import ReservationDetail from '../screens/bookings/ReservationDetail';
+
+// Station screens (public discovery)
+import StationFinder from '../screens/stations/StationFinder';
+import StationDetail from '../screens/stations/StationDetail';
+
+// Navigation screens
+import RoutePlanner from '../screens/navigation/RoutePlanner';
 
 // Marketplace screens
 import OperatorMarketplace from '../screens/marketplace/OperatorMarketplace';
@@ -83,6 +92,7 @@ import DataExportCenter from '../screens/settings/DataExportCenter';
 import LanguageCurrency from '../screens/settings/LanguageCurrency';
 import OperatorShiftLogs from '../screens/settings/OperatorShiftLogs';
 import AggregatorCPMSBridge from '../screens/settings/AggregatorCPMSBridge';
+import NotificationPreferences from '../screens/settings/NotificationPreferences';
 
 // Error screens
 import NotFound from '../screens/error/NotFound';
@@ -126,16 +136,24 @@ export default function AppRoutes() {
       <Route path="/analytics/energy" element={<PrivateRoute><EnergyAnalytics /></PrivateRoute>} />
       <Route path="/analytics/co2" element={<PrivateRoute><CO2SavingsImpact /></PrivateRoute>} />
       
-      {/* Payment routes */}
-      <Route path="/payments" element={<PrivateRoute><PaymentMethods /></PrivateRoute>} />
+      {/* Payment routes */}      <Route path="/payments" element={<PrivateRoute><PaymentMethods /></PrivateRoute>} />
       <Route path="/invoices" element={<PrivateRoute><InvoicesBilling /></PrivateRoute>} />
       
       {/* Wallet routes */}
       <Route path="/wallet" element={<PrivateRoute><Wallet /></PrivateRoute>} />
       
+      {/* Station routes (public discovery) */}
+      <Route path="/stations" element={<PrivateRoute><StationFinder /></PrivateRoute>} />
+      <Route path="/stations/:id" element={<PrivateRoute><StationDetail /></PrivateRoute>} />
+
       {/* Booking routes */}
       <Route path="/bookings" element={<PrivateRoute><BookingsReservations /></PrivateRoute>} />
+      <Route path="/bookings/new" element={<PrivateRoute><CreateReservation /></PrivateRoute>} />
+      <Route path="/bookings/:id" element={<PrivateRoute><ReservationDetail /></PrivateRoute>} />
       
+      {/* Navigation routes */}
+      <Route path="/navigate" element={<PrivateRoute><RoutePlanner /></PrivateRoute>} />
+
       {/* Marketplace routes */}
       <Route path="/marketplace" element={<PrivateRoute><OperatorMarketplace /></PrivateRoute>} />
       
@@ -158,6 +176,7 @@ export default function AppRoutes() {
       <Route path="/settings/connectors" element={<PrivateRoute><ConnectorManagement /></PrivateRoute>} />
       <Route path="/settings/firmware" element={<PrivateRoute><FirmwareSelfTest /></PrivateRoute>} />
       <Route path="/settings/notifications" element={<PrivateRoute><NotificationsRules /></PrivateRoute>} />
+      <Route path="/settings/notifications/reminders" element={<PrivateRoute><NotificationPreferences /></PrivateRoute>} />
       <Route path="/settings/troubleshooting" element={<PrivateRoute><TroubleshootingWizard /></PrivateRoute>} />
       <Route path="/settings/maintenance" element={<PrivateRoute><MaintenanceReminders /></PrivateRoute>} />
       <Route path="/settings/audit" element={<PrivateRoute><AuditCommandLog /></PrivateRoute>} />
@@ -177,4 +196,3 @@ export default function AppRoutes() {
     </Routes>
   );
 }
-
