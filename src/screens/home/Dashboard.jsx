@@ -82,9 +82,9 @@ export default function HomeDashboard({
     const now = new Date();
     return start && start.toDateString() === now.toDateString();
   }).length : 0);
-  const alerts = propAlerts || { faults: 0, offline: 0 };
+  const alerts = propAlerts || (dashboard?.charging ? { faults: 0, offline: dashboard.charging.offlineChargers || 0 } : { faults: 0, offline: 0 });
   const priceSummary = propPriceSummary || { rate: 1200, unit: 'UGX/kWh', publicHours: '09:00–18:00' };
-  const wallet = propWallet || { balance: 0, currency: 'UGX' };
+  const wallet = propWallet || (dashboard?.charging ? { balance: dashboard.charging.revenueToday || 0, currency: 'UGX' } : { balance: 0, currency: 'UGX' });
   const lastInvoice = propLastInvoice || { amount: 0, currency: 'UGX' };
   const energyTrend = propEnergyTrend || [4,6,5,7,8,6,9];
   const sessionsTrend = propSessionsTrend || [1,2,1,2,3,2,3];
@@ -116,6 +116,27 @@ export default function HomeDashboard({
     if (onNavChange) onNavChange(value);
   }, [navigate, routes, onNavChange]);
   
+  // Fetch CPO dashboard metrics
+  const [dashboard, setDashboard] = useState(null);
+  useEffect(() => {
+    let active = true;
+    import('../../services/api/privateCharging').then(({ privateChargingApi }) => {
+      privateChargingApi.getDashboard()
+        .then((res) => {
+          if (!active) return;
+          setDashboard(res.data || res);
+        })
+        .catch(() => {
+          if (!active) return;
+        });
+    });
+    return () => { active = false; };
+  }, []);
+
+  const dashboardEnergy = dashboard?.charging?.energyKwhToday ?? 0;
+  const dashboardSessions = dashboard?.charging?.sessionsToday ?? 0;
+  const dashboardRevenue = dashboard?.charging?.revenueToday ?? 0;
+
   const [switchOpen, setSwitchOpen] = useState(false);
   const [selectedChargerId, setSelectedChargerId] = useState(selectedId || (chargers[0] && chargers[0].id));
   const [snack, setSnack] = useState(false);
@@ -210,11 +231,11 @@ export default function HomeDashboard({
       ) : (
         <Grid container spacing={1} alignItems="center" justifyContent="center">
           {[{
-            label: 'Energy (kWh)', value: (energyTrend.reduce((a,b)=>a+b,0)).toFixed(0), trend: energyTrend, color: '#03cd8c'
+            label: 'Energy (kWh)', value: Number(dashboardEnergy).toFixed(0), trend: energyTrend, color: '#03cd8c'
           },{
-            label: 'Sessions', value: sessionsTrend.reduce((a,b)=>a+b,0), trend: sessionsTrend, color: '#8bc34a'
+            label: 'Sessions', value: Number(dashboardSessions).toLocaleString(), trend: sessionsTrend, color: '#8bc34a'
           },{
-            label: 'Revenue', value: `${wallet.currency} ${(revenueTrend.reduce((a,b)=>a+b,0)*1000).toLocaleString()}`, trend: revenueTrend, color: '#f77f00'
+            label: 'Revenue', value: `${wallet.currency} ${Number(dashboardRevenue).toLocaleString()}`, trend: revenueTrend, color: '#f77f00'
           }].map((k,i)=> (
             <Grid item xs={4} key={i}>
               <Stack alignItems="center" spacing={0.5}>
