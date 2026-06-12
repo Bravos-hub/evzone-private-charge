@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MobileShell from '../../components/layout/MobileShell';
+import { useAuthorization } from '../../hooks/useAuthorization';
 import {
   Box,
   Typography,
@@ -21,6 +22,7 @@ import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRound
 export default function Settings() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isTenantAdmin } = useAuthorization();
   const [navValue, setNavValue] = useState(4);
 
   const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
@@ -68,12 +70,14 @@ export default function Settings() {
       <Box sx={{ pt: 2 }}>
         {/* Menu Items */}
         <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <MenuTile
-            icon={<EvStationIcon color="secondary" />}
-            title="Sites & Chargers"
-            subtitle="Manage sites and charger settings"
-            onClick={() => navigate('/settings/sites')}
-          />
+          {isTenantAdmin && (
+            <MenuTile
+              icon={<EvStationIcon color="secondary" />}
+              title="Sites & Chargers"
+              subtitle="Manage sites and charger settings"
+              onClick={() => navigate('/settings/sites')}
+            />
+          )}
           <MenuTile
             icon={<LanguageRoundedIcon color="secondary" />}
             title="Language & Currency"
@@ -92,24 +96,30 @@ export default function Settings() {
             subtitle="Get help and contact support"
             onClick={() => navigate('/settings/support')}
           />
-          <MenuTile
-            icon={<DataObjectRoundedIcon color="secondary" />}
-            title="Data Export"
-            subtitle="Export sessions, invoices, and logs"
-            onClick={() => navigate('/settings/export')}
-          />
-          <MenuTile
-            icon={<BugReportRoundedIcon color="secondary" />}
-            title="Diagnostics & Logs"
-            subtitle="View diagnostics and system logs"
-            onClick={() => navigate('/settings/diagnostics')}
-          />
-          <MenuTile
-            icon={<SettingsRoundedIcon color="secondary" />}
-            title="Advanced Configuration"
-            subtitle="Advanced system settings"
-            onClick={() => navigate('/settings/advanced')}
-          />
+          {isTenantAdmin && (
+            <MenuTile
+              icon={<DataObjectRoundedIcon color="secondary" />}
+              title="Data Export"
+              subtitle="Export sessions, invoices, and logs"
+              onClick={() => navigate('/settings/export')}
+            />
+          )}
+          {isTenantAdmin && (
+            <MenuTile
+              icon={<BugReportRoundedIcon color="secondary" />}
+              title="Diagnostics & Logs"
+              subtitle="View diagnostics and system logs"
+              onClick={() => navigate('/settings/diagnostics')}
+            />
+          )}
+          {isTenantAdmin && (
+            <MenuTile
+              icon={<SettingsRoundedIcon color="secondary" />}
+              title="Advanced Configuration"
+              subtitle="Advanced system settings"
+              onClick={() => navigate('/settings/advanced')}
+            />
+          )}
         </List>
       </Box>
     </MobileShell>

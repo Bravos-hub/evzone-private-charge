@@ -70,7 +70,6 @@ src/
     chargers/           # MyChargers, AddCharger, ConnectCharger, ChargerDetails, ChargerSettings, ChargerSettingsAdvanced
     error/              # NotFound
     home/               # Home, Dashboard, Guide
-    marketplace/        # OperatorMarketplace
     payments/           # PaymentMethods, InvoicesBilling
     pricing/            # PricingFees, PrePayOrder
     private/            # PrivateChargingControlCenter
@@ -244,7 +243,6 @@ src/
     chargers/           # MyChargers, AddCharger, ConnectCharger, ChargerDetails, ChargerSettings, ChargerSettingsAdvanced
     error/              # NotFound
     home/               # Home, Dashboard, Guide
-    marketplace/        # OperatorMarketplace
     payments/           # PaymentMethods, InvoicesBilling
     pricing/            # PricingFees, PrePayOrder
     private/            # PrivateChargingControlCenter

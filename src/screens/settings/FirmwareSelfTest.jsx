@@ -1,148 +1,230 @@
-import React, { useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, LinearProgress, Chip, IconButton,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Dialog, DialogTitle, DialogContent, DialogActions
+  Box, Typography, Paper, Stack, Button, LinearProgress,
+  TextField, FormControl, InputLabel, Select, MenuItem, Alert, CircularProgress,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import SystemUpdateRoundedIcon from '@mui/icons-material/SystemUpdateRounded';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
 import DescriptionRoundedIcon from '@mui/icons-material/DescriptionRounded';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import HistoryIcon from '@mui/icons-material/History';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
+import MobileShell from '../../components/layout/MobileShell';
+import { stationApi } from '../../services/api/stations';
+import { firmwareApi } from '../../services/api/firmware';
 
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
+export default function FirmwareSelfTest({ onBack, onHelp, onNavChange }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+  const [navValue, setNavValue] = useState(4);
 
-function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
-  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 12 — Charger Settings (Mobile, React + MUI, JS)'); };
-  return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="fixed" elevation={1} color="primary"><Toolbar sx={{ px: 0 }}>
-        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
-          <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}><ArrowBackIosNewIcon fontSize="small" /></IconButton>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
-            {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}><HelpOutlineIcon fontSize="small" /></IconButton>
-        </Box>
-      </Toolbar></AppBar>
-      <Toolbar />
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
-        {footer}
-        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
-            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
-            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
-            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
-            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
-          </BottomNavigation>
-        </Paper>
-      </Box>
-    </Box>
-  );
-}
+  useEffect(() => {
+    const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
+    if (pathIndex !== -1) setNavValue(pathIndex);
+  }, [location.pathname, routes]);
 
-export default function FirmwareSelfTest({ onBack, onHelp, onNavChange, onCheckUpdate, onStartUpdate, onRunTests, onReboot }) {
-  const [navValue, setNavValue] = useState(1);
-  const [checking, setChecking] = useState(false);
-  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const handleNavChange = useCallback((value) => {
+    setNavValue(value);
+    if (routes[value] !== undefined) navigate(routes[value]);
+    if (onNavChange) onNavChange(value);
+  }, [navigate, routes, onNavChange]);
+
+  const handleBack = useCallback(() => {
+    if (onBack) onBack();
+    else navigate('/settings');
+  }, [navigate, onBack]);
+
+  const [stations, setStations] = useState([]);
+  const [selectedStationId, setSelectedStationId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [events, setEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+
+  const [firmwareUrl, setFirmwareUrl] = useState('');
+  const [retrieveAt, setRetrieveAt] = useState('');
   const [installing, setInstalling] = useState(false);
   const [progress, setProgress] = useState(0);
   const [confirmReboot, setConfirmReboot] = useState(false);
 
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      setLoading(true);
+      try {
+        const res = await stationApi.getAll({ limit: '100' });
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        if (!mounted) return;
+        setStations(list);
+        if (list.length && !selectedStationId) setSelectedStationId(list[0].id);
+      } catch (err) {
+        if (!mounted) return;
+        setError(err?.response?.data?.message || err.message || 'Unable to load stations.');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { mounted = false; };
+  }, [selectedStationId]);
+
+  async function loadEvents() {
+    if (!selectedStationId) return;
+    setEventsLoading(true);
+    try {
+      const res = await firmwareApi.getFirmwareEvents(selectedStationId, { limit: 50 });
+      const data = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      setEvents(data);
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Unable to load firmware events.');
+    } finally {
+      setEventsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStationId]);
+
+  useEffect(() => {
+    if (!installing) return;
+    const timer = setInterval(() => {
+      setProgress((p) => {
+        if (p >= 100) {
+          clearInterval(timer);
+          setInstalling(false);
+          loadEvents();
+          return 100;
+        }
+        return Math.min(p + 10, 100);
+      });
+    }, 800);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [installing]);
+
   const checkForUpdate = async () => {
-    setChecking(true);
-    setTimeout(() => { setChecking(false); setUpdateAvailable(true); onCheckUpdate && onCheckUpdate({ version: 'v1.2.4', notes: 'Stability improvements' }); }, 800);
+    if (!selectedStationId) {
+      setError('Select a station first.');
+      return;
+    }
+    setError('');
+    await loadEvents();
   };
 
   const startUpdate = async () => {
-    setInstalling(true); setProgress(0);
-    const timer = setInterval(() => setProgress(p => {
-      const n = Math.min(p + 10, 100);
-      if (n === 100) { clearInterval(timer); setInstalling(false); setUpdateAvailable(false); }
-      return n;
-    }), 500);
-    onStartUpdate && onStartUpdate();
+    if (!selectedStationId) {
+      setError('Select a station first.');
+      return;
+    }
+    if (!firmwareUrl) {
+      setError('Enter a firmware HTTPS URL.');
+      return;
+    }
+    setError('');
+    setInstalling(true);
+    setProgress(0);
+    try {
+      await firmwareApi.updateFirmware(selectedStationId, {
+        location: firmwareUrl,
+        retrieveAt: retrieveAt || new Date().toISOString(),
+        retries: 3,
+        retryIntervalSec: 30,
+      });
+    } catch (err) {
+      setInstalling(false);
+      setError(err?.response?.data?.message || err.message || 'Firmware update failed.');
+    }
   };
 
-  const runSelfTests = () => { onRunTests ? onRunTests() : console.info('Run: RCD, relay, insulation, ground'); };
+  const runSelfTests = () => { console.info('Run: RCD, relay, insulation, ground'); };
+  const reboot = () => { setConfirmReboot(false); console.info('Reboot charger'); };
 
-  const reboot = () => { setConfirmReboot(false); onReboot ? onReboot() : console.info('Reboot charger'); };
+  const selectedStation = stations.find(s => s.id === selectedStationId);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Firmware & self‑test" tagline="OTA updates • diagnostics • reboot" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{setNavValue(v); onNavChange&&onNavChange(v);}} footer={null}>
-          <Box sx={{ px: 2, pt: 2 }}>
-            {/* Firmware card */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
-              <Typography variant="subtitle2" fontWeight={800}>Firmware</Typography>
-              <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
-                <Chip label="Current: v1.2.3" />
-                {updateAvailable ? <Chip label="Update available: v1.2.4" color="warning" /> : <Chip label="Up to date" color="success" />}
-              </Stack>
-              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                <Button variant="outlined" startIcon={<SystemUpdateRoundedIcon />} onClick={checkForUpdate}
-                  sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Check for updates</Button>
-                <Button variant="contained" color="secondary" disabled={!updateAvailable || installing} onClick={startUpdate}
-                  sx={{ color: 'common.white', '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } }}>Start OTA</Button>
-              </Stack>
-              {checking && <Typography variant="caption" color="text.secondary">Checking for updates…</Typography>}
-              {installing && (
-                <Box sx={{ mt: 1 }}>
-                  <LinearProgress variant="determinate" value={progress} />
-                  <Typography variant="caption" color="text.secondary">Installing… {progress}%</Typography>
-                </Box>
-              )}
-            </Paper>
+    <MobileShell title="Firmware & self‑test" tagline="OTA updates • diagnostics • reboot" onBack={handleBack} onHelp={onHelp} navValue={navValue} onNavChange={handleNavChange}>
+      <Box sx={{ px: 2, pt: 2, pb: 2 }}>
+        {loading && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress /></Box>}
+        {error && <Alert severity="warning" sx={{ mb: 2 }}>{error}</Alert>}
 
-            {/* Changelog */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                <DescriptionRoundedIcon />
-                <Typography variant="subtitle2" fontWeight={800}>Changelog</Typography>
-              </Stack>
-              <Typography variant="body2">• v1.2.4 — Stability improvements, added connector test diagnostics.</Typography>
-              <Typography variant="body2">• v1.2.3 — Better OCPP timeouts, UI bug fixes.</Typography>
-            </Paper>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+          <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Station</Typography>
+          <FormControl fullWidth size="small">
+            <InputLabel id="station-select-label">Select station</InputLabel>
+            <Select labelId="station-select-label" value={selectedStationId} label="Select station" onChange={(e) => setSelectedStationId(e.target.value)}>
+              {stations.map(s => <MenuItem key={s.id} value={s.id}>{s.name || s.id}</MenuItem>)}
+            </Select>
+          </FormControl>
+        </Paper>
 
-            {/* Self‑tests & reboot */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                <FactCheckRoundedIcon />
-                <Typography variant="subtitle2" fontWeight={800}>Self‑tests</Typography>
-              </Stack>
-              <Stack direction="row" spacing={1}>
-                <Button variant="outlined" onClick={runSelfTests}
-                  sx={{ '&:hover': { bgcolor: 'secondary.main', color: 'common.white', borderColor: 'secondary.main' } }}>Run tests</Button>
-                <Button variant="outlined" color="error" startIcon={<ReplayRoundedIcon />} onClick={()=>setConfirmReboot(true)}>Reboot charger</Button>
-              </Stack>
-            </Paper>
-          </Box>
-        </MobileShell>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+          <Typography variant="subtitle2" fontWeight={800}>Firmware</Typography>
+          {selectedStation && (
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+              Current: {selectedStation.firmwareVersion || 'v1.2.3'}
+            </Typography>
+          )}
+          <Stack spacing={1} sx={{ mt: 1 }}>
+            <TextField label="Firmware HTTPS URL" size="small" fullWidth value={firmwareUrl} onChange={(e) => setFirmwareUrl(e.target.value)} />
+            <TextField label="Retrieve at" type="datetime-local" size="small" fullWidth value={retrieveAt} onChange={(e) => setRetrieveAt(e.target.value)} InputLabelProps={{ shrink: true }} />
+            <Stack direction="row" spacing={1}>
+              <Button variant="outlined" startIcon={<SystemUpdateRoundedIcon />} onClick={checkForUpdate}>Check for updates</Button>
+              <Button variant="contained" color="secondary" disabled={installing} onClick={startUpdate} sx={{ color: 'common.white' }}>Start OTA</Button>
+            </Stack>
+            {installing && (
+              <Box sx={{ mt: 1 }}>
+                <LinearProgress variant="determinate" value={progress} />
+                <Typography variant="caption" color="text.secondary">Installing… {progress}%</Typography>
+              </Box>
+            )}
+          </Stack>
+        </Paper>
 
-        {/* Reboot confirm */}
-        <Dialog open={confirmReboot} onClose={()=>setConfirmReboot(false)} fullWidth>
-          <DialogTitle>Confirm reboot</DialogTitle>
-          <DialogContent>
-            <Typography variant="body2">Are you sure you want to reboot the charger? Ongoing sessions will stop.</Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={()=>setConfirmReboot(false)}>Cancel</Button>
-            <Button variant="contained" color="secondary" onClick={reboot} sx={{ color: 'common.white' }}>Reboot</Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
-    </ThemeProvider>
+        <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+            <DescriptionRoundedIcon />
+            <Typography variant="subtitle2" fontWeight={800}>Firmware events</Typography>
+          </Stack>
+          {eventsLoading && <CircularProgress size={20} />}
+          <Stack spacing={1}>
+            {events.map((ev, idx) => (
+              <Box key={idx}>
+                <Typography variant="body2" fontWeight={700}>{ev.type || ev.status || 'Event'}</Typography>
+                <Typography variant="caption" color="text.secondary">{ev.timestamp ? new Date(ev.timestamp).toLocaleString() : ''}</Typography>
+                {ev.message && <Typography variant="caption" display="block" color="text.secondary">{ev.message}</Typography>}
+              </Box>
+            ))}
+            {!eventsLoading && !events.length && (
+              <Typography variant="body2" color="text.secondary">No firmware events.</Typography>
+            )}
+          </Stack>
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+            <FactCheckRoundedIcon />
+            <Typography variant="subtitle2" fontWeight={800}>Self‑tests</Typography>
+          </Stack>
+          <Stack direction="row" spacing={1}>
+            <Button variant="outlined" onClick={runSelfTests}>Run tests</Button>
+            <Button variant="outlined" color="error" startIcon={<ReplayRoundedIcon />} onClick={() => setConfirmReboot(true)}>Reboot charger</Button>
+          </Stack>
+        </Paper>
+      </Box>
+
+      <Dialog open={confirmReboot} onClose={() => setConfirmReboot(false)} fullWidth>
+        <DialogTitle>Confirm reboot</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">Are you sure you want to reboot the charger? Ongoing sessions will stop.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmReboot(false)}>Cancel</Button>
+          <Button variant="contained" color="secondary" onClick={reboot} sx={{ color: 'common.white' }}>Reboot</Button>
+        </DialogActions>
+      </Dialog>
+    </MobileShell>
   );
 }

@@ -1,57 +1,18 @@
-import React, { useMemo, useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  CssBaseline, Container, Box, Typography, Paper, Stack, Button, Chip, TextField, IconButton, List, ListItemButton,
-  AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Dialog, DialogTitle, DialogContent, DialogActions,
-  FormControl, Select, MenuItem
+  Box, Typography, Paper, Stack, Button, Chip, TextField, IconButton, List, ListItemButton,
+  Alert, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions,
+  FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import EvStationIcon from '@mui/icons-material/EvStation';
-import HistoryIcon from '@mui/icons-material/History';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
-
-const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
-
-function MobileShell({ title, tagline, onBack, onHelp, navValue, onNavChange, footer, children }) {
-  const handleBack = () => { if (onBack) return onBack(); console.info('Navigate to: 09 — Access & Permissions (Mobile, React + MUI, JS)'); };
-  return (
-    <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      <AppBar position="fixed" elevation={1} color="primary"><Toolbar sx={{ px: 0 }}>
-        <Box sx={{ width: '100%', maxWidth: 480, mx: 'auto', px: 1, display: 'flex', alignItems: 'center' }}>
-          <IconButton size="small" edge="start" onClick={handleBack} aria-label="Back" sx={{ color: 'common.white', mr: 1 }}><ArrowBackIosNewIcon fontSize="small" /></IconButton>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h6" color="inherit" sx={{ fontWeight: 700, lineHeight: 1.15 }}>{title}</Typography>
-            {tagline && <Typography variant="caption" color="common.white" sx={{ opacity: 0.9 }}>{tagline}</Typography>}
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton size="small" edge="end" aria-label="Help" onClick={onHelp} sx={{ color: 'common.white' }}><HelpOutlineIcon fontSize="small" /></IconButton>
-        </Box>
-      </Toolbar></AppBar>
-      <Toolbar />
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
-      <Box component="footer" sx={{ position: 'sticky', bottom: 0 }}>
-        {footer}
-        <Paper elevation={8} sx={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-          <BottomNavigation value={navValue} onChange={(_, v) => onNavChange && onNavChange(v)} showLabels>
-            <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-            <BottomNavigationAction label="Stations" icon={<EvStationIcon />} />
-            <BottomNavigationAction label="Sessions" icon={<HistoryIcon />} />
-            <BottomNavigationAction label="Support" icon={<SupportAgentRoundedIcon />} />
-            <BottomNavigationAction label="Wallet" icon={<AccountBalanceWalletRoundedIcon />} />
-          </BottomNavigation>
-        </Paper>
-      </Box>
-    </Box>
-  );
-}
+import MobileShell from '../../components/layout/MobileShell';
+import { privateChargingApi } from '../../services/api/privateCharging';
+import { chargerApi } from '../../services/api/chargers';
 
 function PassRow({ p, onRevoke, onShowQR, onCopy }) {
   return (
@@ -62,7 +23,6 @@ function PassRow({ p, onRevoke, onShowQR, onCopy }) {
           <Typography variant="caption" color="text.secondary">{p.code} • {p.expires}</Typography>
           <Stack direction="row" spacing={1} sx={{ mt: 0.5, flexWrap: 'wrap' }}>
             <Chip size="small" label={p.scope} />
-            <Chip size="small" label={p.method.join(', ')} />
             <Chip size="small" label={p.status} color={p.status === 'Active' ? 'success' : 'default'} />
           </Stack>
         </Box>
@@ -76,108 +36,179 @@ function PassRow({ p, onRevoke, onShowQR, onCopy }) {
   );
 }
 
-export default function GuestPassAccess({ onBack, onHelp, onNavChange, onCreate, onRevoke, onCopy, onShowQR }) {
+export default function GuestPassAccessCodes({ onBack, onHelp, onNavChange }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [navValue, setNavValue] = useState(1);
-  const chargers = useMemo(() => ([{ id: 'st1', name: 'Home Charger' }, { id: 'st2', name: 'Office Charger' }]), []);
-  const [chargerId, setChargerId] = useState('st1');
+  const routes = useMemo(() => ['/', '/chargers', '/sessions', '/wallet', '/settings'], []);
+
+  useEffect(() => {
+    const pathIndex = routes.findIndex(route => location.pathname === route || location.pathname.startsWith(route + '/'));
+    if (pathIndex !== -1) setNavValue(pathIndex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  const handleNavChange = useCallback((value) => {
+    setNavValue(value);
+    if (routes[value] !== undefined) navigate(routes[value]);
+    if (onNavChange) onNavChange(value);
+  }, [navigate, routes, onNavChange]);
+
+  const handleBack = useCallback(() => {
+    if (onBack) onBack();
+    else navigate('/access');
+  }, [navigate, onBack]);
+
+  const [chargers, setChargers] = useState([]);
+  const [chargerId, setChargerId] = useState('');
   const [label, setLabel] = useState('Visitor pass');
   const [expires, setExpires] = useState('');
-  const [scope, setScope] = useState('Station');
-  const [method, setMethod] = useState(['App','QR']);
+  const [maxSessions, setMaxSessions] = useState('1');
+  const [passes, setPasses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [qrOpen, setQrOpen] = useState(false);
   const [activeQR, setActiveQR] = useState(null);
 
-  const passes = useMemo(() => ({
-    st1: [
-      { id: 'gp1', label: 'Contractor (AM)', code: 'EVZ-GP-7F3A', expires: '2025-10-31 12:00', scope: 'Station', method: ['App','QR'], status: 'Active' }
-    ],
-    st2: [
-      { id: 'gp2', label: 'Guest (Weekend)', code: 'EVZ-GP-1B9D', expires: '2025-10-20 20:00', scope: 'Connector 2', method: ['QR'], status: 'Revoked' }
-    ]
-  }), []);
+  useEffect(() => {
+    let mounted = true;
+    chargerApi.getAll().then((res) => {
+      const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      if (!mounted) return;
+      setChargers(list);
+      if (list.length && !chargerId) setChargerId(list[0].id);
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, [chargerId]);
 
-  const Footer = (
-    <Box sx={{ px: 2, pb: 'calc(12px + env(safe-area-inset-bottom))', pt: 1.5, background: '#f2f2f2', borderTop: '1px solid #e9eceb' }}>
-      <Button fullWidth variant="contained" color="secondary" onClick={() => (onCreate ? onCreate({ chargerId, label, expires, scope, method }) : console.info('Create pass'))}
-        sx={{ color: 'common.white', '&:hover': { bgcolor: 'secondary.dark', color: 'common.white' } }}>Create pass</Button>
-    </Box>
-  );
+  async function loadPasses() {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await privateChargingApi.getAccessRules();
+      const rules = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      const invites = rules.filter(r => r.ruleType === 'INVITE_CODE');
+      setPasses(invites.map(r => ({
+        id: r.id,
+        label: r.label || 'Guest pass',
+        code: r.inviteCode || r.ruleValue || '',
+        expires: r.expiresAt ? new Date(r.expiresAt).toLocaleString() : 'No expiry',
+        scope: r.chargePointId ? 'Connector' : 'Station',
+        status: r.status === 'ACTIVE' ? 'Active' : r.status || 'Inactive',
+        raw: r,
+      })));
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Unable to load guest passes.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const showQR = (p) => { setActiveQR(p); setQrOpen(true); onShowQR && onShowQR(p); };
+  useEffect(() => {
+    loadPasses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const createPass = async () => {
+    setError('');
+    setMessage('');
+    const code = `EVZ-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    try {
+      await privateChargingApi.createAccessRule({
+        ruleType: 'INVITE_CODE',
+        ruleValue: code,
+        inviteCode: code,
+        chargePointId: chargerId || undefined,
+        label,
+        expiresAt: expires || undefined,
+        maxSessions: maxSessions ? Number(maxSessions) : 1,
+      });
+      setMessage(`Guest pass ${code} created.`);
+      await loadPasses();
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Failed to create guest pass.');
+    }
+  };
+
+  const revokePass = async (p) => {
+    try {
+      await privateChargingApi.disableAccessRule(p.id, {});
+      await loadPasses();
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Failed to revoke pass.');
+    }
+  };
+
+  const showQR = (p) => { setActiveQR(p); setQrOpen(true); };
+  const copyLink = (p) => { navigator.clipboard?.writeText(`https://evz.app/guest/${p.code}`); setMessage('Link copied.'); };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="xs" disableGutters>
-        <MobileShell title="Guest pass & access codes" tagline="time‑bound passes • QR/link" onBack={onBack} onHelp={onHelp} navValue={navValue} onNavChange={(v)=>{setNavValue(v); onNavChange&&onNavChange(v);}} footer={Footer}>
-          <Box sx={{ px: 2, pt: 2 }}>
+    <MobileShell
+      title="Guest pass & access codes"
+      tagline="time‑bound passes • QR/link"
+      onBack={handleBack}
+      onHelp={onHelp}
+      navValue={navValue}
+      onNavChange={handleNavChange}
+    >
+      <Box sx={{ px: 2, pt: 2, pb: 2 }}>
+        {loading && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress /></Box>}
+        {error && <Alert severity="warning" sx={{ mb: 1 }}>{error}</Alert>}
+        {message && <Alert severity="success" sx={{ mb: 1 }} onClose={() => setMessage('')}>{message}</Alert>}
 
-            {/* Charger selector */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
-              <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>My chargers</Typography>
-              <FormControl size="small" fullWidth>
-                <Select value={chargerId} onChange={(e)=>setChargerId(e.target.value)}>
-                  {chargers.map(ch => <MenuItem key={ch.id} value={ch.id}>{ch.name}</MenuItem>)}
-                </Select>
-              </FormControl>
-            </Paper>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+          <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Charge point</Typography>
+          <FormControl fullWidth size="small">
+            <InputLabel id="charger-label">Select charge point</InputLabel>
+            <Select labelId="charger-label" value={chargerId} label="Select charge point" onChange={(e) => setChargerId(e.target.value)}>
+              {chargers.map(ch => <MenuItem key={ch.id} value={ch.id}>{ch.name || ch.ocppId || ch.id}</MenuItem>)}
+            </Select>
+          </FormControl>
+        </Paper>
 
-            {/* Create */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
-              <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Create time‑bound pass</Typography>
-              <Stack spacing={1}>
-                <TextField label="Label" value={label} onChange={(e)=>setLabel(e.target.value)} fullWidth />
-                <TextField label="Expires" type="datetime-local" InputLabelProps={{ shrink: true }} value={expires} onChange={(e)=>setExpires(e.target.value)} fullWidth />
-                <TextField label="Scope (e.g., Station / Connector 2)" value={scope} onChange={(e)=>setScope(e.target.value)} fullWidth />
-                <Stack direction="row" spacing={1}>
-                  {['App','QR','RFID'].map(m => (
-                    <Chip key={m} label={m} clickable color={method.includes(m) ? 'secondary' : 'default'} onClick={()=>setMethod(prev => prev.includes(m) ? prev.filter(x=>x!==m) : [...prev, m])} />
-                  ))}
-                </Stack>
-              </Stack>
-            </Paper>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
+          <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Create time‑bound pass</Typography>
+          <Stack spacing={1}>
+            <TextField label="Label" value={label} onChange={(e) => setLabel(e.target.value)} fullWidth size="small" />
+            <TextField label="Expires" type="datetime-local" InputLabelProps={{ shrink: true }} value={expires} onChange={(e) => setExpires(e.target.value)} fullWidth size="small" />
+            <TextField label="Max sessions" type="number" value={maxSessions} onChange={(e) => setMaxSessions(e.target.value)} fullWidth size="small" />
+            <Button variant="contained" color="secondary" onClick={createPass} sx={{ color: 'common.white' }}>Create pass</Button>
+          </Stack>
+        </Paper>
 
-            {/* Existing passes */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
-              <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Existing passes</Typography>
-              <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {(passes[chargerId] || []).map(p => (
-                  <ListItemButton key={p.id} sx={{ p: 0 }}>
-                    <PassRow p={p} onRevoke={onRevoke} onShowQR={showQR} onCopy={onCopy} />
-                  </ListItemButton>
-                ))}
-              </List>
-            </Paper>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1' }}>
+          <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Existing passes</Typography>
+          <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {passes.map(p => (
+              <ListItemButton key={p.id} sx={{ p: 0 }}>
+                <PassRow p={p} onRevoke={revokePass} onShowQR={showQR} onCopy={copyLink} />
+              </ListItemButton>
+            ))}
+            {!loading && !passes.length && (
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>No guest passes yet.</Typography>
+            )}
+          </List>
+        </Paper>
+      </Box>
 
-            {/* Usage logs */}
-            <Paper elevation={0} sx={{ p: 2, mt: 2, borderRadius: 1.5, bgcolor: '#fff', border: '1px solid #eef3f1', mb: 2 }}>
-              <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1 }}>Usage logs</Typography>
-              <Stack spacing={0.5}>
-                <Typography variant="body2">2025-10-18 10:21 — EVZ-GP-7F3A — Connector 2 — Success</Typography>
-                <Typography variant="body2">2025-10-15 18:10 — EVZ-GP-1B9D — Station — Revoked</Typography>
-              </Stack>
-            </Paper>
-          </Box>
-        </MobileShell>
-
-        {/* QR Dialog */}
-        <Dialog open={qrOpen} onClose={()=>setQrOpen(false)} fullWidth>
-          <DialogTitle>Pass QR — {activeQR?.label}</DialogTitle>
-          <DialogContent>
-            <Stack spacing={1} alignItems="center" sx={{ py: 2 }}>
-              <QrCode2RoundedIcon sx={{ fontSize: 96, color: 'primary.main' }} />
-              <Typography variant="caption" color="text.secondary">Share this code or tap copy link to send a deep link.</Typography>
-              <Stack direction="row" spacing={1}>
-                <Button size="small" startIcon={<ContentCopyRoundedIcon />} onClick={()=>console.info('Copy deep link')}>Copy link</Button>
-                <Button size="small" startIcon={<VisibilityRoundedIcon />} onClick={()=>console.info('Preview link')}>Preview</Button>
-              </Stack>
+      <Dialog open={qrOpen} onClose={() => setQrOpen(false)} fullWidth>
+        <DialogTitle>Pass QR — {activeQR?.label}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1} alignItems="center" sx={{ py: 2 }}>
+            <QrCode2RoundedIcon sx={{ fontSize: 96, color: 'primary.main' }} />
+            <Typography variant="h6" fontWeight={800}>{activeQR?.code}</Typography>
+            <Typography variant="caption" color="text.secondary">Share this code or tap copy link to send a deep link.</Typography>
+            <Stack direction="row" spacing={1}>
+              <Button size="small" startIcon={<ContentCopyRoundedIcon />} onClick={() => activeQR && copyLink(activeQR)}>Copy link</Button>
+              <Button size="small" startIcon={<VisibilityRoundedIcon />} onClick={() => setQrOpen(false)}>Preview</Button>
             </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={()=>setQrOpen(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
-    </ThemeProvider>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setQrOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </MobileShell>
   );
 }

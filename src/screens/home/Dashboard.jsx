@@ -77,6 +77,24 @@ export default function HomeDashboard({
 
   const chargers = propChargers || fetchedChargers;
   const loading = propLoading || chargersLoading;
+
+  // Fetch CPO dashboard metrics
+  const [dashboard, setDashboard] = useState(null);
+  useEffect(() => {
+    let active = true;
+    import('../../services/api/privateCharging').then(({ privateChargingApi }) => {
+      privateChargingApi.getDashboard()
+        .then((res) => {
+          if (!active) return;
+          setDashboard(res.data || res);
+        })
+        .catch(() => {
+          if (!active) return;
+        });
+    });
+    return () => { active = false; };
+  }, []);
+
   const todayBookings = propTodayBookings ?? (fetchedBookings ? fetchedBookings.filter(b => {
     const start = b.startTime ? new Date(b.startTime) : null;
     const now = new Date();
@@ -115,23 +133,6 @@ export default function HomeDashboard({
     }
     if (onNavChange) onNavChange(value);
   }, [navigate, routes, onNavChange]);
-  
-  // Fetch CPO dashboard metrics
-  const [dashboard, setDashboard] = useState(null);
-  useEffect(() => {
-    let active = true;
-    import('../../services/api/privateCharging').then(({ privateChargingApi }) => {
-      privateChargingApi.getDashboard()
-        .then((res) => {
-          if (!active) return;
-          setDashboard(res.data || res);
-        })
-        .catch(() => {
-          if (!active) return;
-        });
-    });
-    return () => { active = false; };
-  }, []);
 
   const dashboardEnergy = dashboard?.charging?.energyKwhToday ?? 0;
   const dashboardSessions = dashboard?.charging?.sessionsToday ?? 0;

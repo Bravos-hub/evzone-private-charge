@@ -19,6 +19,7 @@ import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import QrCode2RoundedIcon from '@mui/icons-material/QrCode2Rounded';
 import ReceiptLongRoundedIcon from '@mui/icons-material/ReceiptLongRounded';
 import MobileShell from '../../components/layout/MobileShell';
+import AdminOnly from '../../components/auth/AdminOnly';
 import {
   ACCESS_RULE_TYPES,
   ACCESS_MODES,
@@ -194,9 +195,11 @@ export default function PrivateChargingControlCenter({ view = 'control' }) {
       <Button fullWidth variant="outlined" onClick={() => window.history.back()}>
         Back
       </Button>
-      <Button fullWidth variant="contained" color="secondary" sx={{ color: '#fff' }} onClick={createGuestPass}>
-        Guest Pass
-      </Button>
+      <AdminOnly>
+        <Button fullWidth variant="contained" color="secondary" sx={{ color: '#fff' }} onClick={createGuestPass}>
+          Guest Pass
+        </Button>
+      </AdminOnly>
     </Box>
   );
 
@@ -238,33 +241,35 @@ export default function PrivateChargingControlCenter({ view = 'control' }) {
           </Grid>
         </Paper>
 
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="subtitle1" fontWeight={800}>Link charger</Typography>
-          <Stack spacing={1.25} sx={{ mt: 1 }}>
-            <TextField label="Station ID" value={stationId} onChange={(event) => setStationId(event.target.value)} />
-            <TextField label="QR / OCPP charger code" value={chargerCode} onChange={(event) => setChargerCode(event.target.value)} />
-            <Grid container spacing={1}>
-              <Grid item xs={7}>
-                <TextField fullWidth select label="Connector" value={connectorType} onChange={(event) => setConnectorType(event.target.value)}>
-                  {['TYPE_2', 'CCS2', 'CHADEMO', 'GB_T'].map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
-                </TextField>
+        <AdminOnly permission="charge_points.write">
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="subtitle1" fontWeight={800}>Link charger</Typography>
+            <Stack spacing={1.25} sx={{ mt: 1 }}>
+              <TextField label="Station ID" value={stationId} onChange={(event) => setStationId(event.target.value)} />
+              <TextField label="QR / OCPP charger code" value={chargerCode} onChange={(event) => setChargerCode(event.target.value)} />
+              <Grid container spacing={1}>
+                <Grid item xs={7}>
+                  <TextField fullWidth select label="Connector" value={connectorType} onChange={(event) => setConnectorType(event.target.value)}>
+                    {['TYPE_2', 'CCS2', 'CHADEMO', 'GB_T'].map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
+                  </TextField>
+                </Grid>
+                <Grid item xs={5}>
+                  <TextField fullWidth label="kW" value={connectorPowerKw} onChange={(event) => setConnectorPowerKw(event.target.value)} />
+                </Grid>
               </Grid>
-              <Grid item xs={5}>
-                <TextField fullWidth label="kW" value={connectorPowerKw} onChange={(event) => setConnectorPowerKw(event.target.value)} />
-              </Grid>
-            </Grid>
-            <TextField
-              label="Parking and access notes"
-              value={parkingNotes}
-              onChange={(event) => setParkingNotes(event.target.value)}
-              multiline
-              minRows={2}
-            />
-            <Button variant="contained" color="secondary" sx={{ color: '#fff' }} onClick={linkPrivateCharger}>
-              Link private charger
-            </Button>
-          </Stack>
-        </Paper>
+              <TextField
+                label="Parking and access notes"
+                value={parkingNotes}
+                onChange={(event) => setParkingNotes(event.target.value)}
+                multiline
+                minRows={2}
+              />
+              <Button variant="contained" color="secondary" sx={{ color: '#fff' }} onClick={linkPrivateCharger}>
+                Link private charger
+              </Button>
+            </Stack>
+          </Paper>
+        </AdminOnly>
 
         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
           <Typography variant="subtitle1" fontWeight={800}>Visibility and sharing</Typography>
@@ -283,80 +288,86 @@ export default function PrivateChargingControlCenter({ view = 'control' }) {
           </Stack>
         </Paper>
 
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="subtitle1" fontWeight={800}>Access rule</Typography>
-          <Stack spacing={1.25} sx={{ mt: 1 }}>
-            <TextField select label="Rule type" value={accessRuleType} onChange={(event) => setAccessRuleType(event.target.value)}>
-              {ACCESS_RULE_TYPES.map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
-            </TextField>
-            <TextField
-              label="User, vehicle, fleet, organization, RFID, phone, or invite code"
-              value={accessRuleValue}
-              onChange={(event) => setAccessRuleValue(event.target.value)}
-            />
-            <Grid container spacing={1}>
-              <Grid item xs={6}>
-                <TextField fullWidth label="Max sessions" value={guestLimit} onChange={(event) => setGuestLimit(event.target.value)} />
+        <AdminOnly permission="private_charging.access.write">
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="subtitle1" fontWeight={800}>Access rule</Typography>
+            <Stack spacing={1.25} sx={{ mt: 1 }}>
+              <TextField select label="Rule type" value={accessRuleType} onChange={(event) => setAccessRuleType(event.target.value)}>
+                {ACCESS_RULE_TYPES.map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
+              </TextField>
+              <TextField
+                label="User, vehicle, fleet, organization, RFID, phone, or invite code"
+                value={accessRuleValue}
+                onChange={(event) => setAccessRuleValue(event.target.value)}
+              />
+              <Grid container spacing={1}>
+                <Grid item xs={6}>
+                  <TextField fullWidth label="Max sessions" value={guestLimit} onChange={(event) => setGuestLimit(event.target.value)} />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField fullWidth label="Max kWh" value={maxKwh} onChange={(event) => setMaxKwh(event.target.value)} />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth label="Max kWh" value={maxKwh} onChange={(event) => setMaxKwh(event.target.value)} />
-              </Grid>
-            </Grid>
-            <TextField
-              label="Expires at"
-              type="datetime-local"
-              value={expiresAt}
-              onChange={(event) => setExpiresAt(event.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <Button variant="outlined" onClick={createAccessRule}>
-              Save access rule
-            </Button>
-          </Stack>
-        </Paper>
+              <TextField
+                label="Expires at"
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(event) => setExpiresAt(event.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+              <Button variant="outlined" onClick={createAccessRule}>
+                Save access rule
+              </Button>
+            </Stack>
+          </Paper>
+        </AdminOnly>
 
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="subtitle1" fontWeight={800}>Audience tariff</Typography>
-          <Stack spacing={1.25} sx={{ mt: 1 }}>
-            <TextField select label="Audience" value={audience} onChange={(event) => setAudience(event.target.value)}>
-              {TARIFF_AUDIENCES.map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
-            </TextField>
-            <TextField select label="Billing party" value={billingParty} onChange={(event) => setBillingParty(event.target.value)}>
-              {BILLING_PARTIES.map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
-            </TextField>
-            <Grid container spacing={1}>
-              <Grid item xs={6}>
-                <TextField fullWidth label="UGX per kWh" value={pricePerKwh} onChange={(event) => setPricePerKwh(event.target.value)} />
+        <AdminOnly permission="private_charging.tariffs.write">
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="subtitle1" fontWeight={800}>Audience tariff</Typography>
+            <Stack spacing={1.25} sx={{ mt: 1 }}>
+              <TextField select label="Audience" value={audience} onChange={(event) => setAudience(event.target.value)}>
+                {TARIFF_AUDIENCES.map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
+              </TextField>
+              <TextField select label="Billing party" value={billingParty} onChange={(event) => setBillingParty(event.target.value)}>
+                {BILLING_PARTIES.map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}
+              </TextField>
+              <Grid container spacing={1}>
+                <Grid item xs={6}>
+                  <TextField fullWidth label="UGX per kWh" value={pricePerKwh} onChange={(event) => setPricePerKwh(event.target.value)} />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField fullWidth label="Idle fee/min" value={idleFeePerMinute} onChange={(event) => setIdleFeePerMinute(event.target.value)} />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField fullWidth label="Free kWh" value={freeAllowanceKwh} onChange={(event) => setFreeAllowanceKwh(event.target.value)} />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField fullWidth label="Usage cap kWh" value={usageCapKwh} onChange={(event) => setUsageCapKwh(event.target.value)} />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField fullWidth label="Subsidy percent" value={subsidyPercent} onChange={(event) => setSubsidyPercent(event.target.value)} />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth label="Idle fee/min" value={idleFeePerMinute} onChange={(event) => setIdleFeePerMinute(event.target.value)} />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth label="Free kWh" value={freeAllowanceKwh} onChange={(event) => setFreeAllowanceKwh(event.target.value)} />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth label="Usage cap kWh" value={usageCapKwh} onChange={(event) => setUsageCapKwh(event.target.value)} />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth label="Subsidy percent" value={subsidyPercent} onChange={(event) => setSubsidyPercent(event.target.value)} />
-              </Grid>
-            </Grid>
-            <Button variant="contained" color="secondary" sx={{ color: '#fff' }} startIcon={<ReceiptLongRoundedIcon />} onClick={createTariff}>
-              Save tariff
-            </Button>
-          </Stack>
-        </Paper>
+              <Button variant="contained" color="secondary" sx={{ color: '#fff' }} startIcon={<ReceiptLongRoundedIcon />} onClick={createTariff}>
+                Save tariff
+              </Button>
+            </Stack>
+          </Paper>
+        </AdminOnly>
 
-        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="subtitle1" fontWeight={800}>Guest pass</Typography>
-          <Stack spacing={1.25} sx={{ mt: 1 }}>
-            <TextField label="Session limit" value={guestLimit} onChange={(event) => setGuestLimit(event.target.value)} />
-            <Button variant="outlined" startIcon={<QrCode2RoundedIcon />} onClick={createGuestPass}>
-              Create invite code
-            </Button>
-            {inviteCode && <Alert severity="success">Guest code: {inviteCode}</Alert>}
-          </Stack>
-        </Paper>
+        <AdminOnly permission="private_charging.access.write">
+          <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+            <Typography variant="subtitle1" fontWeight={800}>Guest pass</Typography>
+            <Stack spacing={1.25} sx={{ mt: 1 }}>
+              <TextField label="Session limit" value={guestLimit} onChange={(event) => setGuestLimit(event.target.value)} />
+              <Button variant="outlined" startIcon={<QrCode2RoundedIcon />} onClick={createGuestPass}>
+                Create invite code
+              </Button>
+              {inviteCode && <Alert severity="success">Guest code: {inviteCode}</Alert>}
+            </Stack>
+          </Paper>
+        </AdminOnly>
 
         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
           <Typography variant="subtitle1" fontWeight={800}>Reports and reimbursements</Typography>

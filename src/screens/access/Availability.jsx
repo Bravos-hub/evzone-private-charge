@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button,
   FormControl, FormLabel, RadioGroup, FormControlLabel, Radio,
   TextField, Switch, IconButton, Select, MenuItem, AppBar, Toolbar,
-  BottomNavigation, BottomNavigationAction, Tooltip
+  BottomNavigation, BottomNavigationAction, Tooltip, Alert
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -15,6 +15,9 @@ import EvStationIcon from '@mui/icons-material/EvStation';
 import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
+import { chargerApi } from '../../services/api/chargers';
+import { stationApi } from '../../services/api/stations';
+import { chargePointApi } from '../../services/api/stations';
 
 const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
@@ -73,7 +76,7 @@ function DayChips({ value, onChange }) {
   );
 }
 
-export default function AvailabilityPro({
+function AvailabilityPro({
   chargers = [{ id: 'st1', name: 'Home Charger' }, { id: 'st2', name: 'Office Charger' }],
   defaultChargerId = 'st1',
   commercialChargerId,
@@ -229,5 +232,44 @@ export default function AvailabilityPro({
         </MobileShell>
       </Container>
     </ThemeProvider>
+  );
+}
+
+export default function Availability(props) {
+  const [realChargers, setRealChargers] = useState([]);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    chargerApi.getAll().then((res) => {
+      const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      if (mounted) setRealChargers(list);
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, []);
+
+  const handleSave = async (payload) => {
+    setMessage('');
+    const accessMode = payload.useMode === 'Home' ? 'PRIVATE' : payload.useMode === 'Office' ? 'WORKPLACE' : 'PUBLIC';
+    const visibility = payload.useMode === 'Home' ? 'HIDDEN' : payload.useMode === 'Office' ? 'PRIVATE_LISTED' : 'PUBLIC_MAP';
+    try {
+      if (payload.scope === 'connector' && payload.connectorId) {
+        await chargePointApi.update(payload.connectorId, { accessMode, visibility });
+      } else {
+        const charger = realChargers.find(c => c.id === payload.chargerId);
+        const stationId = charger?.station?.id || payload.chargerId;
+        await stationApi.updateVisibility(stationId, { accessMode, visibility });
+      }
+      setMessage('Availability saved to backend.');
+    } catch (err) {
+      setMessage(err?.response?.data?.message || err.message || 'Failed to save availability.');
+    }
+  };
+
+  return (
+    <>
+      {message && <Box sx={{ position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, maxWidth: 360, width: '90%' }}><Alert severity={message.includes('Failed') ? 'error' : 'success'}>{message}</Alert></Box>}
+      <AvailabilityPro {...props} chargers={props.chargers || realChargers} onSave={props.onSave || handleSave} />
+    </>
   );
 }

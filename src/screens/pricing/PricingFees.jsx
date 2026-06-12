@@ -4,7 +4,7 @@ import {
   CssBaseline, Container, Box, Typography, Paper, Stack, Button,
   FormControl, FormLabel, RadioGroup, FormControlLabel, Radio,
   TextField, Switch, IconButton, Select, MenuItem, AppBar, Toolbar,
-  BottomNavigation, BottomNavigationAction, FormHelperText, Tooltip
+  BottomNavigation, BottomNavigationAction, FormHelperText, Tooltip, Alert
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -16,6 +16,8 @@ import EvStationIcon from '@mui/icons-material/EvStation';
 import HistoryIcon from '@mui/icons-material/History';
 import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
+import { chargerApi } from '../../services/api/chargers';
+import { privateChargingApi } from '../../services/api/privateCharging';
 
 const theme = createTheme({ palette: { primary: { main: '#03cd8c' }, secondary: { main: '#f77f00' }, background: { default: '#f2f2f2' } }, shape: { borderRadius: 7 }, typography: { fontFamily: 'Inter, Roboto, Arial, sans-serif' } });
 
@@ -75,7 +77,7 @@ function DayChips({ value, onChange }) {
   );
 }
 
-export default function PricingFeesPro({
+function PricingFeesPro({
   chargers = [{ id: 'st1', name: 'Home Charger' }, { id: 'st2', name: 'Office Charger' }],
   defaultChargerId = 'st1',
   onBack, onHelp, onNavChange, onSave,
@@ -309,5 +311,49 @@ export default function PricingFeesPro({
         </MobileShell>
       </Container>
     </ThemeProvider>
+  );
+}
+
+export default function PricingFees(props) {
+  const [realChargers, setRealChargers] = useState([]);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    chargerApi.getAll().then((res) => {
+      const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      if (mounted) setRealChargers(list);
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, []);
+
+  const handleSave = async (payload) => {
+    setMessage('');
+    try {
+      const audience = payload.useMode === 'Home' ? 'OWNER' : payload.useMode === 'Office' ? 'EMPLOYEE' : 'PUBLIC';
+      const billingParty = payload.useMode === 'Home' ? 'OWNER' : payload.useMode === 'Office' ? 'EMPLOYER' : 'USER';
+      const data = {
+        audience,
+        billingParty,
+        currency: 'UGX',
+        pricePerKwh: payload.chargeBy === 'energy' ? Number(payload.rate) || 0 : 0,
+        pricePerMinute: payload.chargeBy === 'duration' ? Number(payload.rate) || 0 : 0,
+        idleFeePerMinute: payload.idleEnabled ? Number(payload.idleRate) || 0 : undefined,
+        freeAllowanceKwh: 0,
+        usageCapKwh: undefined,
+        subsidyPercent: 0,
+      };
+      await privateChargingApi.createTariff(data);
+      setMessage('Tariff saved to backend.');
+    } catch (err) {
+      setMessage(err?.response?.data?.message || err.message || 'Failed to save tariff.');
+    }
+  };
+
+  return (
+    <>
+      {message && <Box sx={{ position: 'fixed', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, maxWidth: 360, width: '90%' }}><Alert severity={message.includes('Failed') ? 'error' : 'success'}>{message}</Alert></Box>}
+      <PricingFeesPro {...props} chargers={props.chargers || realChargers} onSave={props.onSave || handleSave} />
+    </>
   );
 }

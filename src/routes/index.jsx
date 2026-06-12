@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
+import AdminRoute from './AdminRoute';
 
 // Home screens
 import Home from '../screens/home/Home';
@@ -26,6 +27,7 @@ import PrePayOrder from '../screens/pricing/PrePayOrder';
 // Access screens
 import Availability from '../screens/access/Availability';
 import AccessPermissions from '../screens/access/AccessPermissions';
+import GuestPassAccessCodes from '../screens/access/GuestPassAccessCodes';
 
 // Scheduling screens
 import Schedules from '../screens/scheduling/Schedules';
@@ -53,9 +55,6 @@ import StationDetail from '../screens/stations/StationDetail';
 
 // Navigation screens
 import RoutePlanner from '../screens/navigation/RoutePlanner';
-
-// Marketplace screens
-import OperatorMarketplace from '../screens/marketplace/OperatorMarketplace';
 
 // User screens
 import AccessUserProfile from '../screens/users/AccessUserProfile';
@@ -118,12 +117,13 @@ export default function AppRoutes() {
       <Route path="/sessions/:id" element={<PrivateRoute><SessionSummary /></PrivateRoute>} />
       
       {/* Pricing routes */}
-      <Route path="/pricing" element={<PrivateRoute><PricingFees /></PrivateRoute>} />
+      <Route path="/pricing" element={<AdminRoute><PricingFees /></AdminRoute>} />
       <Route path="/prepay" element={<PrivateRoute><PrePayOrder /></PrivateRoute>} />
       
       {/* Access routes */}
-      <Route path="/availability" element={<PrivateRoute><Availability /></PrivateRoute>} />
-      <Route path="/access" element={<PrivateRoute><AccessPermissions /></PrivateRoute>} />
+      <Route path="/availability" element={<AdminRoute><Availability /></AdminRoute>} />
+      <Route path="/access" element={<AdminRoute><AccessPermissions /></AdminRoute>} />
+      <Route path="/access/guest-passes" element={<AdminRoute><GuestPassAccessCodes /></AdminRoute>} />
       <Route path="/private-charging" element={<PrivateRoute><PrivateChargingControlCenter /></PrivateRoute>} />
       <Route path="/private-charging/reports" element={<PrivateRoute><PrivateChargingControlCenter view="reports" /></PrivateRoute>} />
       
@@ -133,10 +133,11 @@ export default function AppRoutes() {
       <Route path="/schedules/:id/edit" element={<PrivateRoute><CreateOrEditSchedule /></PrivateRoute>} />
       
       {/* Analytics routes */}
-      <Route path="/analytics/energy" element={<PrivateRoute><EnergyAnalytics /></PrivateRoute>} />
-      <Route path="/analytics/co2" element={<PrivateRoute><CO2SavingsImpact /></PrivateRoute>} />
+      <Route path="/analytics/energy" element={<AdminRoute><EnergyAnalytics /></AdminRoute>} />
+      <Route path="/analytics/co2" element={<AdminRoute><CO2SavingsImpact /></AdminRoute>} />
       
-      {/* Payment routes */}      <Route path="/payments" element={<PrivateRoute><PaymentMethods /></PrivateRoute>} />
+      {/* Payment routes */}
+      <Route path="/payments" element={<PrivateRoute><PaymentMethods /></PrivateRoute>} />
       <Route path="/invoices" element={<PrivateRoute><InvoicesBilling /></PrivateRoute>} />
       
       {/* Wallet routes */}
@@ -154,9 +155,6 @@ export default function AppRoutes() {
       {/* Navigation routes */}
       <Route path="/navigate" element={<PrivateRoute><RoutePlanner /></PrivateRoute>} />
 
-      {/* Marketplace routes */}
-      <Route path="/marketplace" element={<PrivateRoute><OperatorMarketplace /></PrivateRoute>} />
-      
       {/* User routes */}
       <Route path="/users/:id" element={<PrivateRoute><AccessUserProfile /></PrivateRoute>} />
       <Route path="/qr-poster" element={<PrivateRoute><QRPoster /></PrivateRoute>} />
@@ -168,28 +166,28 @@ export default function AppRoutes() {
       {/* Settings routes */}
       <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
       <Route path="/settings/operator" element={<PrivateRoute><OperatorSelection /></PrivateRoute>} />
-      <Route path="/settings/sites" element={<PrivateRoute><SiteSelector /></PrivateRoute>} />
-      <Route path="/settings/sites/add" element={<PrivateRoute><AddSite /></PrivateRoute>} />
-      <Route path="/settings/advanced" element={<PrivateRoute><AdvancedConfiguration /></PrivateRoute>} />
-      <Route path="/settings/diagnostics" element={<PrivateRoute><DiagnosticsLogs /></PrivateRoute>} />
+      <Route path="/settings/sites" element={<AdminRoute><SiteSelector /></AdminRoute>} />
+      <Route path="/settings/sites/add" element={<AdminRoute><AddSite /></AdminRoute>} />
+      <Route path="/settings/advanced" element={<AdminRoute><AdvancedConfiguration /></AdminRoute>} />
+      <Route path="/settings/diagnostics" element={<AdminRoute><DiagnosticsLogs /></AdminRoute>} />
       <Route path="/settings/faults/:id" element={<PrivateRoute><FaultDetail /></PrivateRoute>} />
-      <Route path="/settings/connectors" element={<PrivateRoute><ConnectorManagement /></PrivateRoute>} />
-      <Route path="/settings/firmware" element={<PrivateRoute><FirmwareSelfTest /></PrivateRoute>} />
+      <Route path="/settings/connectors" element={<AdminRoute><ConnectorManagement /></AdminRoute>} />
+      <Route path="/settings/firmware" element={<AdminRoute><FirmwareSelfTest /></AdminRoute>} />
       <Route path="/settings/notifications" element={<PrivateRoute><NotificationsRules /></PrivateRoute>} />
       <Route path="/settings/notifications/reminders" element={<PrivateRoute><NotificationPreferences /></PrivateRoute>} />
       <Route path="/settings/troubleshooting" element={<PrivateRoute><TroubleshootingWizard /></PrivateRoute>} />
       <Route path="/settings/maintenance" element={<PrivateRoute><MaintenanceReminders /></PrivateRoute>} />
-      <Route path="/settings/audit" element={<PrivateRoute><AuditCommandLog /></PrivateRoute>} />
+      <Route path="/settings/audit" element={<AdminRoute><AuditCommandLog /></AdminRoute>} />
       <Route path="/settings/support" element={<PrivateRoute><SupportHelpCenter /></PrivateRoute>} />
-      <Route path="/settings/tariffs" element={<PrivateRoute><TariffTemplatesLibrary /></PrivateRoute>} />
-      <Route path="/settings/tou-imports" element={<PrivateRoute><UtilityTOUImports /></PrivateRoute>} />
-      <Route path="/settings/calendars" element={<PrivateRoute><ScheduleCalendars /></PrivateRoute>} />
-      <Route path="/settings/site-editor" element={<PrivateRoute><SiteEditorAdvanced /></PrivateRoute>} />
-      <Route path="/settings/mobile-stations" element={<PrivateRoute><MobileStationRequest /></PrivateRoute>} />
-      <Route path="/settings/export" element={<PrivateRoute><DataExportCenter /></PrivateRoute>} />
+      <Route path="/settings/tariffs" element={<AdminRoute><TariffTemplatesLibrary /></AdminRoute>} />
+      <Route path="/settings/tou-imports" element={<AdminRoute><UtilityTOUImports /></AdminRoute>} />
+      <Route path="/settings/calendars" element={<AdminRoute><ScheduleCalendars /></AdminRoute>} />
+      <Route path="/settings/site-editor" element={<AdminRoute><SiteEditorAdvanced /></AdminRoute>} />
+      <Route path="/settings/mobile-stations" element={<AdminRoute><MobileStationRequest /></AdminRoute>} />
+      <Route path="/settings/export" element={<AdminRoute><DataExportCenter /></AdminRoute>} />
       <Route path="/settings/language" element={<PrivateRoute><LanguageCurrency /></PrivateRoute>} />
-      <Route path="/settings/shifts" element={<PrivateRoute><OperatorShiftLogs /></PrivateRoute>} />
-      <Route path="/settings/aggregator" element={<PrivateRoute><AggregatorCPMSBridge /></PrivateRoute>} />
+      <Route path="/settings/shifts" element={<AdminRoute><OperatorShiftLogs /></AdminRoute>} />
+      <Route path="/settings/aggregator" element={<AdminRoute><AggregatorCPMSBridge /></AdminRoute>} />
       
       {/* 404 */}
       <Route path="*" element={<NotFound />} />

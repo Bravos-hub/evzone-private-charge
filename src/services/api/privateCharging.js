@@ -7,11 +7,22 @@ export const privateChargingApi = {
   getAccessRules: () => api.get(`${BASE}/access-rules`),
   createAccessRule: (data) => api.post(`${BASE}/access-rules`, data),
   updateAccessRule: (id, data) => api.patch(`${BASE}/access-rules/${id}`, data),
+  deleteAccessRule: (id) => api.delete(`${BASE}/access-rules/${id}`),
+  disableAccessRule: (id, data) =>
+    api.post(`${BASE}/access-rules/${id}/disable`, data || {}),
+  reactivateAccessRule: (id, data) =>
+    api.post(`${BASE}/access-rules/${id}/reactivate`, data || {}),
   getTariffs: () => api.get(`${BASE}/tariffs`),
   createTariff: (data) => api.post(`${BASE}/tariffs`, data),
   updateTariff: (id, data) => api.patch(`${BASE}/tariffs/${id}`, data),
+  activateTariff: (id) => api.post(`${BASE}/tariffs/${id}/activate`),
+  archiveTariff: (id) => api.post(`${BASE}/tariffs/${id}/archive`),
+  simulateTariff: (id, data) => api.post(`${BASE}/tariffs/${id}/simulate`, data),
   getSessions: () => api.get(`${BASE}/sessions`),
-  getUsageReport: () => api.get(`${BASE}/reports/usage`),
+  getUsageReport: (params) => api.get(`${BASE}/reports/usage`, { params }),
+  getBillingReport: (params) => api.get(`${BASE}/reports/billing`, { params }),
+  getSubsidiesReport: (params) => api.get(`${BASE}/reports/subsidies`, { params }),
+  exportReports: (params) => api.get(`${BASE}/reports/export`, { params }),
   getEligibleStations: (params) => api.get(`${BASE}/eligible-stations`, { params }),
 };
 
